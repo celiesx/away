@@ -1,0 +1,897 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Away Message</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Share+Tech+Mono&family=VT323&display=swap">
+<style>
+/* Layout: an AIM-style desktop. Buddy list | chat | profile windows on a patterned wall, tabs on phones.
+   Every color comes from three tokens (--bg, --fg, --ac) that a profile sets, so each window looks like its owner. */
+:root{
+  --bg:#0b0b0c;--fg:#ecebe3;--ac:#ffd400;--on-ac:#000;
+  --font:"Share Tech Mono","Courier New",monospace;--fs:14px;
+  --rad:0;--rs:0;--bw:2px;--bs:solid;--sh:5px 5px 0 var(--line);--tb:var(--ac);--tbsize:100% 100%;--glow:none;
+  --ok:#3ecf5b;--warn:#f5a623;
+  color-scheme:dark;
+}
+.theme{
+  --panel:color-mix(in srgb,var(--fg) 7%,var(--bg));
+  --panel2:color-mix(in srgb,var(--fg) 13%,var(--bg));
+  --line:color-mix(in srgb,var(--fg) 28%,var(--bg));
+  --muted:color-mix(in srgb,var(--fg) 64%,var(--bg));
+  --ac-soft:color-mix(in srgb,var(--ac) 24%,var(--bg));
+  --wall:color-mix(in srgb,var(--ac) 9%,var(--bg));
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background-color:var(--wall);color:var(--fg);font:var(--fs)/1.45 var(--font);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+[data-pat="stars"]{background-image:radial-gradient(color-mix(in srgb,var(--fg) 38%,transparent) 1px,transparent 1.8px),radial-gradient(color-mix(in srgb,var(--ac) 45%,transparent) 1px,transparent 1.8px);background-size:23px 23px,37px 37px;background-position:0 0,11px 17px}
+[data-pat="checks"]{background-image:conic-gradient(color-mix(in srgb,var(--fg) 9%,transparent) 25%,transparent 0 50%,color-mix(in srgb,var(--fg) 9%,transparent) 0 75%,transparent 0);background-size:30px 30px}
+[data-pat="scan"]{background-image:repeating-linear-gradient(0deg,color-mix(in srgb,var(--fg) 8%,transparent) 0 1px,transparent 1px 3px)}
+#app{height:100%;display:flex;flex-direction:column;gap:10px;padding-block:12px;min-width:0}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.muted{color:var(--muted)}
+.grow{flex:1;min-width:0}
+:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+
+/* controls */
+input,select,textarea,button{font:inherit;color:var(--fg);background:var(--panel2);border:1px solid var(--line);padding:6px 9px;border-radius:var(--rs)}
+input,textarea,select{width:100%;min-width:0}
+textarea{resize:vertical}
+input[type=color]{padding:2px;height:34px}
+input[type=file]{padding:4px}
+input[type=checkbox]{width:auto}
+.btn{cursor:pointer;font-weight:700}
+.btn:hover:not(:disabled){border-color:var(--ac)}
+.btn.pri{background:var(--ac);color:var(--on-ac);border-color:var(--ac)}
+.btn.sm{padding:3px 8px;font-size:12px}
+:disabled{opacity:.5;cursor:not-allowed}
+label{display:block;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:10px 0 3px}
+label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inherit;letter-spacing:0;text-transform:none;color:var(--fg);cursor:pointer}
+
+/* windows */
+.win{display:flex;flex-direction:column;min-height:0;min-width:0;background:var(--panel);color:var(--fg);
+  border:var(--bw) var(--bs) var(--ac);border-radius:var(--rad);box-shadow:var(--sh);text-shadow:var(--glow);overflow:hidden}
+.tb{display:flex;align-items:center;gap:8px;padding:5px 9px;background:var(--tb);background-size:var(--tbsize);color:var(--on-ac);
+  font-weight:800;letter-spacing:.05em;text-transform:lowercase;user-select:none;animation:shimmer 7s linear infinite;text-shadow:none}
+@keyframes shimmer{to{background-position:300% 0}}
+.dots{margin-left:auto;display:flex;gap:4px}
+.dots i{display:block;width:11px;height:11px;border:2px solid currentColor}
+.tbx{margin-left:auto;padding:0 8px;line-height:1.2;background:transparent;color:inherit;border:2px solid currentColor;font-weight:800;cursor:pointer}
+.scroll{flex:1;min-height:0;overflow:auto}
+.note{padding:6px 10px;font-size:12px;background:var(--ac-soft);border-bottom:1px solid var(--line)}
+.warn{color:var(--warn);font-size:12px;margin:6px 0 0}
+
+/* sign on */
+#signon{flex:1;display:grid;place-items:center;min-height:0}
+#signon .win{width:min(380px,100%)}
+.so-body{padding:18px;display:flex;flex-direction:column;gap:4px}
+.logo{margin:0 0 6px;font-size:clamp(34px,9vw,52px);line-height:.95;letter-spacing:-.03em;font-weight:800}
+.logo span{display:inline-block;background:var(--ac);color:var(--on-ac);padding:0 8px;margin-top:4px}
+#soBtn{margin-top:12px;padding:9px}
+
+/* desk */
+#desk{flex:1;min-height:0;display:grid;grid-template-columns:260px minmax(0,1fr) 340px;grid-template-rows:minmax(0,1fr);gap:14px}
+#buddyWin{grid-column:1;grid-row:1}
+#chatWin,#editWin{grid-column:2;grid-row:1}
+#profWin{grid-column:3;grid-row:1}
+#editWin{display:none}
+#tabs{display:none;gap:6px}
+#tabs button{flex:1;cursor:pointer;font-weight:700;padding:9px 6px;background:var(--panel2)}
+#tabs button[aria-current=true]{background:var(--ac);color:var(--on-ac);border-color:var(--ac)}
+.badge{display:inline-block;min-width:18px;padding:0 5px;margin-left:4px;background:var(--fg);color:var(--bg);font-size:11px;text-align:center}
+
+/* buddy list */
+.mebox{display:flex;flex-direction:column;gap:6px;padding:10px;border-bottom:1px solid var(--line)}
+.me-row{display:flex;gap:10px;align-items:center}
+.me-row .sn{font-weight:800;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ac)}
+.grp{margin:0;padding:3px 10px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--panel2);position:sticky;top:0;z-index:1}
+.buddy{display:flex;gap:9px;align-items:center;width:100%;border:0;background:none;text-align:left;cursor:pointer;padding:6px 10px}
+.buddy:hover,.buddy[aria-current=true]{background:var(--ac-soft)}
+.buddy .nm{font-weight:700;display:flex;gap:6px;align-items:center}
+.buddy .sub{font-size:12px;color:var(--muted);font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.dot{width:9px;height:9px;border-radius:50%;flex:none;background:var(--muted)}
+.dot.on{background:var(--ok)}
+.dot.away{background:transparent;border:2px solid var(--warn)}
+.empty{margin:0;padding:14px;color:var(--muted)}
+#spRow{display:flex;flex-direction:column;gap:4px}
+#spStat{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
+.foot{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--line)}
+.av{--s:28px;width:var(--s);height:var(--s);flex:none;display:grid;place-items:center;background:var(--c,var(--ac));color:var(--oc,var(--on-ac));
+  font-weight:800;font-size:calc(var(--s)*.5);border:1px solid var(--line);object-fit:cover;border-radius:var(--rs);text-shadow:none}
+
+/* chat */
+.log{flex:1;min-height:0;overflow:auto;padding:4px 12px 12px;display:flex;flex-direction:column}
+.m{display:grid;grid-template-columns:32px minmax(0,1fr);column-gap:10px;margin-top:11px}
+.m.cont{margin-top:1px}
+.m .av{--s:32px}
+.m .hd{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.chip{border:0;padding:0 7px;background:var(--c);color:var(--oc);font-weight:800;cursor:pointer;border-radius:var(--rs);text-shadow:none}
+.m time{font-size:11px;color:var(--muted)}
+.tx{overflow-wrap:anywhere}
+.tx a{color:var(--ac)}
+.at{color:var(--ac);font-weight:700}
+.act{margin-top:9px;color:var(--muted);font-style:italic;overflow-wrap:anywhere}
+.sys{align-self:center;margin-top:10px;font-size:12px;color:var(--muted)}
+.auto{margin:3px 0 0 42px;font-size:12px;color:var(--muted);border-left:3px solid var(--c);padding-left:8px}
+.card{display:flex;align-items:center;gap:10px;margin-top:5px;padding:7px 10px;border:1px solid var(--line);background:var(--panel2);color:var(--fg)!important;text-decoration:none;max-width:min(100%,380px);border-radius:var(--rs)}
+.card:hover{border-color:var(--ac)}
+.glyph{width:30px;height:30px;flex:none;display:grid;place-items:center;background:var(--ac);color:var(--on-ac);font-weight:800}
+.ctext{display:flex;flex-direction:column;min-width:0}
+.ctext small{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.compose{display:flex;gap:8px;padding:8px;border-top:2px solid var(--line)}
+
+/* profile */
+.pbody{flex:1;min-height:0;overflow:auto;padding:14px;background-color:var(--bg);color:var(--fg);font-family:var(--font);font-size:var(--fs)}
+.phead{display:flex;gap:12px;align-items:center}
+.phead .av{--s:84px}
+.psn{margin:0;font-size:24px;line-height:1.1;color:var(--ac);overflow-wrap:anywhere}
+.pst{display:flex;gap:7px;align-items:center;margin-top:5px;color:var(--muted);font-style:italic;overflow-wrap:anywhere}
+.sec{margin-top:16px}
+.sec h3{margin:0 0 7px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);border-bottom:1px dashed var(--line);padding-bottom:3px}
+.sec p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
+.song{display:flex;gap:9px;align-items:center;border:1px solid var(--line);padding:6px 9px;background:var(--panel)}
+.song a{color:var(--ac)}
+.mq{flex:1;min-width:0;overflow:hidden;white-space:nowrap}
+.mq span{display:inline-block;animation:mq 12s linear infinite;padding-left:100%}
+@keyframes mq{to{transform:translateX(-100%)}}
+.t8{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.t8 button{border:0;background:none;padding:0;cursor:pointer;text-align:center;font-size:12px;position:relative}
+.t8 .av{width:100%;height:auto;aspect-ratio:1;font-size:26px;display:grid}
+.t8 span.nm{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+.t8 b{position:absolute;left:0;top:0;background:var(--ac);color:var(--on-ac);font-size:11px;padding:0 4px}
+.links a{display:block;color:var(--ac);padding:2px 0;overflow-wrap:anywhere}
+.joined{margin-top:16px;font-size:12px;color:var(--muted)}
+
+/* editor */
+.eform{padding:6px 14px 0}
+.eform fieldset{border:1px solid var(--line);margin:12px 0;padding:2px 12px 12px;min-width:0}
+.eform legend{padding:0 6px;font-weight:800;color:var(--ac)}
+.avrow{display:flex;gap:10px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.avrow input[type=file]{flex:1;min-width:150px}
+.lrow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:6px;margin-top:6px}
+.presets{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:10px}
+.pre{cursor:pointer;font-weight:800;padding:9px 8px;background:var(--pb);color:var(--pf);border:3px solid var(--pa);text-align:left}
+.pre[aria-pressed=true]{outline:2px solid var(--fg);outline-offset:2px}
+.colors{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.tick .rank{color:var(--ac)}
+.actions{position:sticky;bottom:0;display:flex;gap:8px;padding:10px 0;background:var(--panel);border-top:1px solid var(--line)}
+body.editing #editWin{display:flex}
+body.editing #chatWin{display:none}
+
+@media (max-width:900px){
+  #tabs{display:flex}
+  #desk{grid-template-columns:minmax(0,1fr)}
+  #buddyWin,#chatWin,#editWin,#profWin{grid-column:1;grid-row:1;display:none}
+  body[data-tab="buddies"] #buddyWin,body[data-tab="chat"] #chatWin,body[data-tab="profile"] #profWin{display:flex}
+  body.editing #chatWin{display:none}
+  body.editing[data-tab="chat"] #editWin{display:flex}
+  .win{box-shadow:none}
+}
+@media (max-width:420px){.t8{grid-template-columns:repeat(3,minmax(0,1fr))}.colors{grid-template-columns:1fr}.presets{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){.tb,.mq span{animation:none}.mq span{padding-left:0}}
+</style>
+
+<div id="app">
+  <main id="signon">
+    <form id="soForm" class="win" autocomplete="off">
+      <div class="tb"><span>sign on</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+      <div class="so-body">
+        <h1 class="logo">Away<br><span>Message</span></h1>
+        <p id="soMsg" class="muted" style="margin:6px 0 10px"></p>
+        <label for="snIn">Screen name</label>
+        <input id="snIn" name="sn" maxlength="20" autocomplete="off" spellcheck="false">
+        <p id="soErr" class="warn" role="alert" hidden></p>
+        <button id="soBtn" class="btn pri" type="submit">Sign On</button>
+      </div>
+    </form>
+  </main>
+
+  <div id="desk" hidden>
+    <section id="buddyWin" class="win" aria-label="Buddy list">
+      <div class="tb"><span>buddy list</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+      <div class="mebox">
+        <div class="me-row"><span id="meAv"></span><div class="grow"><div id="meSn" class="sn"></div>
+          <label class="sr" for="stSel">Status</label>
+          <select id="stSel"><option value="on">Available</option><option value="away">Away</option></select></div></div>
+        <label class="sr" for="awayIn">Away message</label>
+        <input id="awayIn" maxlength="80" placeholder="Away message" hidden>
+        <div id="spRow" hidden><button id="spBtn" class="btn sm" type="button" aria-pressed="false">Sync from Spotify</button><div id="spStat" role="status"></div></div>
+        <button id="editBtn" class="btn" type="button">Edit my profile</button>
+      </div>
+      <div id="buddies" class="scroll"></div>
+      <div class="foot"><button id="sndBtn" class="btn sm" type="button">Sound on</button><button id="offBtn" class="btn sm" type="button">Sign off</button></div>
+    </section>
+
+    <section id="chatWin" class="win" aria-label="Chat">
+      <div class="tb"><span id="chatTitle">the lounge</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+      <div id="note" class="note" role="status" hidden></div>
+      <div id="log" class="log" role="log" aria-live="polite" aria-label="Messages"></div>
+      <form id="compose" class="compose" autocomplete="off">
+        <label class="sr" for="msg">Message</label>
+        <input id="msg" maxlength="300" autocomplete="off" placeholder="Say something. Try /me waves, @name, or paste a link">
+        <button id="sendBtn" class="btn pri" type="submit">Send</button>
+      </form>
+    </section>
+
+    <section id="editWin" class="win" aria-label="Edit profile">
+      <div class="tb"><span>edit my profile</span><button id="eClose" class="tbx" type="button" aria-label="Close editor without saving">&times;</button></div>
+      <form id="editForm" class="scroll eform" autocomplete="off">
+        <fieldset><legend>You</legend>
+          <label for="eSn">Screen name</label><input id="eSn" maxlength="20" spellcheck="false">
+          <label for="eBio">About me</label><textarea id="eBio" rows="4" maxlength="400"></textarea>
+          <div class="avrow"><span id="eAvPrev"></span><input id="eAv" type="file" accept="image/*" aria-label="Profile photo"><button id="eAvRm" class="btn sm" type="button">Remove photo</button></div>
+        </fieldset>
+        <fieldset><legend>Now playing</legend>
+          <label for="eSongT">Song</label><input id="eSongT" maxlength="60" placeholder="Artist - Title">
+          <label for="eSongU">Link</label><input id="eSongU" maxlength="300" inputmode="url" placeholder="YouTube, Spotify, SoundCloud...">
+        </fieldset>
+        <fieldset><legend>Links</legend>
+          <div class="lrow"><input id="eL0n" maxlength="24" placeholder="Label" aria-label="Link 1 label"><input id="eL0u" maxlength="300" inputmode="url" placeholder="https://" aria-label="Link 1 address"></div>
+          <div class="lrow"><input id="eL1n" maxlength="24" placeholder="Label" aria-label="Link 2 label"><input id="eL1u" maxlength="300" inputmode="url" placeholder="https://" aria-label="Link 2 address"></div>
+          <div class="lrow"><input id="eL2n" maxlength="24" placeholder="Label" aria-label="Link 3 label"><input id="eL2u" maxlength="300" inputmode="url" placeholder="https://" aria-label="Link 3 address"></div>
+        </fieldset>
+        <fieldset><legend>Top friends</legend>
+          <p class="muted" style="margin:8px 0">Tick up to 8. The order you tick them is the order they show.</p>
+          <div id="eTop"></div>
+        </fieldset>
+        <fieldset><legend>Look</legend>
+          <div id="ePre" class="presets"></div>
+          <div class="colors">
+            <div><label for="eAc">Accent</label><input id="eAc" type="color"></div>
+            <div><label for="eBg">Background</label><input id="eBg" type="color"></div>
+            <div><label for="eFg">Text</label><input id="eFg" type="color"></div>
+          </div>
+          <label for="eFont">Font</label><select id="eFont"></select>
+          <label for="ePat">Wallpaper</label><select id="ePat"></select>
+          <p id="eHint" class="warn" hidden></p>
+        </fieldset>
+        <p id="eErr" class="warn" role="alert" hidden></p>
+        <div class="actions"><button id="eSave" class="btn pri" type="submit">Save</button><button id="eCancel" class="btn" type="button">Cancel</button></div>
+      </form>
+    </section>
+
+    <section id="profWin" class="win theme" aria-label="Profile">
+      <div class="tb"><span id="profTitle">profile</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+      <div id="profBody" class="pbody"></div>
+    </section>
+  </div>
+
+  <nav id="tabs" aria-label="Sections" hidden>
+    <button type="button" data-go="buddies">Buddies</button>
+    <button type="button" data-go="chat">Chat<span id="unread" class="badge" hidden></span></button>
+    <button type="button" data-go="profile">Profile</button>
+  </nav>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $ = id => document.getElementById(id);
+const h = (t, a, ...k) => {
+  const e = document.createElement(t);
+  for (const [n, v] of Object.entries(a || {})) {
+    if (v == null || v === false) continue;
+    if (n === 'class') e.className = v;
+    else if (n === 'style') e.style.cssText = v;
+    else if (n.startsWith('on')) e.addEventListener(n.slice(2), v);
+    else e.setAttribute(n, v === true ? '' : v);
+  }
+  for (const c of k.flat()) { if (c == null || c === false) continue; e.append(c.nodeType ? c : document.createTextNode(String(c))); }
+  return e;
+};
+const LS = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+const clamp = (s, n) => typeof s === 'string' ? s.slice(0, n) : '';
+const use = n => { try { return window.claude && window.claude.use ? window.claude.use(n).catch(() => null) : Promise.resolve(null); } catch { return Promise.resolve(null); } };
+
+/* ---------- colors and themes ---------- */
+const HEX = /^#[0-9a-fA-F]{6}$/;
+const cvs = document.createElement('canvas').getContext('2d');
+function toHex(c) {
+  try {
+    cvs.fillStyle = '#000'; cvs.fillStyle = c; const v = cvs.fillStyle;
+    if (HEX.test(v)) return v.toLowerCase();
+    const m = v.match(/\d+(\.\d+)?/g);
+    if (m && m.length >= 3) return '#' + m.slice(0, 3).map(n => Math.round(+n).toString(16).padStart(2, '0')).join('');
+  } catch {}
+  return null;
+}
+const lum = hex => { const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255).map(v => v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4)); return .2126 * r + .7152 * g + .0722 * b; };
+const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
+const readable = hex => ratio(hex, '#000000') >= ratio(hex, '#ffffff') ? '#000000' : '#ffffff';
+
+const PRESETS = {
+  dollars:  { label: 'Dollars',    ac: '#ffd400', bg: '#0b0b0c', fg: '#ecebe3', font: 'mono',   pat: 'none',  style: 'flat' },
+  buddy:    { label: 'Buddy List', ac: '#2457c5', bg: '#f3f6fd', fg: '#0f1f4a', font: 'tahoma', pat: 'none',  style: 'xp' },
+  glitter:  { label: 'Glitter',    ac: '#ff2fa8', bg: '#16001f', fg: '#ffd9f6', font: 'comic',  pat: 'stars', style: 'glitter' },
+  terminal: { label: 'Phosphor',   ac: '#39ff14', bg: '#020a03', fg: '#9dffa6', font: 'pixel',  pat: 'scan',  style: 'term' }
+};
+const FONTS = {
+  tahoma:  ['Tahoma / Verdana', 'Tahoma,Verdana,"Segoe UI",sans-serif'],
+  rounded: ['Rounded', 'Nunito,"Trebuchet MS",sans-serif'],
+  mono:    ['Terminal mono', '"Share Tech Mono","Courier New",monospace'],
+  pixel:   ['Pixel', 'VT323,"Courier New",monospace'],
+  comic:   ['Comic', '"Comic Neue","Comic Sans MS","Chalkboard SE",cursive']
+};
+const PATS = { none: 'Plain', stars: 'Stars', checks: 'Checkers', scan: 'Scanlines' };
+const STYLES = {
+  flat:    { '--rad': '0', '--rs': '0', '--bw': '2px', '--bs': 'solid', '--sh': '5px 5px 0 var(--line)', '--tb': 'var(--ac)', '--tbsize': '100% 100%', '--glow': 'none' },
+  xp:      { '--rad': '10px 10px 3px 3px', '--rs': '3px', '--bw': '3px', '--bs': 'solid', '--sh': '0 6px 18px rgba(0,0,0,.3)', '--tb': 'linear-gradient(180deg,color-mix(in srgb,var(--ac) 62%,#fff),var(--ac) 42%,color-mix(in srgb,var(--ac) 80%,#000))', '--tbsize': '100% 100%', '--glow': 'none' },
+  glitter: { '--rad': '14px', '--rs': '10px', '--bw': '2px', '--bs': 'dashed', '--sh': '0 0 0 3px var(--bg),0 0 22px color-mix(in srgb,var(--ac) 55%,transparent)', '--tb': 'linear-gradient(90deg,var(--ac),color-mix(in srgb,var(--ac) 30%,#fff),var(--ac))', '--tbsize': '300% 100%', '--glow': 'none' },
+  term:    { '--rad': '0', '--rs': '0', '--bw': '1px', '--bs': 'solid', '--sh': '0 0 14px color-mix(in srgb,var(--ac) 38%,transparent)', '--tb': 'var(--ac)', '--tbsize': '100% 100%', '--glow': '0 0 6px color-mix(in srgb,var(--fg) 45%,transparent)' }
+};
+function cleanTheme(t) {
+  t = t && typeof t === 'object' ? t : {};
+  const p = PRESETS[t.preset] ? t.preset : 'dollars', d = PRESETS[p];
+  return { preset: p, ac: HEX.test(t.ac) ? t.ac.toLowerCase() : d.ac, bg: HEX.test(t.bg) ? t.bg.toLowerCase() : d.bg, fg: HEX.test(t.fg) ? t.fg.toLowerCase() : d.fg, font: FONTS[t.font] ? t.font : d.font, pat: PATS[t.pat] ? t.pat : d.pat };
+}
+function applyTheme(el, t) {
+  const s = el.style;
+  s.setProperty('--ac', t.ac); s.setProperty('--bg', t.bg); s.setProperty('--fg', t.fg); s.setProperty('--on-ac', readable(t.ac));
+  s.setProperty('--font', FONTS[t.font][1]); s.setProperty('--fs', t.font === 'pixel' ? '18px' : '14px');
+  for (const [k, v] of Object.entries(STYLES[PRESETS[t.preset].style])) s.setProperty(k, v);
+  s.colorScheme = lum(t.bg) < .4 ? 'dark' : 'light';
+  el.dataset.pat = t.pat;
+}
+function applyViewer(t) { applyTheme(document.documentElement, t); document.body.dataset.pat = t.pat; }
+
+/* ---------- profiles ---------- */
+const safeUrl = u => { try { const x = new URL(String(u).trim()); return (x.protocol === 'https:' || x.protocol === 'http:') ? x.href : null; } catch { return null; } };
+const okAvatar = a => (typeof a === 'string' && a.length < 40000 && /^data:image\/(jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(a)) ? a : '';
+function cleanProfile(r) {
+  r = r && typeof r === 'object' ? r : {};
+  const song = r.song && typeof r.song === 'object' ? r.song : {};
+  return {
+    sn: clamp(r.sn, 20) || 'unknown', bio: clamp(r.bio, 400), away: clamp(r.away, 80), awayOn: !!r.awayOn,
+    song: { title: clamp(song.title, 60), url: clamp(song.url, 300), auto: !!song.auto },
+    links: (Array.isArray(r.links) ? r.links : []).slice(0, 3).map(l => ({ label: clamp(l && l.label, 24), url: clamp(l && l.url, 300) })),
+    top: (Array.isArray(r.top) ? r.top : []).filter(x => typeof x === 'string').slice(0, 8),
+    theme: cleanTheme(r.theme), avatar: okAvatar(r.avatar), created: +r.created || 0, updated: +r.updated || 0
+  };
+}
+
+/* ---------- state ---------- */
+const S = {
+  id: null, color: '#ffd400', user: null, db: null, room: null, mode: 'pending', readOnly: false,
+  profiles: new Map(), msgs: [], sys: [], online: new Set(), roomLive: false, roomInit: false,
+  signedOn: false, selected: null, tab: 'chat', editing: false, draft: null, sound: LS.get('am.sound') !== 'off',
+  mcpOk: false, spOn: false, spBusy: false, unread: 0, t0: Date.now(), gotSnap: false, slow: false, extra: '', theme: cleanTheme(null), peersSettled: false
+};
+try { const t = LS.get('am.theme'); if (t) S.theme = cleanTheme(JSON.parse(t)); } catch {}
+const key = () => S.id || 'me';
+const mine = () => S.profiles.get(key()) || null;
+const profileOf = id => S.profiles.get(id) || null;
+
+function avatar(p, size) {
+  const c = (p && p.theme && p.theme.ac) || '#888888';
+  const st = '--s:' + size + 'px;--c:' + c + ';--oc:' + readable(c);
+  if (p && p.avatar) return h('img', { class: 'av', src: p.avatar, alt: '', style: st });
+  return h('span', { class: 'av', style: st, 'aria-hidden': 'true' }, ((p && p.sn) || '?')[0].toUpperCase());
+}
+
+/* ---------- sound ---------- */
+let actx = null;
+function sfx(n) {
+  if (!S.sound) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') actx.resume();
+    const seq = { open: [[523, 0], [659, .09], [784, .18]], close: [[784, 0], [659, .09], [523, .18]], 'in': [[880, 0], [660, .14]], out: [[740, 0]] }[n];
+    const g = n === 'out' ? .025 : .07;
+    for (const [f, t] of seq) {
+      const o = actx.createOscillator(), v = actx.createGain(), t0 = actx.currentTime + t;
+      o.type = n === 'out' ? 'square' : 'triangle'; o.frequency.value = f;
+      v.gain.setValueAtTime(0, t0); v.gain.linearRampToValueAtTime(g, t0 + .01); v.gain.exponentialRampToValueAtTime(.0001, t0 + .16);
+      o.connect(v); v.connect(actx.destination); o.start(t0); o.stop(t0 + .18);
+    }
+  } catch {}
+}
+
+/* ---------- rich text ---------- */
+const TOK = /(https?:\/\/[^\s]+)|(@[\w.-]{2,20})/g;
+function linkCard(href) {
+  const u = new URL(href), host = u.hostname.replace(/^www\./, '');
+  let kind = host, g = '→';
+  if (/(^|\.)youtube\.com$|(^|\.)youtu\.be$|vimeo\.com$|twitch\.tv$/.test(host)) { kind = host.includes('twitch') ? 'Twitch' : host.includes('vimeo') ? 'Vimeo' : 'YouTube'; g = '▶'; }
+  else if (/spotify\.com$|soundcloud\.com$|bandcamp\.com$|apple\.com$/.test(host)) { const k = host.split('.').slice(-2)[0]; kind = k[0].toUpperCase() + k.slice(1); g = '♪'; }
+  else if (/\.(png|jpe?g|gif|webp)$/i.test(u.pathname)) { kind = 'Image'; g = '▣'; }
+  return h('a', { class: 'card', href, target: '_blank', rel: 'noopener noreferrer' },
+    h('span', { class: 'glyph', 'aria-hidden': 'true' }, g),
+    h('span', { class: 'ctext' }, h('b', {}, kind), h('small', {}, (host + u.pathname).slice(0, 60))));
+}
+function rich(text) {
+  const nodes = [], cards = []; let last = 0;
+  for (const m of text.matchAll(TOK)) {
+    if (m.index > last) nodes.push(text.slice(last, m.index));
+    if (m[1]) {
+      let u = m[1], tail = '';
+      while (/[.,!?)\]]$/.test(u)) { tail = u.slice(-1) + tail; u = u.slice(0, -1); }
+      const safe = safeUrl(u);
+      if (safe) { nodes.push(h('a', { href: safe, target: '_blank', rel: 'noopener noreferrer' }, u)); if (cards.length < 2) cards.push(linkCard(safe)); }
+      else nodes.push(u);
+      if (tail) nodes.push(tail);
+    } else nodes.push(h('span', { class: 'at' }, m[2]));
+    last = m.index + m[0].length;
+  }
+  if (last < text.length) nodes.push(text.slice(last));
+  return { nodes, cards };
+}
+
+/* ---------- rendering ---------- */
+const fmtTime = ts => new Date(ts).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+const isPhone = () => window.matchMedia('(max-width:900px)').matches;
+
+function setTab(t) {
+  S.tab = t; document.body.dataset.tab = t;
+  if (t === 'chat') S.unread = 0;
+  renderTabs();
+}
+function renderTabs() {
+  document.querySelectorAll('#tabs [data-go]').forEach(b => b.setAttribute('aria-current', b.dataset.go === S.tab ? 'true' : 'false'));
+  const u = $('unread'); u.hidden = !S.unread || S.tab === 'chat'; u.textContent = S.unread > 9 ? '9+' : String(S.unread);
+}
+
+function renderSignon() {
+  const p = mine(), btn = $('soBtn'), inp = $('snIn'), msg = $('soMsg');
+  const waiting = S.mode === 'pending' || (S.mode === 'db' && !S.readOnly && !S.gotSnap);
+  inp.hidden = S.readOnly; inp.previousElementSibling.hidden = S.readOnly;
+  inp.disabled = waiting; btn.disabled = waiting;
+  if (waiting) { msg.textContent = S.slow ? 'Still reaching the room. Hang tight.' : 'Connecting to the room...'; btn.textContent = 'Connecting...'; return; }
+  if (S.readOnly) { msg.textContent = 'You can read this room, but posting needs an editor invite from whoever made it.'; btn.textContent = 'Look Around'; return; }
+  btn.textContent = 'Sign On';
+  if (S.mode === 'local') msg.textContent = 'The shared room is not available here, so this is a local copy only you can see.';
+  else if (p) msg.textContent = 'Welcome back.';
+  else msg.textContent = 'Pick a screen name. Letters, numbers, dot, dash and underscore, 2 to 20 characters.';
+  if (p) { inp.value = p.sn; inp.readOnly = true; } else inp.readOnly = false;
+}
+
+function renderMe() {
+  const p = mine(); if (!p) return;
+  $('meAv').replaceChildren(avatar(p, 40));
+  $('meSn').textContent = p.sn;
+  $('stSel').value = p.awayOn ? 'away' : 'on';
+  const a = $('awayIn'); a.hidden = !p.awayOn;
+  if (document.activeElement !== a) a.value = p.away;
+  $('editBtn').disabled = S.readOnly;
+  $('sndBtn').textContent = S.sound ? 'Sound on' : 'Sound off';
+  renderSp();
+}
+
+function statusOf(id, p) {
+  if (p.awayOn) return { cls: 'away', text: p.away ? 'Away: ' + p.away : 'Away' };
+  if (S.roomLive) return S.online.has(id) ? { cls: 'on', text: 'Online' } : { cls: '', text: 'Offline' };
+  return { cls: '', text: '' };
+}
+
+function renderBuddies() {
+  const box = $('buddies'); box.replaceChildren();
+  const others = [...S.profiles].filter(([id]) => id !== key()).sort((a, b) => a[1].sn.toLowerCase().localeCompare(b[1].sn.toLowerCase()));
+  if (!others.length) { box.append(h('p', { class: 'empty' }, 'Nobody else is here yet. Send your friends the link. They show up here as they sign on.')); return; }
+  const groups = S.roomLive
+    ? [['Online', others.filter(([id, p]) => S.online.has(id) && !p.awayOn)], ['Away', others.filter(([id, p]) => S.online.has(id) && p.awayOn)], ['Offline', others.filter(([id]) => !S.online.has(id))]]
+    : [['Everyone', others]];
+  for (const [name, list] of groups) {
+    if (!list.length) continue;
+    box.append(h('h4', { class: 'grp' }, name + ' (' + list.length + ')'));
+    for (const [id, p] of list) {
+      const st = statusOf(id, p);
+      const sub = p.awayOn ? (p.away || 'Away') : (p.song.title ? '♪ ' + p.song.title : '');
+      box.append(h('button', { class: 'buddy', type: 'button', 'aria-current': S.selected === id ? 'true' : 'false', onclick: () => { selectProfile(id); if (isPhone()) setTab('profile'); } },
+        avatar(p, 30),
+        h('span', { class: 'grow' }, h('span', { class: 'nm' }, h('span', { class: 'dot ' + (S.roomLive ? st.cls : (p.awayOn ? 'away' : '')), 'aria-hidden': 'true' }), p.sn), sub ? h('div', { class: 'sub' }, sub) : null)));
+    }
+  }
+}
+
+function renderNote() {
+  const n = $('note'); let t = '';
+  if (S.mode === 'local') t = 'Room offline. Messages here stay on this device and nobody else sees them.';
+  else if (S.readOnly) t = 'View only. You can read along, but posting needs an editor invite from the owner.';
+  else if (S.mode === 'db' && !S.gotSnap && S.slow) t = 'Still reaching the room. What you see may be out of date.';
+  if (S.extra) t = S.extra;
+  n.hidden = !t; n.textContent = t;
+}
+
+function renderComposer() {
+  const can = S.signedOn && !!mine() && !S.readOnly;
+  $('msg').disabled = !can; $('sendBtn').disabled = !can;
+  $('msg').placeholder = S.readOnly ? 'View only' : 'Say something. Try /me waves, @name, or paste a link';
+}
+
+function renderLog() {
+  const log = $('log');
+  const near = log.scrollHeight - log.scrollTop - log.clientHeight < 90;
+  const items = [...S.msgs.map(m => ({ t: 'm', ts: m.ts, m })), ...S.sys.map(s => ({ t: 's', ts: s.ts, s }))].sort((a, b) => a.ts - b.ts);
+  log.replaceChildren();
+  $('chatTitle').textContent = 'the lounge' + (S.roomLive && S.online.size ? ' · ' + S.online.size + ' here' : '');
+  if (!items.length) { log.append(h('p', { class: 'empty' }, 'It is quiet in here. Say something. /me does actions, @name pings someone, and links show up as cards.')); return; }
+  const bySn = new Map([...S.profiles].map(([id, p]) => [p.sn.toLowerCase(), [id, p]]));
+  let prev = null;
+  for (const it of items) {
+    if (it.t === 's') { log.append(h('div', { class: 'sys' }, it.s.text)); prev = null; continue; }
+    const m = it.m, p = profileOf(m.uid), sn = p ? p.sn : 'unknown', ac = p ? p.theme.ac : '#888888';
+    const sty = '--c:' + ac + ';--oc:' + readable(ac);
+    const r = rich(m.text);
+    let row;
+    if (m.kind === 'me') {
+      row = h('div', { class: 'act' }, '* ', h('button', { class: 'chip', type: 'button', style: sty, onclick: () => { selectProfile(m.uid); if (isPhone()) setTab('profile'); } }, sn), ' ', r.nodes);
+      prev = null;
+    } else {
+      const cont = prev && prev.uid === m.uid && m.ts - prev.ts < 120000;
+      row = h('div', { class: 'm' + (cont ? ' cont' : '') },
+        cont ? h('span') : avatar(p || { sn: '?', theme: { ac } }, 32),
+        h('div', { class: 'body' },
+          cont ? null : h('div', { class: 'hd' }, h('button', { class: 'chip', type: 'button', style: sty, onclick: () => { selectProfile(m.uid); if (isPhone()) setTab('profile'); } }, sn), h('time', {}, fmtTime(m.ts))),
+          h('div', { class: 'tx' }, r.nodes), r.cards));
+      prev = m;
+    }
+    log.append(row);
+    const seen = new Set();
+    for (const t of m.text.matchAll(/@([\w.-]{2,20})/g)) {
+      const hit = bySn.get(t[1].toLowerCase());
+      if (hit && hit[0] !== m.uid && hit[1].awayOn && !seen.has(hit[0])) {
+        seen.add(hit[0]);
+        log.append(h('div', { class: 'auto', style: '--c:' + hit[1].theme.ac }, hit[1].sn + ' is away: ' + (hit[1].away || 'be back later')));
+      }
+    }
+  }
+  if (near) log.scrollTop = log.scrollHeight;
+}
+
+function renderProfile() {
+  const body = $('profBody'), win = $('profWin');
+  const p = S.editing ? S.draft : profileOf(S.selected);
+  body.replaceChildren();
+  if (!p) { $('profTitle').textContent = 'profile'; body.append(h('p', { class: 'muted' }, 'Pick someone from the buddy list to see their page.')); return; }
+  const t = cleanTheme(p.theme);
+  applyTheme(win, t); body.dataset.pat = t.pat;
+  const id = S.editing ? key() : S.selected;
+  $('profTitle').textContent = (p.sn || 'profile') + "'s page";
+  const st = S.editing ? { cls: '', text: 'Preview. This is how your page looks.' } : statusOf(id, p);
+  body.append(h('div', { class: 'phead' }, avatar({ sn: p.sn || '?', avatar: p.avatar, theme: t }, 84),
+    h('div', { class: 'grow' }, h('h2', { class: 'psn' }, p.sn || '...'),
+      st.text ? h('div', { class: 'pst' }, h('span', { class: 'dot ' + st.cls, 'aria-hidden': 'true' }), st.text) : null)));
+  if (p.bio) body.append(h('div', { class: 'sec' }, h('h3', {}, 'About me'), h('p', {}, p.bio)));
+  if (p.song && p.song.title) {
+    const href = safeUrl(p.song.url);
+    body.append(h('div', { class: 'sec' }, h('h3', {}, p.song.auto ? 'Now playing on Spotify' : 'Now playing'),
+      h('div', { class: 'song' }, h('span', { 'aria-hidden': 'true' }, '♪'), h('div', { class: 'mq' }, h('span', {}, p.song.title)),
+        href ? h('a', { href, target: '_blank', rel: 'noopener noreferrer' }, 'Listen') : null)));
+  }
+  const top = (p.top || []).map(x => [x, profileOf(x)]).filter(x => x[1]);
+  if (top.length) {
+    body.append(h('div', { class: 'sec' }, h('h3', {}, 'Top ' + top.length),
+      h('div', { class: 't8' }, top.map(([fid, fp], i) => h('button', { type: 'button', onclick: () => { if (!S.editing) { selectProfile(fid); } } },
+        avatar(fp, 80), h('b', {}, String(i + 1)), h('span', { class: 'nm' }, fp.sn))))));
+  }
+  const links = (p.links || []).map(l => [l, safeUrl(l.url)]).filter(x => x[1]);
+  if (links.length) body.append(h('div', { class: 'sec links' }, h('h3', {}, 'Links'), links.map(([l, u]) => h('a', { href: u, target: '_blank', rel: 'noopener noreferrer' }, l.label || new URL(u).hostname))));
+  if (p.created) body.append(h('div', { class: 'joined' }, 'Signed on first ' + new Date(p.created).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })));
+}
+
+function selectProfile(id) {
+  if (S.editing) return;
+  S.selected = id; renderProfile(); renderBuddies();
+}
+
+function renderAll() {
+  applyViewer(S.editing && S.draft ? S.draft.theme : S.theme);
+  $('signon').hidden = S.signedOn; $('desk').hidden = !S.signedOn; $('tabs').hidden = !S.signedOn;
+  renderSignon();
+  if (S.signedOn) { renderMe(); renderBuddies(); renderLog(); renderProfile(); renderNote(); renderComposer(); renderTabs(); }
+}
+
+/* ---------- writes ---------- */
+const retry = async fn => { try { return await fn(); } catch (e) { if (e && e.code === 'unavailable') { await new Promise(r => setTimeout(r, 400 + Math.random() * 600)); return fn(); } throw e; } };
+function wErr(e) {
+  const c = e && e.code;
+  if (c === 'invalid_argument' || c === 'revoked') S.readOnly = true;
+  else if (c === 'quota_exceeded') S.extra = 'The room is full, so nothing new can be saved until the owner clears space.';
+  else S.extra = 'That did not go through. Try again in a moment.';
+  renderNote(); renderComposer(); renderSignon(); renderMe();
+}
+async function persist(next, partial) {
+  next.updated = Date.now();
+  S.profiles.set(key(), next);
+  S.theme = next.theme; LS.set('am.theme', JSON.stringify(next.theme));
+  if (S.mode !== 'db' || S.readOnly || !S.id) { LS.set('am.local', JSON.stringify(next)); return true; }
+  try {
+    const ref = S.db.doc('profiles/' + S.id);
+    if (partial) await retry(() => ref.update(Object.assign({ updated: next.updated }, partial)));
+    else await retry(() => ref.set(next));
+    return true;
+  } catch (e) { wErr(e); return false; }
+}
+async function setAway() {
+  const p = mine(); if (!p) return;
+  const on = $('stSel').value === 'away', msg = clamp($('awayIn').value.trim(), 80);
+  if (on === p.awayOn && msg === p.away) return;
+  await persist(Object.assign({}, p, { awayOn: on, away: msg }), { awayOn: on, away: msg });
+  renderMe(); renderBuddies(); renderProfile(); renderLog();
+  if (on && !msg) $('awayIn').focus();
+}
+async function send(text) {
+  text = clamp(text.trim(), 300); if (!text || !mine() || S.readOnly) return;
+  let kind = 'msg';
+  if (/^\/me\s+/i.test(text)) { kind = 'me'; text = text.replace(/^\/me\s+/i, ''); }
+  const m = { uid: key(), text, kind, ts: Date.now() };
+  sfx('out');
+  if (S.mode === 'local') { S.msgs.push(Object.assign({ id: 'l' + m.ts }, m)); renderLog(); return; }
+  try { await retry(() => S.db.collection('messages').add(m)); S.extra = ''; renderNote(); } catch (e) { wErr(e); }
+}
+
+/* ---------- sign on / off ---------- */
+const SN_OK = /^[A-Za-z0-9._-]{2,20}$/;
+function defaultProfile(sn) {
+  const d = PRESETS.dollars;
+  return cleanProfile({ sn, bio: '', away: '', awayOn: false, song: {}, links: [], top: [], avatar: '', created: Date.now(), updated: Date.now(),
+    theme: { preset: 'dollars', ac: S.color, bg: d.bg, fg: d.fg, font: d.font, pat: d.pat } });
+}
+async function signOn(ev) {
+  ev.preventDefault();
+  const err = $('soErr'); err.hidden = true;
+  if (S.readOnly) { enter(); return; }
+  let p = mine();
+  if (!p) {
+    const sn = $('snIn').value.trim();
+    if (!SN_OK.test(sn)) { err.textContent = 'Use 2 to 20 letters, numbers, dots, dashes or underscores.'; err.hidden = false; return; }
+    if ([...S.profiles].some(([id, q]) => id !== key() && q.sn.toLowerCase() === sn.toLowerCase())) { err.textContent = 'Somebody already has that screen name.'; err.hidden = false; return; }
+    p = defaultProfile(sn);
+    $('soBtn').disabled = true;
+    const ok = await persist(p);
+    $('soBtn').disabled = false;
+    if (!ok && !S.readOnly) { err.textContent = 'Could not save your screen name. Try again.'; err.hidden = false; return; }
+  }
+  enter();
+}
+function enter() {
+  S.signedOn = true; S.selected = mine() ? key() : null;
+  if (mine()) S.theme = mine().theme;
+  sfx('open'); setTab(isPhone() ? 'chat' : 'chat');
+  renderAll(); initRoom();
+  if (mcp && LS.get('am.spotify') === 'on' && !S.spOn) spStart(false);
+  if (!$('msg').disabled) $('msg').focus();
+}
+function signOff() { sfx('close'); S.signedOn = false; S.editing = false; document.body.classList.remove('editing'); renderAll(); }
+
+/* ---------- editor ---------- */
+function buildEditorStatic() {
+  const pre = $('ePre');
+  for (const [k, v] of Object.entries(PRESETS)) {
+    pre.append(h('button', { type: 'button', class: 'pre', 'data-preset': k, 'aria-pressed': 'false', style: '--pb:' + v.bg + ';--pf:' + v.fg + ';--pa:' + v.ac }, v.label));
+  }
+  for (const [k, v] of Object.entries(FONTS)) $('eFont').append(h('option', { value: k }, v[0]));
+  for (const [k, v] of Object.entries(PATS)) $('ePat').append(h('option', { value: k }, v));
+}
+function fillTop() {
+  const box = $('eTop'); box.replaceChildren();
+  const d = S.draft;
+  const others = [...S.profiles].filter(([id]) => id !== key()).sort((a, b) => a[1].sn.toLowerCase().localeCompare(b[1].sn.toLowerCase()));
+  if (!others.length) { box.append(h('p', { class: 'muted' }, 'Nobody else has signed on yet. Come back to this once your friends are here.')); return; }
+  for (const [id, p] of others) {
+    const i = d.top.indexOf(id);
+    box.append(h('label', { class: 'tick', for: 'top_' + id },
+      h('input', { type: 'checkbox', id: 'top_' + id, 'data-uid': id, checked: i >= 0 ? true : null, disabled: (i < 0 && d.top.length >= 8) ? true : null }),
+      h('span', {}, p.sn), i >= 0 ? h('b', { class: 'rank' }, '#' + (i + 1)) : null));
+  }
+}
+function fillEditor() {
+  const d = S.draft;
+  $('eSn').value = d.sn; $('eBio').value = d.bio; $('eSongT').value = d.song.title; $('eSongU').value = d.song.url;
+  for (let i = 0; i < 3; i++) { const l = d.links[i] || { label: '', url: '' }; $('eL' + i + 'n').value = l.label; $('eL' + i + 'u').value = l.url; }
+  syncLook(); fillTop(); $('eAvPrev').replaceChildren(avatar(d, 44)); $('eErr').hidden = true;
+}
+function syncLook() {
+  const t = S.draft.theme;
+  $('eAc').value = t.ac; $('eBg').value = t.bg; $('eFg').value = t.fg; $('eFont').value = t.font; $('ePat').value = t.pat;
+  document.querySelectorAll('#ePre [data-preset]').forEach(b => b.setAttribute('aria-pressed', b.dataset.preset === t.preset ? 'true' : 'false'));
+  const hint = $('eHint'), msgs = [];
+  if (ratio(t.ac, t.bg) < 3) msgs.push('Your accent is hard to read on that background.');
+  if (ratio(t.fg, t.bg) < 4.5) msgs.push('Your text color is hard to read on that background.');
+  hint.hidden = !msgs.length; hint.textContent = msgs.join(' ');
+}
+function readEditor() {
+  const d = S.draft;
+  d.sn = $('eSn').value; d.bio = $('eBio').value; d.song = { title: $('eSongT').value, url: $('eSongU').value, auto: !!d.song.auto };
+  d.links = [0, 1, 2].map(i => ({ label: $('eL' + i + 'n').value, url: $('eL' + i + 'u').value }));
+  Object.assign(d.theme, { ac: $('eAc').value, bg: $('eBg').value, fg: $('eFg').value, font: $('eFont').value, pat: $('ePat').value });
+}
+function livePreview() { readEditor(); syncLook(); applyViewer(S.draft.theme); renderProfile(); }
+function openEditor() {
+  const p = mine(); if (!p || S.readOnly) return;
+  S.draft = JSON.parse(JSON.stringify(p)); S.editing = true; S.selected = key();
+  document.body.classList.add('editing'); fillEditor(); renderAll(); setTab('chat');
+}
+function closeEditor() {
+  S.editing = false; S.draft = null; document.body.classList.remove('editing');
+  S.theme = (mine() || { theme: S.theme }).theme; renderAll();
+}
+async function saveEditor(ev) {
+  ev.preventDefault(); readEditor();
+  const d = S.draft, err = $('eErr'), fail = m => { err.textContent = m; err.hidden = false; };
+  if (!SN_OK.test(d.sn.trim())) return fail('Screen name needs 2 to 20 letters, numbers, dots, dashes or underscores.');
+  if ([...S.profiles].some(([id, q]) => id !== key() && q.sn.toLowerCase() === d.sn.trim().toLowerCase())) return fail('Somebody already has that screen name.');
+  let song = { title: d.song.title.trim(), url: '', auto: !!d.song.auto };
+  if (d.song.url.trim()) { const u = safeUrl(d.song.url); if (!u) return fail('The song link needs to start with http:// or https://'); song.url = u; }
+  const links = [];
+  for (const l of d.links) {
+    if (!l.url.trim() && !l.label.trim()) continue;
+    const u = safeUrl(l.url); if (!u) return fail('Each link needs a web address that starts with http:// or https://');
+    links.push({ label: l.label.trim(), url: u });
+  }
+  const next = cleanProfile(Object.assign({}, d, { sn: d.sn.trim(), song, links }));
+  $('eSave').disabled = true;
+  const ok = await persist(next);
+  $('eSave').disabled = false;
+  if (!ok && !S.readOnly) return fail('Could not save. Try again in a moment.');
+  closeEditor();
+}
+function pickAvatar(file) {
+  if (!file) return;
+  const fr = new FileReader();
+  fr.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement('canvas'); c.width = c.height = 96;
+      const s = Math.min(img.width, img.height);
+      c.getContext('2d').drawImage(img, (img.width - s) / 2, (img.height - s) / 2, s, s, 0, 0, 96, 96);
+      S.draft.avatar = okAvatar(c.toDataURL('image/jpeg', .78));
+      $('eAvPrev').replaceChildren(avatar(S.draft, 44)); renderProfile();
+    };
+    img.onerror = () => { const e = $('eErr'); e.textContent = 'That file could not be read as a picture.'; e.hidden = false; };
+    img.src = fr.result;
+  };
+  fr.readAsDataURL(file);
+}
+
+/* ---------- live data ---------- */
+function loadLocal() {
+  try { const r = LS.get('am.local'); if (r) S.profiles.set('me', cleanProfile(JSON.parse(r))); } catch {}
+}
+async function init() {
+  use('mcp').then(m => { mcp = m; S.mcpOk = !!m; renderSp(); if (m && S.signedOn && LS.get('am.spotify') === 'on' && !S.spOn) spStart(false); });
+  const [user, db] = await Promise.all([use('user'), use('db')]);
+  S.user = user;
+  if (user) { try { const m = await user.me(); S.id = m.id || null; const c = m.color && toHex(m.color); if (c) S.color = c; } catch {} }
+  if (!db) { S.mode = 'local'; loadLocal(); renderAll(); return; }
+  S.db = db; S.mode = 'db';
+  if (!S.id) S.readOnly = true;
+  else { try { if ((await user.can('data.write')) === false) S.readOnly = true; } catch {} }
+  const timer = setTimeout(() => { S.slow = true; renderSignon(); renderNote(); }, 10000);
+  db.collection('profiles').onSnapshot(snap => {
+    if (!snap.metadata.fromCache) { clearTimeout(timer); S.slow = false; S.gotSnap = true; }
+    const m = new Map(); snap.docs.forEach(d => m.set(d.id, cleanProfile(d.data())));
+    S.profiles = m;
+    if (mine() && !S.editing) S.theme = mine().theme;
+    if (S.readOnly && !S.id) S.gotSnap = true;
+    if (S.signedOn) { if (S.selected && !S.profiles.has(S.selected)) S.selected = mine() ? key() : null; }
+    renderAll();
+    if (S.editing) fillTop();
+  }, () => { S.slow = true; renderSignon(); renderNote(); });
+  db.collection('messages').orderBy('ts', 'desc').limit(150).onSnapshot(snap => {
+    const prevIds = new Set(S.msgs.map(m => m.id));
+    S.msgs = snap.docs.map(d => { const x = d.data() || {}; return { id: d.id, uid: clamp(x.uid, 80), text: clamp(x.text, 300), kind: x.kind === 'me' ? 'me' : 'msg', ts: +x.ts || 0 }; }).filter(m => m.text).reverse();
+    if (S.signedOn) {
+      const fresh = S.msgs.filter(m => !prevIds.has(m.id) && m.uid !== key() && m.ts > S.t0 - 2000);
+      if (fresh.length && prevIds.size >= 0) { sfx('in'); if (S.tab !== 'chat' && isPhone()) { S.unread += fresh.length; renderTabs(); } }
+    }
+    renderLog();
+  }, () => {});
+  renderAll();
+}
+async function initRoom() {
+  if (S.roomInit) return; S.roomInit = true;
+  const room = await use('room'); if (!room) return;
+  S.room = room;
+  room.presence({ uid: S.id || null }).catch(() => {});
+  room.onPeers(ch => {
+    const now = new Set();
+    ch.peers.forEach(p => { if (p.kind !== 'viewer') return; const u = p.by || (p.presence && p.presence.uid); if (typeof u === 'string') now.add(u); });
+    if (S.peersSettled) {
+      for (const u of now) if (!S.online.has(u) && u !== key()) { const p = profileOf(u); sfx('open'); S.sys.push({ ts: Date.now(), text: (p ? p.sn : 'Someone') + ' has signed on.' }); }
+      for (const u of S.online) if (!now.has(u) && u !== key()) { const p = profileOf(u); sfx('close'); S.sys.push({ ts: Date.now(), text: (p ? p.sn : 'Someone') + ' has signed off.' }); }
+      if (S.sys.length > 40) S.sys.splice(0, S.sys.length - 40);
+    }
+    S.online = now;
+    if (!S.roomLive) { S.roomLive = true; setTimeout(() => { S.peersSettled = true; }, 2500); }
+    renderBuddies(); renderLog(); renderProfile();
+  }, () => { S.roomLive = false; S.online = new Set(); renderBuddies(); renderLog(); });
+}
+
+/* ---------- Spotify now playing ---------- */
+let mcp = null, spStop = null;
+const SP = { server: 'Spotify', tool: 'get_currently_playing' };
+const spSay = t => { $('spStat').textContent = t; };
+function renderSp() {
+  $('spRow').hidden = !(S.mcpOk && mine() && !S.readOnly);
+  $('spBtn').textContent = S.spOn ? 'Spotify sync: on' : 'Sync from Spotify';
+  $('spBtn').setAttribute('aria-pressed', S.spOn ? 'true' : 'false');
+}
+function playingFrom(res) {
+  let p = res && res.payload;
+  if (typeof p === 'string') { try { p = JSON.parse(p); } catch { return null; } }
+  const e = p && typeof p === 'object' ? p.currently_playing_entity : null;
+  if (!e || typeof e !== 'object' || !e.name) return null;
+  const artists = Array.isArray(e.creators) ? e.creators.map(c => c && c.name).filter(Boolean).join(', ') : '';
+  let url = '';
+  const su = safeUrl(e.url || '');
+  if (su) { const u = new URL(su); url = u.origin + u.pathname; }
+  return { title: clamp((artists ? artists + ' - ' : '') + String(e.name), 60), url: clamp(url, 300) };
+}
+async function applySong(np) {
+  const p = mine();
+  if (!np || !p || S.editing || S.readOnly || S.spBusy) return;
+  if (p.song.title === np.title && p.song.url === np.url && p.song.auto) return;
+  S.spBusy = true;
+  const song = { title: np.title, url: np.url, auto: true };
+  try { await persist(Object.assign({}, p, { song }), { song }); } finally { S.spBusy = false; }
+  renderBuddies(); renderProfile();
+}
+function spGot(res) {
+  const np = playingFrom(res);
+  if (np) { spSay('♪ ' + np.title); applySong(np); } else spSay('Nothing playing on Spotify right now.');
+}
+function spOff(msg) {
+  if (spStop) { spStop(); spStop = null; }
+  S.spOn = false; LS.set('am.spotify', 'off'); renderSp(); spSay(msg || '');
+}
+function spFail(e) {
+  const c = e && e.code;
+  if (c === 'approval_required' || c === 'not_in_manifest' || c === 'consent_required') return spOff('Spotify was not allowed for this page. Tap Sync to try again.');
+  if (c === 'server_not_connected' || c === 'selection_required' || c === 'server_not_found') return spOff('Spotify is not connected. Add it in claude.ai under Settings, then Connectors.');
+  if (c === 'needs_reauth') return spOff('Reconnect Spotify in claude.ai under Settings, then Connectors.');
+  if (c === 'blocked_by_policy') return spOff('Your organization blocks Spotify here.');
+  if (c === 'not_granted' || c === 'capability_disabled' || c === 'capability_removed') return spOff('Spotify sync is not available in this view.');
+  spSay(c === 'tool_error' ? 'Spotify returned an error. Is something playing?' : 'Spotify is not answering. It will try again.');
+}
+async function spStart(fromClick) {
+  if (!mcp || spStop) return;
+  if (fromClick) {
+    spSay('Asking Spotify...');
+    try { spGot(await mcp.callTool(SP.server, SP.tool, {}, { cache: false })); } catch (e) { spFail(e); return; }
+  }
+  S.spOn = true; LS.set('am.spotify', 'on'); renderSp();
+  spStop = mcp.watchTool(SP.server, SP.tool, null, ev => { if (ev.type === 'data') spGot(ev.result); else spFail(ev.error); },
+    { refetchInterval: 30000, cache: { staleTime: 20000, gcTime: 120000 } });
+}
+$('spBtn').addEventListener('click', () => { if (S.spOn) spOff(''); else spStart(true); });
+
+/* ---------- wiring ---------- */
+$('soForm').addEventListener('submit', signOn);
+$('compose').addEventListener('submit', e => { e.preventDefault(); const i = $('msg'); const v = i.value; i.value = ''; send(v); i.focus(); });
+$('stSel').addEventListener('change', setAway);
+$('awayIn').addEventListener('change', setAway);
+$('editBtn').addEventListener('click', openEditor);
+$('offBtn').addEventListener('click', signOff);
+$('sndBtn').addEventListener('click', () => { S.sound = !S.sound; LS.set('am.sound', S.sound ? 'on' : 'off'); renderMe(); if (S.sound) sfx('in'); });
+$('eClose').addEventListener('click', closeEditor);
+$('eCancel').addEventListener('click', closeEditor);
+$('editForm').addEventListener('submit', saveEditor);
+$('editForm').addEventListener('input', e => {
+  if (e.target.type === 'file' || e.target.type === 'checkbox') return;
+  if ((e.target.id === 'eSongT' || e.target.id === 'eSongU') && S.draft) S.draft.song.auto = false;
+  livePreview();
+});
+$('editForm').addEventListener('change', e => { if (e.target.id === 'eAv') pickAvatar(e.target.files[0]); });
+$('eAvRm').addEventListener('click', () => { S.draft.avatar = ''; $('eAv').value = ''; $('eAvPrev').replaceChildren(avatar(S.draft, 44)); renderProfile(); });
+$('ePre').addEventListener('click', e => {
+  const b = e.target.closest('[data-preset]'); if (!b) return;
+  const p = PRESETS[b.dataset.preset];
+  Object.assign(S.draft.theme, { preset: b.dataset.preset, ac: p.ac, bg: p.bg, fg: p.fg, font: p.font, pat: p.pat });
+  syncLook(); applyViewer(S.draft.theme); renderProfile();
+});
+$('eTop').addEventListener('change', e => {
+  const c = e.target; if (!c.matches || !c.matches('input[type=checkbox]')) return;
+  const id = c.dataset.uid, d = S.draft;
+  if (c.checked) { if (d.top.length < 8 && !d.top.includes(id)) d.top.push(id); } else d.top = d.top.filter(x => x !== id);
+  fillTop(); renderProfile();
+});
+document.querySelectorAll('#tabs [data-go]').forEach(b => b.addEventListener('click', () => setTab(b.dataset.go)));
+
+buildEditorStatic();
+document.body.dataset.tab = 'chat';
+renderAll();
+init();
+})();
+</script>
+
+</body></html>
