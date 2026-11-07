@@ -28,6 +28,8 @@
 }
 *{box-sizing:border-box}
 html,body{height:100%}
+#bootMsg{display:flex;align-items:center;justify-content:center;height:60vh;color:var(--muted)}
+#bootMsg[hidden]{display:none}
 body{margin:0;background-color:var(--wall);color:var(--fg);font:var(--fs)/1.45 var(--font);
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 [data-pat="stars"]{background-image:radial-gradient(color-mix(in srgb,var(--fg) 38%,transparent) 1px,transparent 1.8px),radial-gradient(color-mix(in srgb,var(--ac) 45%,transparent) 1px,transparent 1.8px);background-size:23px 23px,37px 37px;background-position:0 0,11px 17px}
@@ -230,6 +232,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </head>
 <body>
 <div id="app">
+  <div id="bootMsg" class="bootmsg" hidden>signing on...</div>
   <main id="signon">
     <form id="soForm" class="win" autocomplete="on">
       <div class="tb"><span>sign on</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
@@ -265,11 +268,12 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
     </section>
 
     <section id="chatWin" class="win" aria-label="Chat">
-      <div class="tb"><span id="chatTitle">the lounge</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+      <div class="tb"><span id="chatTitle">the lounge</span><button id="infoBtn" class="tbx" type="button" aria-label="About this room and who is here">i</button></div>
       <div class="convbar"><div id="convs" class="convs" aria-label="Conversations"></div><button id="newCh" class="btn sm plus" type="button" aria-label="Make a channel">+</button></div>
       <form id="chForm" class="chform" autocomplete="off" hidden>
         <label class="sr" for="chName">Channel name</label><input id="chName" maxlength="20" spellcheck="false" placeholder="channel name">
         <label class="sr" for="chKeep">Messages</label><select id="chKeep"><option value="temp">temporary</option><option value="keep">keep messages</option></select>
+        <input id="chTopic" maxlength="300" placeholder="about / rules (optional)">
         <button class="btn sm pri" type="submit">Make</button><button id="chCancel" class="btn sm" type="button">Cancel</button>
       </form>
       <div id="pinBar" class="pinbar" hidden></div>
@@ -428,7 +432,7 @@ function fromRow(r) {
     song: { title: clamp(r.song_title, 60), url: clamp(r.song_url, 300) },
     links: links.slice(0, 3).map(l => ({ label: clamp(l && l.label, 24), url: clamp(l && l.url, 300) })),
     top: (Array.isArray(r.top) ? r.top : []).filter(x => typeof x === 'string').slice(0, 8),
-    theme: cleanTheme(r.theme), avatar: okAvatar(r.avatar), created: r.created_at ? (Date.parse(r.created_at) || 0) : 0
+    theme: cleanTheme(r.theme), avatar: okAvatar(r.avatar), created: r.created_at ? (Date.parse(r.created_at) || 0) : 0, lastSeen: r.last_seen ? (Date.parse(r.last_seen) || 0) : 0
   };
 }
 const toRow = p => ({ sn: p.sn, bio: p.bio, away: p.away, away_on: p.awayOn, song_title: p.song.title, song_url: p.song.url, links: p.links, top: p.top, theme: p.theme, avatar: p.avatar });
@@ -725,8 +729,49 @@ function renderLog() {
   if (near) log.scrollTop = log.scrollHeight;
 }
 
+const ago = ts => {
+  if (!ts) return 'a while ago';
+  const m = Math.max(0, Math.round((Date.now() - ts) / 60000));
+  if (m < 2) return 'just now'; if (m < 60) return m + ' min ago';
+  const hr = Math.round(m / 60); if (hr < 24) return hr + ' hr ago';
+  const d = Math.round(hr / 24); return d + (d === 1 ? ' day ago' : ' days ago');
+};
+const LOUNGE_ABOUT = 'The lounge is for everyone. Be kind, no spamming, and what happens here disappears after a day.';
+function renderInfo() {
+  const body = $('profBody'), win = $('profWin');
+  body.replaceChildren(); applyTheme(win, S.theme); body.dataset.pat = S.theme.pat;
+  const id = S.conv.startsWith('c:') ? S.conv.slice(2) : '', ch = id ? S.channels.get(id) : null;
+  $('profTitle').textContent = ch ? '#' + ch.name : 'the lounge';
+  const about = ch ? ch.topic : LOUNGE_ABOUT;
+  const mineCh = ch && ch.by === S.uid;
+  const aboutSec = h('div', { class: 'sec' }, h('h3', {}, 'About'));
+  if (S.aboutEdit && mineCh) {
+    const ta = h('textarea', { maxlength: '300', rows: '4', 'aria-label': 'About this channel' }); ta.value = S.aboutDraft != null ? S.aboutDraft : ch.topic;
+    ta.addEventListener('input', () => { S.aboutDraft = ta.value; });
+    aboutSec.append(ta, h('div', { class: 'ovbtn' },
+      h('button', { class: 'btn sm', type: 'button', onclick: () => { S.aboutEdit = false; S.aboutDraft = null; renderProfile(); } }, 'Cancel'),
+      h('button', { class: 'btn sm pri', type: 'button', onclick: async () => {
+        const t = clamp((S.aboutDraft != null ? S.aboutDraft : ch.topic).trim(), 300);
+        const { error } = await sb.from('channels').update({ topic: t }).eq('id', id);
+        if (!error) { ch.topic = t; S.aboutEdit = false; S.aboutDraft = null; renderProfile(); }
+      } }, 'Save')));
+  } else {
+    aboutSec.append(h('p', {}, about || 'No about or rules yet.'));
+    if (ch) aboutSec.append(h('p', { class: 'muted' }, (ch.keep ? 'Keeps messages.' : 'Messages disappear after ' + S.ttlH + ' hours.') + (profileOf(ch.by) ? ' Made by ' + profileOf(ch.by).sn + '.' : '')));
+    if (mineCh) aboutSec.append(h('button', { class: 'btn sm', type: 'button', onclick: () => { S.aboutEdit = true; renderProfile(); } }, 'Edit about'));
+  }
+  body.append(aboutSec);
+  const all = [...S.profiles].sort(bySn);
+  const isOn = id2 => S.presLive ? S.online.has(id2) : false;
+  const on = all.filter(([i]) => isOn(i)), off = all.filter(([i]) => !isOn(i)).sort((a, b) => (b[1].lastSeen || 0) - (a[1].lastSeen || 0)).slice(0, 12);
+  const row = ([i, p], sub) => { const st = statusOf(i, p); return h('button', { class: 'buddy', type: 'button', onclick: () => { selectProfile(i); if (isPhone()) setTab('profile'); } },
+    avatar(p, 30), h('span', { class: 'grow' }, h('span', { class: 'nm' }, h('span', { class: 'dot ' + st.cls, 'aria-hidden': 'true' }), p.sn), sub ? h('div', { class: 'sub' }, sub) : null)); };
+  if (on.length) body.append(h('div', { class: 'sec' }, h('h3', {}, 'Here now \u2014 ' + on.length), on.map(x => row(x, x[1].awayOn ? (x[1].away || 'Away') : ''))));
+  if (off.length) body.append(h('div', { class: 'sec' }, h('h3', {}, 'Recently around'), off.map(x => row(x, 'last seen ' + ago(x[1].lastSeen)))));
+}
 function renderProfile() {
   const body = $('profBody'), win = $('profWin');
+  if (!S.editing && S.showInfo && isRoom(S.conv)) return renderInfo();
   const p = S.editing ? S.draft : profileOf(S.selected);
   body.replaceChildren();
   if (!p) { $('profTitle').textContent = 'profile'; body.append(h('p', { class: 'muted' }, 'Pick someone from the buddy list to see their page.')); return; }
@@ -738,6 +783,7 @@ function renderProfile() {
   body.append(h('div', { class: 'phead' }, avatar({ sn: p.sn || '?', avatar: p.avatar, theme: t }, 84),
     h('div', { class: 'grow' }, h('h2', { class: 'psn' }, p.sn || '...'),
       st.text ? h('div', { class: 'pst' }, h('span', { class: 'dot ' + st.cls, 'aria-hidden': 'true' }), st.text) : null)));
+  if (!S.editing && isRoom(S.conv)) body.append(h('button', { class: 'btn sm', type: 'button', onclick: () => { S.showInfo = true; renderProfile(); } }, '\u2190 ' + (S.conv === 'lounge' ? 'the lounge' : '#' + ((S.channels.get(S.conv.slice(2)) || {}).name || ''))));
   if (!S.editing && id && id !== S.uid) body.append(h('button', { class: 'btn pri pmsg', type: 'button', onclick: () => openConv(id) }, 'Message ' + p.sn));
   if (p.bio) body.append(h('div', { class: 'sec' }, h('h3', {}, 'About me'), h('p', {}, p.bio)));
   if (p.song && p.song.title) {
@@ -774,11 +820,12 @@ function songBox(song, href) {
   box.addEventListener('click', e => { if (e.target.closest('a')) return; if (pop) hide(); else show(); });
   return box;
 }
-function selectProfile(id) { if (S.editing) return; document.body.classList.remove('noprof'); S.selected = id; renderProfile(); renderBuddies(); }
+function selectProfile(id) { if (S.editing) return; S.showInfo = false; document.body.classList.remove('noprof'); S.selected = id; renderProfile(); renderBuddies(); }
 
 function renderAll() {
   applyViewer(S.editing && S.draft ? S.draft.theme : S.theme);
-  $('signon').hidden = S.signedOn; $('desk').hidden = !S.signedOn; $('tabs').hidden = !S.signedOn;
+  $('bootMsg').hidden = !S.booting;
+  $('signon').hidden = S.signedOn || !!S.booting; $('desk').hidden = !S.signedOn; $('tabs').hidden = !S.signedOn;
   renderSignon();
   if (S.signedOn) { renderMe(); renderBuddies(); renderConvs(); renderLog(); renderProfile(); renderNote(); renderComposer(); renderTabs(); }
 }
@@ -788,9 +835,10 @@ function openConv(key) {
   if (S.editing) return;
   if (!isRoom(key) && !S.profiles.has(key)) key = 'lounge';
   if (key.startsWith('c:') && !S.channels.has(key.slice(2))) key = 'lounge';
+  S.showInfo = isRoom(key) && !isPhone(); S.aboutEdit = false;
   S.conv = key; if (!isRoom(key)) { S.opened.add(key); if (S.closedDms.delete(key)) LS.set('am.closed', JSON.stringify([...S.closedDms])); }
   S.unread[key] = 0;
-  setTab('chat'); renderConvs(); renderLog(); renderNote(); renderBuddies(); renderTabs();
+  setTab('chat'); renderConvs(); renderLog(); renderNote(); renderBuddies(); renderProfile(); renderTabs();
   const l = $('log'); l.scrollTop = l.scrollHeight;
   if (!$('msg').disabled && !isPhone()) $('msg').focus();
 }
@@ -814,7 +862,7 @@ function addMsg(r, live) {
   }
   return true;
 }
-const chanRow = c => ({ id: String(c.id), name: clamp(c.name, 20), keep: !!c.keep, by: String(c.created_by || '') });
+const chanRow = c => ({ id: String(c.id), name: clamp(c.name, 20), keep: !!c.keep, topic: clamp(c.topic || '', 300), by: String(c.created_by || '') });
 const pinRow = p => ({ id: String(p.id), ch: p.channel ? String(p.channel) : null, text: clamp(p.body, 300), image: p.image ? String(p.image) : '', author: p.author ? String(p.author) : '', by: p.pinned_by ? String(p.pinned_by) : '' });
 const MSG_COLS = 'id,sender,recipient,channel,kind,body,image,created_at';
 async function sync(live) {
@@ -851,10 +899,10 @@ async function makeChannel(e) {
   const name = $('chName').value.trim().replace(/^#/, '').replace(/\s+/g, '-');
   const say = t => { S.extra = t; renderNote(); clearExtraSoon(); };
   if (!/^[A-Za-z0-9._-]{2,20}$/.test(name)) return say('Channel names are 2 to 20 letters, numbers, dots, dashes.');
-  const { data, error } = await sb.from('channels').insert({ name, keep: $('chKeep').value === 'keep' }).select('*').single();
+  const { data, error } = await sb.from('channels').insert({ name, keep: $('chKeep').value === 'keep', topic: $('chTopic').value.trim().slice(0, 300) }).select('*').single();
   if (error) return say(error.code === '23505' ? 'That channel name is taken.' : 'Could not make the channel. There may be too many already.');
   S.channels.set(String(data.id), chanRow(data));
-  $('chName').value = ''; $('chForm').hidden = true;
+  $('chName').value = ''; $('chTopic').value = ''; $('chForm').hidden = true;
   openConv('c:' + data.id);
 }
 async function delChannel() {
@@ -1037,7 +1085,7 @@ function subscribe() {
     })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'channels' }, p => {
       if (p.eventType === 'DELETE') { if (p.old && p.old.id) dropChannel(String(p.old.id)); return; }
-      if (p.new && p.new.id) { S.channels.set(String(p.new.id), chanRow(p.new)); renderConvs(); }
+      if (p.new && p.new.id) { S.channels.set(String(p.new.id), chanRow(p.new)); renderConvs(); renderProfile(); }
     })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'pins' }, () => { loadPins(); })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, p => {
@@ -1103,7 +1151,9 @@ async function enterApp() {
   await sync(false);
   S.theme = mine().theme; LS.set('am.theme', JSON.stringify(S.theme));
   S.signedOn = true; S.selected = S.uid; S.mode = 'login';
-  fire(cleanMedia());
+  fire(cleanMedia()); fire(sb.rpc('touch_seen'));
+  S.showInfo = !isPhone();
+  S.timers.push(setInterval(() => { if (Date.now() - S.lastAct < 300000 && !document.hidden) fire(sb.rpc('touch_seen')); }, 300000));
   subscribe();
   S.timers.push(setInterval(() => fire(cleanMedia()), 15 * 60000));
   S.timers.push(setInterval(() => { pruneMsgs(); renderLog(); }, 60000));
@@ -1260,6 +1310,7 @@ function pickAvatar(file) {
 $('soForm').addEventListener('submit', onSignon);
 $('soSwap').addEventListener('click', swapMode);
 $('profX').addEventListener('click', () => { if (isPhone()) setTab('chat'); else document.body.classList.add('noprof'); });
+$('infoBtn').addEventListener('click', () => { if (!isRoom(S.conv) || S.editing) return; S.showInfo = true; document.body.classList.remove('noprof'); renderProfile(); if (isPhone()) setTab('profile'); });
 $('newCh').addEventListener('click', () => { const f = $('chForm'); f.hidden = !f.hidden; if (!f.hidden) $('chName').focus(); });
 $('chForm').addEventListener('submit', makeChannel);
 $('chCancel').addEventListener('click', () => { $('chForm').hidden = true; });
@@ -1293,8 +1344,10 @@ $('eTop').addEventListener('change', e => {
 document.querySelectorAll('#tabs [data-go]').forEach(b => b.addEventListener('click', () => setTab(b.dataset.go)));
 document.addEventListener('visibilitychange', () => { if (!document.hidden && S.signedOn && S.tab === 'chat') { S.unread[S.conv] = 0; renderTabs(); renderConvs(); } });
 
+const hasStoredSession = () => { try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (/^sb-.*-auth-token$/.test(k)) return true; } } catch {} return false; };
 async function boot() {
   buildEditorStatic();
+  S.booting = hasStoredSession() && !!sb;
   document.body.dataset.tab = 'chat';
   renderAll();
   if (!sb) return;
@@ -1302,11 +1355,12 @@ async function boot() {
     const { data } = await sb.auth.getSession();
     sb.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_OUT' && S.signedOn) setTimeout(resetApp, 0); });
     if (data && data.session) {
-      S.session = data.session; S.busy = true; renderSignon();
+      S.session = data.session; S.busy = true;
       try { await afterAuth(); } catch (e) { showSoErr(friendly(e)); }
-      S.busy = false; renderAll();
+      S.busy = false;
     }
-  } catch { S.busy = false; renderAll(); }
+  } catch { S.busy = false; }
+  S.booting = false; renderAll();
 }
 boot();
 })();
