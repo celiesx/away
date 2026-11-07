@@ -123,6 +123,16 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .auto{margin:3px 0 0 42px;font-size:12px;color:var(--muted);border-left:3px solid var(--c);padding-left:8px}
 .card{display:flex;align-items:center;gap:10px;margin-top:5px;padding:7px 10px;border:1px solid var(--line);background:var(--panel2);color:var(--fg)!important;text-decoration:none;max-width:min(100%,380px);border-radius:var(--rs)}
 .card:hover{border-color:var(--ac)}
+.ovl{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;background:#000a}
+.ovbox{max-width:min(92vw,420px);max-height:92vh;overflow:auto;padding:14px;background:var(--panel);border:2px solid var(--ac);border-radius:var(--rs);color:var(--fg)}
+.ovbox img{display:block;max-width:100%;max-height:50vh;margin:8px auto}
+.ovbtn{display:flex;gap:8px;justify-content:flex-end}
+.cart{width:44px;height:44px;object-fit:cover;border-radius:4px;flex:none}
+.song{position:relative}
+.sphover{position:absolute;left:0;right:0;bottom:calc(100% + 6px);z-index:5;display:flex;gap:10px;align-items:center;padding:8px;background:var(--panel2);border:1px solid var(--ac);border-radius:var(--rs);box-shadow:0 4px 14px #0008;pointer-events:none}
+.sphover img{width:56px;height:56px;object-fit:cover;border-radius:4px;flex:none}
+.sphover b{display:block;overflow-wrap:anywhere}
+.sphover small{color:var(--muted)}
 .glyph{width:30px;height:30px;flex:none;display:grid;place-items:center;background:var(--ac);color:var(--on-ac);font-weight:800}
 .ctext{display:flex;flex-direction:column;min-width:0}
 .ctext small{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -451,15 +461,46 @@ function sfx(n) {
 
 /* ---------- rich text ---------- */
 const TOK = /(https?:\/\/[^\s]+)|(@[\w.-]{2,20})/g;
+const metaCache = new Map();
+const okThumb = u => { try { const x = new URL(u); return x.protocol === 'https:' && /(^|\.)(scdn\.co|mzstatic\.com)$/.test(x.hostname) ? x.href : ''; } catch { return ''; } };
+function getMeta(href) {
+  if (metaCache.has(href)) return metaCache.get(href);
+  const p = (async () => {
+    let host = ''; try { host = new URL(href).hostname; } catch { return null; }
+    const ctl = new AbortController(); setTimeout(() => ctl.abort(), 5000);
+    try {
+      if (/(^|\.)spotify\.com$/.test(host)) {
+        const r = await fetch('https://open.spotify.com/oembed?url=' + encodeURIComponent(href), { signal: ctl.signal });
+        if (!r.ok) return null; const j = await r.json();
+        return { title: clamp(j.title || '', 100), sub: '', thumb: okThumb(j.thumbnail_url || ''), ms: 0 };
+      }
+      if (host === 'music.apple.com') {
+        const u = new URL(href), id = u.searchParams.get('i') || (u.pathname.match(/\/(\d+)\/?$/) || [])[1];
+        if (!id) return null;
+        const r = await fetch('https://itunes.apple.com/lookup?id=' + encodeURIComponent(id), { signal: ctl.signal });
+        if (!r.ok) return null; const j = await r.json(), t = j.results && j.results[0]; if (!t) return null;
+        return { title: clamp(t.trackName || t.collectionName || '', 100), sub: clamp(t.artistName || '', 80), thumb: okThumb((t.artworkUrl100 || '').replace('100x100', '200x200')), ms: Number(t.trackTimeMillis) || 0 };
+      }
+    } catch {}
+    return null;
+  })();
+  metaCache.set(href, p); return p;
+}
+const fmtDur = ms => ms ? Math.floor(ms / 60000) + ':' + String(Math.floor(ms / 1000) % 60).padStart(2, '0') : '';
 function linkCard(href) {
   const u = new URL(href), host = u.hostname.replace(/^www\./, '');
   let kind = host, g = '→';
   if (/(^|\.)youtube\.com$|(^|\.)youtu\.be$|vimeo\.com$|twitch\.tv$/.test(host)) { kind = host.includes('twitch') ? 'Twitch' : host.includes('vimeo') ? 'Vimeo' : 'YouTube'; g = '▶'; }
   else if (/spotify\.com$|soundcloud\.com$|bandcamp\.com$|apple\.com$/.test(host)) { const k = host.split('.').slice(-2)[0]; kind = k === 'apple' ? 'Apple Music' : k[0].toUpperCase() + k.slice(1); g = '♪'; }
   else if (/\.(png|jpe?g|gif|webp)$/i.test(u.pathname)) { kind = 'Image'; g = '▣'; }
-  return h('a', { class: 'card', href, target: '_blank', rel: 'noopener noreferrer' },
-    h('span', { class: 'glyph', 'aria-hidden': 'true' }, g),
-    h('span', { class: 'ctext' }, h('b', {}, kind), h('small', {}, (host + u.pathname).slice(0, 60))));
+  const glyph = h('span', { class: 'glyph', 'aria-hidden': 'true' }, g), b = h('b', {}, kind), sm = h('small', {}, (host + u.pathname).slice(0, 60));
+  const card = h('a', { class: 'card', href, target: '_blank', rel: 'noopener noreferrer' }, glyph, h('span', { class: 'ctext' }, b, sm));
+  if (g === '♪' && /spotify|apple/.test(host)) getMeta(href).then(m => {
+    if (!m || !m.title) return;
+    b.textContent = m.title; sm.textContent = [m.sub, kind, fmtDur(m.ms)].filter(Boolean).join(' · ');
+    if (m.thumb) { const im = h('img', { class: 'cart', src: m.thumb, alt: '' }); glyph.replaceWith(im); }
+  });
+  return card;
 }
 function rich(text) {
   const nodes = [], cards = []; let last = 0;
@@ -687,8 +728,7 @@ function renderProfile() {
   if (p.song && p.song.title) {
     const href = safeUrl(p.song.url);
     body.append(h('div', { class: 'sec' }, h('h3', {}, 'Now playing'),
-      h('div', { class: 'song' }, h('span', { 'aria-hidden': 'true' }, '♪'), h('div', { class: 'mq' }, h('span', {}, p.song.title)),
-        href ? h('a', { href, target: '_blank', rel: 'noopener noreferrer' }, 'Listen') : null)));
+      songBox(p.song, href)));
   }
   const top = (p.top || []).map(x => [x, profileOf(x)]).filter(x => x[1]);
   if (top.length) {
@@ -701,6 +741,24 @@ function renderProfile() {
   if (p.created) body.append(h('div', { class: 'joined' }, 'Joined ' + new Date(p.created).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })));
 }
 
+function songBox(song, href) {
+  const box = h('div', { class: 'song', tabindex: href ? '0' : null }, h('span', { 'aria-hidden': 'true' }, '♪'), h('div', { class: 'mq' }, h('span', {}, song.title)),
+    href ? h('a', { href, target: '_blank', rel: 'noopener noreferrer' }, 'Listen') : null);
+  if (!href) return box;
+  let pop = null;
+  const hide = () => { if (pop) { pop.remove(); pop = null; } };
+  const show = async () => {
+    if (pop) return;
+    const m = await getMeta(href); if (!m || !m.title || pop) return;
+    pop = h('div', { class: 'sphover', role: 'tooltip' }, m.thumb ? h('img', { src: m.thumb, alt: '' }) : null,
+      h('div', {}, h('b', {}, m.title), h('small', {}, [m.sub, fmtDur(m.ms)].filter(Boolean).join(' · '))));
+    box.append(pop);
+  };
+  box.addEventListener('mouseenter', show); box.addEventListener('mouseleave', hide);
+  box.addEventListener('focus', show); box.addEventListener('blur', hide);
+  box.addEventListener('click', e => { if (e.target.closest('a')) return; if (pop) hide(); else show(); });
+  return box;
+}
 function selectProfile(id) { if (S.editing) return; document.body.classList.remove('noprof'); S.selected = id; renderProfile(); renderBuddies(); }
 
 function renderAll() {
@@ -856,6 +914,22 @@ function loadImg(file) {
     im.src = u;
   });
 }
+function confirmPhoto(blob) {
+  return new Promise(res => {
+    const url = URL.createObjectURL(blob), prev = document.activeElement;
+    let dest = 'the lounge';
+    if (S.conv.startsWith('c:')) { const c = S.channels.get(S.conv.slice(2)); dest = c ? '#' + c.name : dest; }
+    else if (!isRoom(S.conv)) { const p = profileOf(S.conv); dest = p ? p.sn : 'them'; }
+    const done = ok => { URL.revokeObjectURL(url); ov.remove(); document.removeEventListener('keydown', key); if (prev && prev.focus) prev.focus(); res(ok); };
+    const key = e => { if (e.key === 'Escape') done(false); };
+    const go = h('button', { class: 'btn pri', type: 'button', onclick: () => done(true) }, 'Send');
+    const ov = h('div', { class: 'ovl', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Send this photo?' },
+      h('div', { class: 'ovbox' }, h('p', {}, 'Send this to ' + dest + '? It disappears after ' + IMG_H + ' hours.'),
+        h('img', { src: url, alt: 'preview' }),
+        h('div', { class: 'ovbtn' }, h('button', { class: 'btn', type: 'button', onclick: () => done(false) }, 'Cancel'), go)));
+    document.body.append(ov); document.addEventListener('keydown', key); go.focus();
+  });
+}
 async function sendPhoto(file) {
   if (!file || !S.signedOn || !mine()) return;
   const say = t => { S.extra = t; renderNote(); clearExtraSoon(); };
@@ -871,6 +945,7 @@ async function sendPhoto(file) {
     } catch { return say('Could not read that picture.'); }
   }
   if (blob.size > 3 * 1024 * 1024) return say('That one is too big. Max is 3 MB.');
+  if (!(await confirmPhoto(blob))) return;
   const path = S.uid + '/' + crypto.randomUUID() + '.' + ext;
   sfx('out');
   const up = await sb.storage.from('media').upload(path, blob, { contentType: blob.type, upsert: false });
