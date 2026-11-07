@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794067028">
+<meta name="build" content="1794067582">
 <link rel="icon" href="data:,">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -106,9 +106,11 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .poptb{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:3px 4px 3px 9px;background:var(--ac);color:var(--oc,#fff);font-weight:800}
 .poptb{font-size:14px;letter-spacing:.02em}
 .poptb button{padding:0 6px;line-height:1.1;font-size:15px;font-weight:800;cursor:pointer;color:#111;background:#d4d0c8;border:2px solid;border-color:#fff #404040 #404040 #fff;border-radius:0}
-.popscroll{flex:none;display:flex;align-items:stretch;background:#d4d0c8;border-top:2px solid #404040;margin:0 4px 4px}
-.popscroll button{padding:0 6px;font-size:10px;line-height:1.6;color:#111;background:#d4d0c8;border:2px solid;border-color:#fff #404040 #404040 #fff;border-radius:0;cursor:pointer}
-.popscroll i{flex:1;margin:1px 2px;background:repeating-conic-gradient(#e8e4dc 0 25%,#fff 0 50%) 0 0/2px 2px}
+.poptabs{flex:none;display:flex;gap:3px;padding:3px 4px 4px}
+.poptabs button{flex:1;padding:2px 8px;font-size:13px;font-weight:700;color:#111;background:#d4d0c8;border:2px solid;border-color:#fff #404040 #404040 #fff;border-radius:0;cursor:pointer}
+.poptabs button:active{border-color:#404040 #fff #fff #404040}
+.popflash{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);max-width:90%;padding:4px 10px;background:#ffffe1;color:#111;border:1px solid #111;font-size:12px;animation:pf 2.6s forwards;pointer-events:none}
+@keyframes pf{0%,70%{opacity:1}100%{opacity:0}}
 .popmenu{display:flex;gap:4px;padding:2px 6px;background:#d4d0c8;color:#111;font-weight:700;border-bottom:2px solid #404040}
 .popmenu button{border:0;background:none;padding:2px 7px;color:#111;font-weight:700;font-size:14px;cursor:pointer}
 .popmenu button u{text-decoration:underline}
@@ -120,7 +122,7 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .popinfo{display:flex;flex-direction:column;gap:3px;min-width:0;overflow-wrap:anywhere}
 .popbody hr{border:0;border-top:1px dashed #999;margin:10px 0}
 .popbio{margin:0;overflow-wrap:anywhere}
-.popbody textarea{width:100%;margin-top:4px;font-size:14px}
+.popbody textarea{background:#fff;color:#111;border:1px solid #777;width:100%;margin-top:4px;font-size:14px}
 .taskbar{display:flex;gap:4px;padding:5px;overflow-x:auto;background:var(--panel2);border-top:2px solid var(--line)}
 .taskbar button{display:flex;gap:6px;align-items:center;flex:0 1 auto;min-width:0;max-width:34%;padding:3px 8px 3px 4px;font-size:13px;font-weight:700;border:1px solid var(--line);background:var(--panel);cursor:pointer}
 .taskbar button.cur{background:var(--bg);border-style:inset}
@@ -1294,6 +1296,26 @@ function renderProfile() {
 const ENV_C = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 12' shape-rendering='crispEdges'%3E%3Crect x='0' y='0' width='16' height='12' fill='%2345403b'/%3E%3Crect x='1' y='1' width='14' height='10' fill='%23fffdf0'/%3E%3Crect x='2' y='2' width='1' height='1' fill='%23948b80'/%3E%3Crect x='3' y='3' width='1' height='1' fill='%23948b80'/%3E%3Crect x='4' y='4' width='1' height='1' fill='%23948b80'/%3E%3Crect x='13' y='2' width='1' height='1' fill='%23948b80'/%3E%3Crect x='12' y='3' width='1' height='1' fill='%23948b80'/%3E%3Crect x='11' y='4' width='1' height='1' fill='%23948b80'/%3E%3Crect x='2' y='9' width='1' height='1' fill='%23948b80'/%3E%3Crect x='3' y='8' width='1' height='1' fill='%23948b80'/%3E%3Crect x='4' y='7' width='1' height='1' fill='%23948b80'/%3E%3Crect x='13' y='9' width='1' height='1' fill='%23948b80'/%3E%3Crect x='12' y='8' width='1' height='1' fill='%23948b80'/%3E%3Crect x='11' y='7' width='1' height='1' fill='%23948b80'/%3E%3Crect x='5' y='3' width='2' height='1' fill='%23dc93bd'/%3E%3Crect x='9' y='3' width='2' height='1' fill='%23dc93bd'/%3E%3Crect x='5' y='4' width='6' height='2' fill='%23dc93bd'/%3E%3Crect x='6' y='6' width='4' height='1' fill='%23dc93bd'/%3E%3Crect x='7' y='7' width='2' height='1' fill='%23dc93bd'/%3E%3C/svg%3E", ENV_O = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14' shape-rendering='crispEdges'%3E%3Crect x='5' y='0' width='6' height='1' fill='%23f6bcc8'/%3E%3Crect x='4' y='1' width='8' height='1' fill='%23f6bcc8'/%3E%3Crect x='3' y='2' width='10' height='1' fill='%23f6bcc8'/%3E%3Crect x='2' y='3' width='12' height='1' fill='%23f6bcc8'/%3E%3Crect x='1' y='4' width='14' height='1' fill='%23f6bcc8'/%3E%3Crect x='0' y='5' width='16' height='1' fill='%23f6bcc8'/%3E%3Crect x='4' y='1' width='8' height='1' fill='%238a6a45'/%3E%3Crect x='4' y='1' width='1' height='6' fill='%238a6a45'/%3E%3Crect x='11' y='1' width='1' height='6' fill='%238a6a45'/%3E%3Crect x='5' y='2' width='6' height='5' fill='%23ffffff'/%3E%3Crect x='0' y='6' width='16' height='8' fill='%238a6a45'/%3E%3Crect x='1' y='7' width='14' height='6' fill='%23fffdf5'/%3E%3Crect x='1' y='7' width='1' height='1' fill='%23f1c4cf'/%3E%3Crect x='14' y='7' width='1' height='1' fill='%23f1c4cf'/%3E%3Crect x='2' y='8' width='1' height='1' fill='%23f1c4cf'/%3E%3Crect x='13' y='8' width='1' height='1' fill='%23f1c4cf'/%3E%3Crect x='3' y='9' width='1' height='1' fill='%23f1c4cf'/%3E%3Crect x='12' y='9' width='1' height='1' fill='%23f1c4cf'/%3E%3Crect x='4' y='10' width='1' height='1' fill='%23f1c4cf'/%3E%3Crect x='11' y='10' width='1' height='1' fill='%23f1c4cf'/%3E%3Crect x='5' y='11' width='1' height='1' fill='%23f1c4cf'/%3E%3Crect x='10' y='11' width='1' height='1' fill='%23f1c4cf'/%3E%3C/svg%3E";
 S.pops = []; try { S.barOpen = LS.get('am.bar') !== '0'; } catch { S.barOpen = true; }
 function popKey(k) { const a = S.pops, i = a.indexOf(k); if (i >= 0) a.splice(i, 1); else { a.push(k); if (a.length > 3) a.shift(); } renderProfile(); }
+function popFlash(pop, t) { const el = h('div', { class: 'popflash', role: 'status' }, t); pop.append(el); setTimeout(() => el.remove(), 2600); }
+async function popMenu(l, k, kid, box, pops) {
+  const pop = box.closest('.pop');
+  if (l === 'Help') {
+    const where = k[0] === 'u' ? 'popup for ' + ((profileOf(kid) || {}).sn || '?') : 'popup for a board';
+    const { error } = await sb.from('bug_reports').insert({ note: ('Help pressed (' + where + '). Build ' + ((document.querySelector('meta[name=build]') || {}).content || '?') + '. ' + navigator.userAgent.slice(0, 80)).slice(0, 300) });
+    return popFlash(pop, error ? (/slow_down/.test(error.message || '') ? 'Already sent, give it a few minutes.' : 'Could not send that.') : 'Sent. The admin knows something is up.');
+  }
+  if (l === 'Edit') {
+    if (k[0] !== 'u' || kid === S.uid) return popFlash(pop, 'Nothing to edit here.');
+    let ta = box.querySelector('.popedit');
+    if (ta) { ta.remove(); return; }
+    ta = h('textarea', { class: 'popedit', rows: '3', maxlength: '500', placeholder: 'Your private note', 'aria-label': 'Private note' }); ta.value = (S.notes && S.notes.get(kid)) || '';
+    const save = async () => { const v = ta.value.trim(); if (v === ((S.notes && S.notes.get(kid)) || '')) return;
+      const { error } = v ? await sb.from('notes').upsert({ target: kid, body: v, updated_at: new Date().toISOString() }, { onConflict: 'owner,target' }) : await sb.from('notes').delete().eq('owner', S.uid).eq('target', kid);
+      if (!error) { if (v) S.notes.set(kid, v); else S.notes.delete(kid); popFlash(pop, 'Saved.'); } };
+    ta.addEventListener('blur', save); box.append(ta); ta.focus(); return;
+  }
+  popFlash(pop, l === 'File' ? 'Nothing in File yet.' : 'Nothing to search yet.');
+}
 function renderBar(p, id) {
   const bar = $('profBar'), pops = $('profPops'), keep = pops.contains(document.activeElement); if (!keep) pops.replaceChildren();
   const fr = S.editing ? [] : (p.top || []).filter(x => profileOf(x));
@@ -1330,8 +1352,8 @@ function renderBar(p, id) {
     }
     pops.append(h('div', { class: 'pop', style: 'left:' + (14 + n * 14) + 'px;top:' + (46 + n * 22) + 'px' },
       h('div', { class: 'poptb' }, h('span', {}, title), h('button', { type: 'button', 'aria-label': 'Close', onclick: () => popKey(k) }, '×')),
-      h('div', { class: 'popmenu' }, [...menu, ['Close', () => popKey(k)]].map(([l, f]) => h('button', { type: 'button', onclick: f }, h('u', {}, l[0]), l.slice(1)))), box,
-      h('div', { class: 'popscroll' }, h('button', { type: 'button', 'aria-label': 'Scroll up', onclick: () => { box.scrollBy({ top: -60, behavior: 'smooth' }); } }, '\u25c0'), h('i', {}), h('button', { type: 'button', 'aria-label': 'Scroll down', onclick: () => { box.scrollBy({ top: 60, behavior: 'smooth' }); } }, '\u25b6'))));
+      h('div', { class: 'popmenu' }, ['File', 'Edit', 'Search', 'Help'].map(l => h('button', { type: 'button', onclick: () => popMenu(l, k, kid, box, pops) }, h('u', {}, l[0]), l.slice(1)))), box,
+      h('div', { class: 'poptabs' }, menu.map(([l, f]) => h('button', { type: 'button', onclick: f }, l)))));
   });
 }
 
@@ -1637,12 +1659,12 @@ function modPanel(id, p) {
   return wrap;
 }
 async function showLog() {
-  const [rp, ev] = await Promise.all([sb.from('reports').select('*').order('created_at', { ascending: false }).limit(60), sb.from('events').select('*').order('created_at', { ascending: false }).limit(60)]);
+  const [rp, ev, bg] = await Promise.all([sb.from('reports').select('*').order('created_at', { ascending: false }).limit(60), sb.from('events').select('*').order('created_at', { ascending: false }).limit(60), sb.from('bug_reports').select('*').order('created_at', { ascending: false }).limit(40)]);
   S.logUnread = 0; renderMe();
   const nm = i => { const p = profileOf(i ? String(i) : ''); return p ? p.sn : 'someone'; };
   const wc = {}, warnNo = new Map();
   for (const r of [...(ev.data || [])].reverse()) if (r.kind === 'warn') { wc[r.target] = (wc[r.target] || 0) + 1; warnNo.set(r.id, wc[r.target]); }
-  const items = [...(rp.data || []).map(r => ({ ts: Date.parse(r.created_at), text: (r.kind === 'down' ? '\u{1F44E} ' : '\u{1F6A9} report: ') + nm(r.reporter) + ' about ' + nm(r.target) + (r.comment ? ' \u2014 ' + r.comment : '') })),
+  const items = [...(bg.data || []).map(r => ({ ts: Date.parse(r.created_at), text: '\u{1F41B} help: ' + nm(r.reporter) + ' \u2014 ' + r.note })), ...(rp.data || []).map(r => ({ ts: Date.parse(r.created_at), text: (r.kind === 'down' ? '\u{1F44E} ' : '\u{1F6A9} report: ') + nm(r.reporter) + ' about ' + nm(r.target) + (r.comment ? ' \u2014 ' + r.comment : '') })),
     ...(ev.data || []).map(r => ({ ts: Date.parse(r.created_at), text: ({ board: 'new board by ' + nm(r.actor) + ': ' + r.note, warn: nm(r.actor) + ' warned ' + nm(r.target) + ' (warning ' + (warnNo.get(r.id) || 1) + ')' + (r.note ? ': ' + r.note : ''), timeout: nm(r.actor) + ' put ' + nm(r.target) + ' in the corner (' + r.note + ')', role: nm(r.actor) + ' set ' + nm(r.target) + ' to ' + r.note, purge: nm(r.actor) + ' ' + String(r.note || '').replace(/^Cleared/, 'cleared'), msgdel: nm(r.actor) + ' deleted a message by ' + nm(r.target) + ': ' + r.note })[r.kind] || r.kind }))].sort((a, b) => b.ts - a.ts);
   const prev = document.activeElement;
   const done = () => { ov.remove(); if (prev && prev.focus) prev.focus(); };
@@ -2118,12 +2140,12 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && S.
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '1794067028' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '1794067582' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '1794067028') { newBuild = m[1]; $('updBar').hidden = false; }
+    if (m && m[1] !== BUILD && m[1] !== '1794067582') { newBuild = m[1]; $('updBar').hidden = false; }
   } catch {}
 }
 $('updBtn').addEventListener('click', () => { location.replace(location.pathname + '?v=' + encodeURIComponent(newBuild || Date.now())); });
