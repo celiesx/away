@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794040399">
+<meta name="build" content="1794041009">
 <link rel="icon" href="data:,">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -266,6 +266,22 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 .macts{position:absolute;right:0;top:0;display:flex;gap:8px;opacity:0;pointer-events:none}
 .macts:focus-within{opacity:.9;pointer-events:auto}
 .m,.act{-webkit-touch-callout:none}
+.rx{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.rx button{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border:1px solid var(--line);border-radius:999px;background:var(--panel2);color:var(--fg);font:inherit;font-size:13px;cursor:pointer;line-height:1.5}
+.rx button.me{border-color:var(--ac);background:var(--ac-soft)}
+.rx img,.em{width:20px;height:20px;vertical-align:-5px;object-fit:contain}
+.rx img{width:16px;height:16px;vertical-align:-3px}
+.qrow{display:flex;gap:2px;padding:6px;border-bottom:1px solid var(--line)}
+.msgmenu .qrow button{border:0;padding:6px 7px;font-size:20px;line-height:1;border-radius:8px;text-align:center}
+.picker{position:fixed;z-index:70;width:min(300px,calc(100vw - 16px));max-height:min(340px,60vh);overflow:auto;background:var(--panel);border:2px solid var(--ac);border-radius:var(--rs);box-shadow:0 6px 18px #0009;padding:8px;color:var(--fg)}
+.picker h4{margin:6px 2px 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:2px}
+.pgrid button{border:0;background:transparent;padding:4px;font-size:22px;line-height:1;cursor:pointer;border-radius:8px;display:flex;align-items:center;justify-content:center;min-height:38px;color:inherit}
+.pgrid button img{width:28px;height:28px;object-fit:contain}
+.pgrid button:hover,.msgmenu .qrow button:hover{background:var(--ac-soft)}
+.emrow{display:flex;gap:8px;align-items:center;margin:6px 0}
+.emrow img{width:32px;height:32px;object-fit:contain}
+.emrow span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
 .msgmenu{position:fixed;z-index:60;display:flex;flex-direction:column;min-width:130px;background:var(--panel);border:2px solid var(--ac);border-radius:var(--rs);box-shadow:0 6px 18px #0009}
 .msgmenu button{text-align:left;border:0;border-bottom:1px solid var(--line);background:transparent;padding:10px 14px;cursor:pointer}
 .msgmenu button:last-child{border-bottom:0}
@@ -345,6 +361,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
       <form id="compose" class="compose" autocomplete="off">
         <label class="sr" for="msg">Message</label>
         <input id="msg" maxlength="300" autocomplete="off" placeholder="Message (try /me or @name)">
+        <button id="emoBtn" class="btn" type="button" aria-label="Emoji and emotes">\u263A</button>
         <button id="photoBtn" class="btn" type="button" aria-label="Send a file, photo or GIF">File</button><input id="photoIn" type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf" hidden>
         <button id="sendBtn" class="btn pri" type="submit">Send</button>
       </form>
@@ -383,6 +400,14 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
           <label for="eFont">Font</label><select id="eFont"></select>
           <label for="ePat">Wallpaper</label><select id="ePat"></select>
           <p id="eHint" class="warn" hidden></p>
+        </fieldset>
+        <fieldset id="emSet"><legend>My emotes</legend>
+          <p class="muted">Tiny pictures anyone can use by typing :name: or from the emoji button. Up to 50.</p>
+          <div id="emList"></div>
+          <label for="emFile">Picture</label><input id="emFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif">
+          <label for="emName">Name (letters, numbers, _)</label><input id="emName" maxlength="20" autocomplete="off" placeholder="catjam">
+          <p id="emErr" class="warn" hidden></p>
+          <button id="emAdd" class="btn" type="button">Add emote</button>
         </fieldset>
         <p id="eErr" class="warn" role="alert" hidden></p>
         <div class="actions"><button id="eSave" class="btn pri" type="submit">Save</button><button id="eCancel" class="btn" type="button">Cancel</button></div>
@@ -592,10 +617,24 @@ function linkCard(href) {
   });
   return card;
 }
+const EMOJI = '\u{1F600} \u{1F602} \u{1F923} \u{1F60A} \u{1F60D} \u{1F970} \u{1F60E} \u{1F914} \u{1F62E} \u{1F622} \u{1F62D} \u{1F621} \u{1F973} \u{1F634} \u{1F605} \u{1F972} \u{1F979} \u{1F644} \u{1F61C} \u{1F92F} \u{1F44D} \u{1F44E} \u{1F44F} \u{1F64C} \u{1F64F} \u{1F4AA} \u{1F44B} \u270C\uFE0F \u{1F90C} \u{1FAF6} \u2764\uFE0F \u{1F9E1} \u{1F49B} \u{1F49A} \u{1F499} \u{1F49C} \u{1F5A4} \u{1F90D} \u{1F494} \u2728 \u{1F525} \u{1F4AF} \u{1F389} \u{1F480} \u{1F440} \u2B50 \u{1F31F} \u{1F319} \u{1F338} \u{1F408} \u{1F415} \u{1F355} \u{1F366} \u2615 \u{1F3B5} \u{1F3AE} \u{1F4A4} \u{1F4A9} \u{1F921} \u{1F47B} \u{1F608} \u{1F6E1}\uFE0F'.split(' ');
+const QUICK = ['\u2764\uFE0F', '\u{1F602}', '\u{1F44D}', '\u{1F62E}', '\u{1F62D}', '\u{1F525}'];
+const EMRE = /:([a-z0-9_]{2,20}):/g;
+function emoImg(name, cls) { const e = S.emotes && S.emotes.get(name); return e && /^data:image\//.test(e.data) ? h('img', { class: cls || 'em', src: e.data, alt: ':' + name + ':', title: ':' + name + ':' }) : null; }
+function emoText(str) {
+  const out = []; let last = 0;
+  for (const m of str.matchAll(EMRE)) {
+    const img = emoImg(m[1]); if (!img) continue;
+    if (m.index > last) out.push(str.slice(last, m.index));
+    out.push(img); last = m.index + m[0].length;
+  }
+  if (last < str.length) out.push(str.slice(last));
+  return out;
+}
 function rich(text) {
   const nodes = [], cards = []; let last = 0;
   for (const m of text.matchAll(TOK)) {
-    if (m.index > last) nodes.push(text.slice(last, m.index));
+    if (m.index > last) nodes.push(...emoText(text.slice(last, m.index)));
     if (m[1]) {
       let u = m[1], tail = '';
       while (/[.,!?)\]]$/.test(u)) { tail = u.slice(-1) + tail; u = u.slice(0, -1); }
@@ -606,7 +645,7 @@ function rich(text) {
     } else nodes.push(h('span', { class: 'at' }, m[2]));
     last = m.index + m[0].length;
   }
-  if (last < text.length) nodes.push(text.slice(last));
+  if (last < text.length) nodes.push(...emoText(text.slice(last)));
   return { nodes, cards };
 }
 
@@ -790,18 +829,70 @@ function pruneMsgs() {
 }
 let menuEl = null;
 function closeMenu() { if (menuEl) { menuEl.remove(); menuEl = null; } }
+function reactsOf(m) { return (S.reacts && S.reacts.get(String(m.id))) || []; }
+async function toggleReact(m, e) {
+  const id = String(m.id), list = (S.reacts.get(id) || []).slice(), i = list.findIndex(r => r.u === S.uid && r.e === e);
+  if (i >= 0) list.splice(i, 1); else { if (list.filter(r => r.u === S.uid).length >= 6) return say('That is the most reactions you can leave on one message.'); list.push({ u: S.uid, e }); }
+  S.reacts.set(id, list); renderLog();
+  const q = i >= 0 ? sb.from('reactions').delete().eq('message_id', m.id).eq('user_id', S.uid).eq('emoji', e) : sb.from('reactions').insert({ message_id: m.id, emoji: e });
+  const { error } = await q;
+  if (error) { say('Could not react. Try again.'); fire(loadReacts().then(renderLog)); }
+}
+async function loadReacts() {
+  const { data, error } = await sb.from('reactions').select('message_id,user_id,emoji').limit(3000);
+  if (error) return;
+  const mp = new Map();
+  for (const r of data || []) { const k = String(r.message_id); if (!mp.has(k)) mp.set(k, []); mp.get(k).push({ u: String(r.user_id), e: String(r.emoji) }); }
+  S.reacts = mp;
+}
+async function loadEmotes() {
+  const { data, error } = await sb.from('emotes').select('id,owner,name,data').limit(1500);
+  if (error) return;
+  S.emotes = new Map((data || []).map(r => [String(r.name), { id: String(r.id), owner: String(r.owner), data: String(r.data) }]));
+}
+function reactBar(m) {
+  const list = reactsOf(m); if (!list.length) return null;
+  const by = new Map();
+  for (const r of list) { if (!by.has(r.e)) by.set(r.e, []); by.get(r.e).push(r.u); }
+  return h('div', { class: 'rx' }, [...by].map(([e, us]) => {
+    const em = /^:[a-z0-9_]{2,20}:$/.test(e) ? emoImg(e.slice(1, -1), 'em') : null;
+    if (/^:/.test(e) && !em) return null;
+    const names = us.map(u => (profileOf(u) || { sn: '?' }).sn).join(', ');
+    return h('button', { type: 'button', class: us.includes(S.uid) ? 'me' : '', title: names, 'aria-label': (em ? e : e) + ' ' + us.length + ', ' + names, onclick: () => toggleReact(m, e) }, em || e, h('span', {}, String(us.length)));
+  }));
+}
+let pickEl = null;
+function closePicker() { if (pickEl) { pickEl.remove(); pickEl = null; } }
+function openPicker(x, y, onPick) {
+  closePicker(); closeMenu();
+  const cell = (label, node, val) => h('button', { type: 'button', 'aria-label': label, onclick: () => { closePicker(); onPick(val); } }, node);
+  const mineE = [...S.emotes].filter(([, v]) => v.owner === S.uid), others = [...S.emotes].filter(([, v]) => v.owner !== S.uid);
+  const grid = list => h('div', { class: 'pgrid' }, list.map(([n]) => cell(':' + n + ':', emoImg(n, 'em'), ':' + n + ':')));
+  pickEl = h('div', { class: 'picker', role: 'dialog', 'aria-label': 'Pick an emoji' },
+    h('h4', {}, 'Emoji'), h('div', { class: 'pgrid' }, EMOJI.map(e => cell(e, e, e))),
+    mineE.length ? [h('h4', {}, 'Your emotes'), grid(mineE)] : null,
+    others.length ? [h('h4', {}, 'Everyone\u2019s emotes'), grid(others)] : null,
+    !S.emotes.size ? h('p', { class: 'muted' }, 'Add your own emotes in Edit profile.') : null);
+  document.body.append(pickEl);
+  const r = pickEl.getBoundingClientRect();
+  pickEl.style.left = Math.max(8, Math.min(x, innerWidth - r.width - 8)) + 'px'; pickEl.style.top = Math.max(8, Math.min(y, innerHeight - r.height - 8)) + 'px';
+  const b = pickEl.querySelector('button'); if (b) b.focus();
+}
+document.addEventListener('pointerdown', e => { if (pickEl && !pickEl.contains(e.target) && !e.target.closest('#emoBtn,.rxb')) closePicker(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closePicker(); });
 function openMenu(x, y, m) {
   closeMenu();
   const items = [];
   if (isRoom(S.conv) && (m.text || (m.image && !isFile(m)))) items.push(['Pin', () => pinMsg(m)]);
   if (m.text) items.push(['Copy text', () => { try { navigator.clipboard.writeText(m.text); } catch {} }]);
   if (m.uid === S.uid || (isStaff() && isRoom(S.conv))) items.push(['Delete', () => delMsg(m)]);
-  if (!items.length) return;
-  menuEl = h('div', { class: 'msgmenu', role: 'menu' }, items.map(([l, f]) => h('button', { type: 'button', role: 'menuitem', onclick: () => { closeMenu(); f(); } }, l)));
+  const quick = h('div', { class: 'qrow' }, QUICK.map(e => h('button', { type: 'button', 'aria-label': 'React ' + e, onclick: () => { closeMenu(); toggleReact(m, e); } }, e)),
+    h('button', { type: 'button', 'aria-label': 'More reactions', onclick: () => { closeMenu(); openPicker(x, y, e => toggleReact(m, e)); } }, '+'));
+  menuEl = h('div', { class: 'msgmenu', role: 'menu' }, quick, items.map(([l, f]) => h('button', { type: 'button', role: 'menuitem', onclick: () => { closeMenu(); f(); } }, l)));
   document.body.append(menuEl);
   const r = menuEl.getBoundingClientRect();
   menuEl.style.left = Math.max(8, Math.min(x, innerWidth - r.width - 8)) + 'px'; menuEl.style.top = Math.max(8, Math.min(y, innerHeight - r.height - 8)) + 'px';
-  menuEl.querySelector('button').focus();
+  menuEl.querySelector('.qrow button').focus();
 }
 document.addEventListener('pointerdown', e => { if (menuEl && !menuEl.contains(e.target)) closeMenu(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
@@ -852,8 +943,9 @@ function renderLog() {
         cont ? h('span') : avatar(p || { sn: '?', theme: { ac } }, 32),
         h('div', { class: 'body' },
           cont ? null : h('div', { class: 'hd' }, h('button', { class: 'chip', type: 'button', style: sty, onclick: open }, sn), h('time', {}, fmtTime(m.ts))),
-          h('div', { class: 'tx' }, r.nodes, m.image ? (isFile(m) ? fileEl(m) : picEl(m.image)) : null), r.cards,
+          h('div', { class: 'tx' }, r.nodes, m.image ? (isFile(m) ? fileEl(m) : picEl(m.image)) : null), r.cards, reactBar(m),
           h('div', { class: 'macts' },
+            h('button', { class: 'pinb rxb', type: 'button', 'aria-label': 'Add a reaction', onclick: e => { const b = e.currentTarget.getBoundingClientRect(); openPicker(b.left, b.bottom + 4, em => toggleReact(m, em)); } }, 'react'),
             isRoom(S.conv) && (m.text || (m.image && !isFile(m))) ? h('button', { class: 'pinb', type: 'button', 'aria-label': 'Pin this message', onclick: () => pinMsg(m) }, 'pin') : null,
             m.uid === S.uid ? h('button', { class: 'pinb delb', type: 'button', 'aria-label': 'Delete this message', onclick: () => delMsg(m) }, 'delete') : null)));
       prev = m;
@@ -1065,7 +1157,8 @@ async function sync(live) {
     sb.from('messages').select(MSG_COLS).order('created_at', { ascending: false }).limit(400),
     sb.from('channels').select('*').limit(50),
     sb.from('pins').select('*').limit(50),
-    sb.from('board_members').select('*').limit(500)
+    sb.from('board_members').select('*').limit(500),
+    loadEmotes(), loadReacts()
   ]);
   if (!bms.error) S.bms = (bms.data || []).map(bmRow);
   if (!chs.error) S.channels = new Map((chs.data || []).map(c => [String(c.id), chanRow(c)]));
@@ -1405,6 +1498,14 @@ function subscribe() {
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'events' }, () => { if (isStaff()) { S.logUnread = (S.logUnread || 0) + 1; renderMe(); } })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'board_members' }, () => { loadBms(); })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'pins' }, () => { loadPins(); })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'reactions' }, p => {
+      const o = p.eventType === 'DELETE' ? p.old : p.new; if (!o || o.message_id == null) return;
+      const k = String(o.message_id), u = String(o.user_id), e = String(o.emoji), list = (S.reacts.get(k) || []).slice();
+      const i = list.findIndex(r => r.u === u && r.e === e);
+      if (p.eventType === 'DELETE') { if (i < 0) return; list.splice(i, 1); } else { if (i >= 0) return; list.push({ u, e }); }
+      S.reacts.set(k, list); if (!S.editing) renderLog();
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'emotes' }, () => { fire(loadEmotes().then(() => { if (!S.editing) renderLog(); else renderEmotes(); })); })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, p => {
       if (p.eventType === 'DELETE') { if (p.old && p.old.id) S.profiles.delete(String(p.old.id)); }
       else if (p.new && p.new.id) {
@@ -1463,7 +1564,7 @@ async function afterAuth() {
 }
 async function enterApp() {
   S.tone = LS.get('am.tone') || 'classic'; S.pmeta = {}; S.lastAct = Date.now(); S.lastTracked = ''; S.dnd = LS.get('am.dnd') === '1';
-  S.channels = new Map(); S.pins = new Map(); S.bms = []; S.infoTab = 'members'; S.msgs = []; S.msgIds = new Set(); S.sys = []; S.unread = {}; S.opened = new Set(); S.conv = 'lounge'; S.online = new Set(); S.presLive = false; S.presSettled = false;
+  S.emotes = new Map(); S.reacts = new Map(); S.channels = new Map(); S.pins = new Map(); S.bms = []; S.infoTab = 'members'; S.msgs = []; S.msgIds = new Set(); S.sys = []; S.unread = {}; S.opened = new Set(); S.conv = 'lounge'; S.online = new Set(); S.presLive = false; S.presSettled = false;
   const hrs = await sb.rpc('message_ttl_hours');
   if (hrs && typeof hrs.data === 'number' && hrs.data > 0) S.ttlH = hrs.data;
   await sync(false);
@@ -1579,7 +1680,7 @@ function livePreview() { readEditor(); syncLook(); applyViewer(S.draft.theme); r
 function openEditor() {
   const p = mine(); if (!p) return;
   document.body.classList.remove('noprof'); S.draft = JSON.parse(JSON.stringify(p)); S.editing = true; S.selected = S.uid;
-  document.body.classList.add('editing'); fillEditor(); renderAll(); setTab('chat');
+  document.body.classList.add('editing'); fillEditor(); renderEmotes(); emoErr(''); renderAll(); setTab('chat');
 }
 function closeEditor() {
   S.editing = false; S.draft = null; S.showInfo = false; S.selected = S.uid; document.body.classList.remove('editing');
@@ -1644,6 +1745,45 @@ function pickAvatar(file) {
   fr.readAsDataURL(file);
 }
 
+function emoErr(t) { const e = $('emErr'); e.textContent = t || ''; e.hidden = !t; }
+function renderEmotes() {
+  const mineE = [...S.emotes].filter(([, v]) => v.owner === S.uid);
+  $('emList').replaceChildren(...mineE.map(([n, v]) => h('div', { class: 'emrow' }, emoImg(n, 'em'), h('span', {}, ':' + n + ':'),
+    h('button', { class: 'btn sm', type: 'button', 'aria-label': 'Remove emote ' + n, onclick: async () => { const { error } = await sb.from('emotes').delete().eq('id', v.id); if (error) return emoErr('Could not remove that.'); S.emotes.delete(n); renderEmotes(); } }, 'Remove'))));
+}
+function makeEmote(file) {
+  return new Promise((res, rej) => {
+    const fr = new FileReader();
+    fr.onerror = () => rej(new Error('That file could not be read.'));
+    fr.onload = () => {
+      const img = new Image();
+      img.onerror = () => rej(new Error('That file could not be read as a picture.'));
+      img.onload = () => {
+        const c = document.createElement('canvas'); c.width = c.height = 64;
+        const x = c.getContext('2d'), k = Math.min(64 / img.width, 64 / img.height), w = img.width * k, hh = img.height * k;
+        x.drawImage(img, (64 - w) / 2, (64 - hh) / 2, w, hh);
+        let d = c.toDataURL('image/png');
+        if (d.length > 22000) d = c.toDataURL('image/jpeg', .8);
+        d.length > 22000 ? rej(new Error('That picture is too detailed. Try a simpler one.')) : res(d);
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  });
+}
+async function addEmote() {
+  emoErr('');
+  const f = $('emFile').files[0], name = $('emName').value.trim().toLowerCase().replace(/^:|:$/g, '');
+  if (!f) return emoErr('Pick a picture first.');
+  if (!/^[a-z0-9_]{2,20}$/.test(name)) return emoErr('Name needs 2 to 20 letters, numbers or _.');
+  if (S.emotes.has(name)) return emoErr('Someone already uses that name.');
+  let data; try { data = await makeEmote(f); } catch (e) { return emoErr(e.message); }
+  const { data: row, error } = await sb.from('emotes').insert({ name, data }).select('id,owner,name,data').single();
+  if (error) return emoErr(/limit/i.test(error.message || '') ? 'You are at 50 emotes.' : 'Could not save that one. Try a different name.');
+  S.emotes.set(name, { id: String(row.id), owner: S.uid, data }); $('emFile').value = ''; $('emName').value = ''; renderEmotes();
+}
+$('emAdd').addEventListener('click', addEmote);
+$('emoBtn').addEventListener('click', e => { const b = e.currentTarget.getBoundingClientRect(); openPicker(b.left, Math.max(8, b.top - 340), v => { const i = $('msg'), a = i.selectionStart == null ? i.value.length : i.selectionStart; i.value = (i.value.slice(0, a) + v + ' ' + i.value.slice(i.selectionEnd == null ? a : i.selectionEnd)).slice(0, 300); i.focus(); }); });
 /* ---------- wiring ---------- */
 $('soForm').addEventListener('submit', onSignon);
 $('soSwap').addEventListener('click', swapMode);
