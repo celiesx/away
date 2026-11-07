@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
+<meta name="build" content="1794039566">
 <link rel="icon" href="data:,">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -280,6 +281,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </head>
 <body>
 <div id="app">
+  <div id="updBar" class="warnbar updbar" hidden><span class="grow">A new version is ready.</span><button id="updBtn" class="btn sm" type="button">Update</button></div>
   <div id="bootMsg" class="bootmsg" hidden>signing on...</div>
   <main id="signon">
     <form id="soForm" class="win" autocomplete="on">
@@ -1250,7 +1252,7 @@ async function doStar(id) {
 async function doReport(id, kind, comment) {
   const { error } = await sb.rpc('file_report', { p_target: id, p_kind: kind, p_comment: clamp(comment, 200) });
   if (error) return say(modErr(error));
-  S.modForm = null; if (kind === 'down') { const p = profileOf(id); if (p) p.downs = (p.downs || 0) + 1; } say(kind === 'down' ? 'Thumbs down sent.' : 'Report sent. Only mods and the admin see it.'); renderProfile();
+  S.modForm = null; if (kind === 'down') { const p = profileOf(id); if (p) p.downs = (p.downs || 0) + 1; } say(kind === 'down' ? 'Thumbs down sent. The mods can see your note.' : 'Report sent. Only mods and the admin see it.'); renderProfile();
 }
 async function doWarn(id, note) {
   const { error } = await sb.rpc('mod_warn', { p_target: id, p_note: clamp(note, 200) });
@@ -1273,13 +1275,13 @@ function modPanel(id, p) {
   const open = kind => () => { S.modForm = { kind, target: id }; renderProfile(); };
   const row = h('div', { class: 'modrow' },
     h('button', { class: 'btn sm starb', type: 'button', title: 'Give a star (one a day)', onclick: () => doStar(id) }, h('img', { src: STAR, alt: '', width: 16, height: 16 }), ' Star'),
-    btn('\u{1F44E}', open('down')), btn('Report', open('report')));
+    btn('\u{1F44E}', open('down')));
   row.children[1].setAttribute('aria-label', 'Thumbs down'); row.children[1].title = 'Thumbs down, one a day';
   if (isStaff() && p.role !== 'admin' && !(p.role === 'mod' && !isAdmin())) row.append(btn('Warn', open('warn')), btn('Corner', open('timeout')));
   if (isAdmin()) row.append(btn(p.role === 'mod' ? 'Remove mod' : 'Make mod', () => doRole(id, p.role === 'mod' ? 'member' : 'mod')));
   const wrap = h('div', { class: 'sec' }, row);
   if (f) {
-    const lab = { down: 'Why the thumbs down? (optional)', report: 'What happened?', warn: 'Warning message', timeout: 'Minutes in the corner' }[f.kind];
+    const lab = { down: 'Tell the mods what happened (optional)', report: 'What happened?', warn: 'Warning message', timeout: 'Minutes in the corner' }[f.kind];
     const inp = f.kind === 'timeout' ? h('select', { 'aria-label': lab }, [5, 15, 30, 60, 0].map(n => h('option', { value: String(n) }, n ? n + ' min' : 'clear it'))) : h('textarea', { rows: '3', maxlength: '200', 'aria-label': lab, placeholder: lab });
     wrap.append(h('div', { class: 'modform' }, inp, h('div', { class: 'ovbtn' }, btn('Cancel', () => { S.modForm = null; renderProfile(); }),
       btn('Send', () => { const v = inp.value; if (f.kind === 'timeout') doTimeout(id, Number(v)); else if (f.kind === 'warn') doWarn(id, v); else doReport(id, f.kind, v); }, 'pri'))));
@@ -1666,9 +1668,23 @@ $('eTop').addEventListener('change', e => {
   if (c.checked) { if (d.top.length < 8 && !d.top.includes(id)) d.top.push(id); } else d.top = d.top.filter(x => x !== id);
   fillTop(); renderProfile();
 });
-document.querySelectorAll('#tabs [data-go]').forEach(b => b.addEventListener('click', () => setTab(b.dataset.go)));
+document.querySelectorAll('#tabs [data-go]').forEach(b => b.addEventListener('click', () => { if (b.dataset.go === 'profile' && !S.editing && S.signedOn) { S.selected = S.uid; S.showInfo = false; renderProfile(); renderBuddies(); } setTab(b.dataset.go); }));
 document.addEventListener('visibilitychange', () => { if (!document.hidden && S.signedOn && S.tab === 'chat') { S.unread[S.conv] = 0; renderTabs(); renderConvs(); } });
 
+const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
+let newBuild = '';
+async function checkUpdate() {
+  if (!BUILD || BUILD === '__BUILD__' || location.protocol === 'file:') return;
+  try {
+    const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) return;
+    const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
+    if (m && m[1] !== BUILD && m[1] !== '__BUILD__') { newBuild = m[1]; $('updBar').hidden = false; }
+  } catch {}
+}
+$('updBtn').addEventListener('click', () => { location.replace(location.pathname + '?v=' + encodeURIComponent(newBuild || Date.now())); });
+setTimeout(checkUpdate, 4000); setInterval(checkUpdate, 600000);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) checkUpdate(); });
 const hasStoredSession = () => { try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (/^sb-.*-auth-token$/.test(k)) return true; } } catch {} return false; };
 async function boot() {
   buildEditorStatic();
