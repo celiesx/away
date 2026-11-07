@@ -163,6 +163,9 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .sec p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
 .song{display:flex;gap:9px;align-items:center;border:1px solid var(--line);padding:6px 9px;background:var(--panel)}
 .song a{color:var(--ac)}
+.sohelp{margin:8px 0;padding:8px 10px;border:1px solid var(--line);background:var(--panel);font-size:13px}
+.sohelp h3{margin:0 0 4px}
+.sohelp p{margin:5px 0}
 .pmood{margin-top:3px;font-style:italic;overflow-wrap:anywhere}
 .mq{flex:1;min-width:0;overflow:hidden;white-space:nowrap}
 .mq span{display:inline-block;animation:mq 12s linear infinite}
@@ -243,11 +246,20 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
   <div id="bootMsg" class="bootmsg" hidden>signing on...</div>
   <main id="signon">
     <form id="soForm" class="win" autocomplete="on">
-      <div class="tb"><span>sign on</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+      <div class="tb"><span>sign on</span><button id="soInfo" class="tbx" type="button" aria-label="How does this work?" aria-expanded="false" aria-controls="soHelp">i</button></div>
       <div class="so-body">
         <h1 class="logo">Away<br><span>Message</span></h1>
+        <div id="soHelp" class="sohelp" hidden>
+          <h3>How this works</h3>
+          <p><b>Your email</b> is only used to sign you in. Other people on here can't see it. The person who runs the site can see the list of emails, the same way any site's owner can. Nothing gets emailed to you.</p>
+          <p><b>Your password</b> is stored scrambled, so nobody can read it, not even the owner.</p>
+          <p><b>Messages</b> disappear after a day, and photos and files after 6 hours. DMs are only between you and the other person, but the owner could technically see them in the site's admin dashboard, so don't send anything you wouldn't want an admin to see.</p>
+          <p><b>Your profile</b> (name, bio, song, status) is only visible to people who got in with the room code.</p>
+          <p><b>Forgot your password?</b> There's no reset yet. Ask the owner to help.</p>
+          <p><b>Room code</b> is what keeps strangers out. Ask whoever invited you.</p>
+        </div>
         <p id="soMsg" class="muted" style="margin:6px 0 6px"></p>
-        <div id="fEmail" class="f"><label for="emIn">Email</label><input id="emIn" type="email" maxlength="120" autocomplete="username"><p class="fine">Only used to log in. Nobody sees it.</p></div>
+        <div id="fEmail" class="f"><label for="emIn">Email</label><input id="emIn" type="email" maxlength="120" autocomplete="username"><p class="fine">Only used to log in. Other people can't see it.</p></div>
         <div id="fPass" class="f"><label for="pwIn">Password</label><input id="pwIn" type="password" minlength="6" maxlength="72" autocomplete="current-password"></div>
         <div id="fSn" class="f"><label for="snIn">Screen name</label><input id="snIn" maxlength="20" autocomplete="off" spellcheck="false"></div>
         <div id="fCode" class="f"><label for="cdIn">Room code</label><input id="cdIn" maxlength="60" autocomplete="off" spellcheck="false"><p class="fine">Ask whoever made this room.</p></div>
@@ -761,7 +773,7 @@ const ago = ts => {
   const hr = Math.round(m / 60); if (hr < 24) return hr + ' hr ago';
   const d = Math.round(hr / 24); return d + (d === 1 ? ' day ago' : ' days ago');
 };
-const LOUNGE_ABOUT = 'Basic rules for everywhere on this site: be kind, no spamming, and no sharing other people\u2019s stuff without asking. These apply in every room too.';
+const LOUNGE_ABOUT = 'The lounge is for everyone. Be kind and no spamming.';
 function renderInfo() {
   const body = $('profBody'), win = $('profWin');
   body.replaceChildren(); applyTheme(win, S.theme); body.dataset.pat = S.theme.pat;
@@ -1348,6 +1360,7 @@ function pickAvatar(file) {
 /* ---------- wiring ---------- */
 $('soForm').addEventListener('submit', onSignon);
 $('soSwap').addEventListener('click', swapMode);
+$('soInfo').addEventListener('click', () => { const x = $('soHelp'); x.hidden = !x.hidden; $('soInfo').setAttribute('aria-expanded', String(!x.hidden)); });
 $('profX').addEventListener('click', () => { if (isPhone()) setTab('chat'); else document.body.classList.add('noprof'); });
 $('infoBtn').addEventListener('click', () => { if (!isRoom(S.conv) || S.editing) return; S.showInfo = true; document.body.classList.remove('noprof'); renderProfile(); if (isPhone()) setTab('profile'); });
 $('newCh').addEventListener('click', () => { const f = $('chForm'); f.hidden = !f.hidden; if (!f.hidden) $('chName').focus(); });
