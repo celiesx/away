@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794057267">
+<meta name="build" content="1794057868">
 <link rel="icon" href="data:,">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -1096,6 +1096,37 @@ function renderInfo() {
   if (on.length) body.append(h('div', { class: 'sec' }, h('h3', {}, 'Here now \u2014 ' + on.length), on.map(x => row(x, x[1].awayOn ? (x[1].away || 'Away') : ''))));
   if (off.length) body.append(h('div', { class: 'sec' }, h('h3', {}, 'Recently around'), off.map(x => row(x, 'last seen ' + ago(x[1].lastSeen)))));
 }
+function noteBox(id) {
+  const cur = (S.notes && S.notes.get(id)) || '';
+  const ta = h('textarea', { rows: '3', maxlength: '500', placeholder: 'Only you can see this', 'aria-label': 'Private note' }); ta.value = cur;
+  const st = h('small', { class: 'muted' }, '');
+  let tm = null;
+  const save = async () => {
+    const v = ta.value.trim(); if (v === ((S.notes && S.notes.get(id)) || '')) return;
+    const { error } = v ? await sb.from('notes').upsert({ target: id, body: v, updated_at: new Date().toISOString() }, { onConflict: 'owner,target' }) : await sb.from('notes').delete().eq('owner', S.uid).eq('target', id);
+    if (error) { st.textContent = 'Could not save that.'; return; }
+    if (v) S.notes.set(id, v); else S.notes.delete(id);
+    st.textContent = 'Saved'; setTimeout(() => { st.textContent = ''; }, 1500);
+  };
+  ta.addEventListener('input', () => { clearTimeout(tm); st.textContent = ''; tm = setTimeout(save, 900); });
+  ta.addEventListener('blur', () => { clearTimeout(tm); save(); });
+  return h('div', { class: 'sec' }, h('h3', {}, 'Private note'), ta, st);
+}
+async function loadNotes() {
+  const { data, error } = await sb.from('notes').select('target,body').limit(500);
+  if (!error) S.notes = new Map((data || []).map(r => [String(r.target), String(r.body)]));
+}
+async function purgeRoom() {
+  if (!isAdmin()) return say('Only the admin can do that.');
+  if (!isRoom(S.conv)) return say('/purge only works in the lounge or a board.');
+  const ch = S.conv === 'lounge' ? null : S.conv.slice(2), where = S.conv === 'lounge' ? 'the lounge' : '#' + ((S.channels.get(ch) || {}).name || 'this board');
+  if (!confirm('Delete every message in ' + where + ' for everyone? This cannot be undone.')) return;
+  const { data, error } = await sb.rpc('purge_room', { p_channel: ch });
+  if (error) return say('Could not clear that.');
+  if (Array.isArray(data) && data.length) fire(sb.storage.from('media').remove(data));
+  S.msgs = S.msgs.filter(m => convOf(m) !== S.conv); S.msgIds = new Set(S.msgs.map(m => m.id));
+  renderLog(); say('Cleared ' + where + '.');
+}
 function renderProfile() {
   const body = $('profBody'), win = $('profWin');
   if (!S.editing && S.showInfo && isRoom(S.conv)) return renderInfo();
@@ -1130,6 +1161,7 @@ function renderProfile() {
   }
   const links = (p.links || []).map(l => [l, safeUrl(l.url)]).filter(x => x[1]);
   if (links.length) body.append(h('div', { class: 'sec links' }, h('h3', {}, 'Links'), links.map(([l, u]) => h('a', { href: u, target: '_blank', rel: 'noopener noreferrer' }, l.label || new URL(u).hostname))));
+  if (!S.editing && id && id !== S.uid) body.append(noteBox(id));
   if (p.created) body.append(h('div', { class: 'joined' }, 'Joined ' + new Date(p.created).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })));
 }
 
@@ -1208,7 +1240,7 @@ async function sync(live) {
     sb.from('channels').select('*').limit(50),
     sb.from('pins').select('*').limit(50),
     sb.from('board_members').select('*').limit(500),
-    loadEmotes(), loadReacts()
+    loadEmotes(), loadReacts(), loadNotes()
   ]);
   if (!bms.error) S.bms = (bms.data || []).map(bmRow);
   if (!chs.error) S.channels = new Map((chs.data || []).map(c => [String(c.id), chanRow(c)]));
@@ -1309,6 +1341,7 @@ async function loadPins() {
 const target = () => isRoom(S.conv) ? (S.conv === 'lounge' ? {} : { channel: S.conv.slice(2) }) : { recipient: S.conv };
 async function send(text) {
   text = clamp(text.trim(), 300); if (!text || !S.signedOn || !mine()) return;
+  if (/^\/purge\s*$/i.test(text)) { await purgeRoom(); return; }
   if (/^\/(report|warn|timeout)\b/i.test(text)) { await modSlash(text); return; }
   let kind = 'msg';
   if (/^\/me\s+/i.test(text)) { kind = 'me'; text = text.replace(/^\/me\s+/i, ''); }
@@ -1439,7 +1472,7 @@ async function showLog() {
   const wc = {}, warnNo = new Map();
   for (const r of [...(ev.data || [])].reverse()) if (r.kind === 'warn') { wc[r.target] = (wc[r.target] || 0) + 1; warnNo.set(r.id, wc[r.target]); }
   const items = [...(rp.data || []).map(r => ({ ts: Date.parse(r.created_at), text: (r.kind === 'down' ? '\u{1F44E} ' : '\u{1F6A9} report: ') + nm(r.reporter) + ' about ' + nm(r.target) + (r.comment ? ' \u2014 ' + r.comment : '') })),
-    ...(ev.data || []).map(r => ({ ts: Date.parse(r.created_at), text: ({ board: 'new board by ' + nm(r.actor) + ': ' + r.note, warn: nm(r.actor) + ' warned ' + nm(r.target) + ' (warning ' + (warnNo.get(r.id) || 1) + ')' + (r.note ? ': ' + r.note : ''), timeout: nm(r.actor) + ' put ' + nm(r.target) + ' in the corner (' + r.note + ')', role: nm(r.actor) + ' set ' + nm(r.target) + ' to ' + r.note, msgdel: nm(r.actor) + ' deleted a message by ' + nm(r.target) + ': ' + r.note })[r.kind] || r.kind }))].sort((a, b) => b.ts - a.ts);
+    ...(ev.data || []).map(r => ({ ts: Date.parse(r.created_at), text: ({ board: 'new board by ' + nm(r.actor) + ': ' + r.note, warn: nm(r.actor) + ' warned ' + nm(r.target) + ' (warning ' + (warnNo.get(r.id) || 1) + ')' + (r.note ? ': ' + r.note : ''), timeout: nm(r.actor) + ' put ' + nm(r.target) + ' in the corner (' + r.note + ')', role: nm(r.actor) + ' set ' + nm(r.target) + ' to ' + r.note, purge: nm(r.actor) + ' ' + String(r.note || '').replace(/^Cleared/, 'cleared'), msgdel: nm(r.actor) + ' deleted a message by ' + nm(r.target) + ': ' + r.note })[r.kind] || r.kind }))].sort((a, b) => b.ts - a.ts);
   const prev = document.activeElement;
   const done = () => { ov.remove(); if (prev && prev.focus) prev.focus(); };
   const ov = h('div', { class: 'ovl', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Admin log' }, h('div', { class: 'ovbox logbox' }, h('h3', {}, 'Mod log'), h('p', { class: 'muted' }, 'Mods and the admin both see this, so check it before you warn or send someone to the corner. A simple rule to try: 3 warnings, then 15 minutes in the corner. Nothing here is automatic.'),
@@ -1615,7 +1648,7 @@ async function afterAuth() {
 }
 async function enterApp() {
   S.tone = LS.get('am.tone') || 'classic'; S.pmeta = {}; S.lastAct = Date.now(); S.lastTracked = ''; S.dnd = LS.get('am.dnd') === '1';
-  S.emotes = new Map(); S.reacts = new Map(); S.channels = new Map(); S.pins = new Map(); S.bms = []; S.infoTab = 'members'; S.msgs = []; S.msgIds = new Set(); S.sys = []; S.unread = {}; S.opened = new Set(); S.conv = 'lounge'; S.online = new Set(); S.presLive = false; S.presSettled = false;
+  S.notes = new Map(); S.emotes = new Map(); S.reacts = new Map(); S.channels = new Map(); S.pins = new Map(); S.bms = []; S.infoTab = 'members'; S.msgs = []; S.msgIds = new Set(); S.sys = []; S.unread = {}; S.opened = new Set(); S.conv = 'lounge'; S.online = new Set(); S.presLive = false; S.presSettled = false;
   const hrs = await sb.rpc('message_ttl_hours');
   if (hrs && typeof hrs.data === 'number' && hrs.data > 0) S.ttlH = hrs.data;
   await sync(false);
