@@ -259,9 +259,13 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 .pinbar.open .pt{white-space:normal;overflow-wrap:anywhere}
 .pinbar .x,.pinb{background:none;border:0;color:var(--muted);font:inherit;cursor:pointer;padding:0 2px}
 .m .body{position:relative}
-.macts{position:absolute;right:0;top:0;display:flex;gap:8px;opacity:0}
-.m:hover .macts,.macts:focus-within{opacity:.85}
-@media (hover:none){.macts{opacity:.7}}
+.macts{position:absolute;right:0;top:0;display:flex;gap:8px;opacity:0;pointer-events:none}
+.macts:focus-within{opacity:.9;pointer-events:auto}
+.m,.act{-webkit-touch-callout:none}
+.msgmenu{position:fixed;z-index:60;display:flex;flex-direction:column;min-width:130px;background:var(--panel);border:2px solid var(--ac);border-radius:var(--rs);box-shadow:0 6px 18px #0009}
+.msgmenu button{text-align:left;border:0;border-bottom:1px solid var(--line);background:transparent;padding:10px 14px;cursor:pointer}
+.msgmenu button:last-child{border-bottom:0}
+.msgmenu button:hover,.msgmenu button:focus-visible{background:var(--ac);color:var(--on-ac)}
 .pinb{font-size:11px}
 .convs .btn[aria-current=true]{background:var(--ac);color:var(--on-ac);border-color:var(--ac)}
 .f{display:flex;flex-direction:column}
@@ -776,6 +780,31 @@ function picEl(path) {
 function pruneMsgs() {
   if (S.msgs.some(expired)) { S.msgs = S.msgs.filter(m => !expired(m)); S.msgIds = new Set(S.msgs.map(m => m.id)); }
 }
+let menuEl = null;
+function closeMenu() { if (menuEl) { menuEl.remove(); menuEl = null; } }
+function openMenu(x, y, m) {
+  closeMenu();
+  const items = [];
+  if (isRoom(S.conv) && (m.text || (m.image && !isFile(m)))) items.push(['Pin', () => pinMsg(m)]);
+  if (m.text) items.push(['Copy text', () => { try { navigator.clipboard.writeText(m.text); } catch {} }]);
+  if (m.uid === S.uid) items.push(['Delete', () => delMsg(m)]);
+  if (!items.length) return;
+  menuEl = h('div', { class: 'msgmenu', role: 'menu' }, items.map(([l, f]) => h('button', { type: 'button', role: 'menuitem', onclick: () => { closeMenu(); f(); } }, l)));
+  document.body.append(menuEl);
+  const r = menuEl.getBoundingClientRect();
+  menuEl.style.left = Math.max(8, Math.min(x, innerWidth - r.width - 8)) + 'px'; menuEl.style.top = Math.max(8, Math.min(y, innerHeight - r.height - 8)) + 'px';
+  menuEl.querySelector('button').focus();
+}
+document.addEventListener('pointerdown', e => { if (menuEl && !menuEl.contains(e.target)) closeMenu(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
+function attachMsgMenu(row, m) {
+  row.addEventListener('contextmenu', e => { if (e.target.closest('a,img,button')) return; e.preventDefault(); openMenu(e.clientX, e.clientY, m); });
+  let t = null, sx = 0, sy = 0;
+  const cancel = () => clearTimeout(t);
+  row.addEventListener('touchstart', e => { const tt = e.touches[0]; sx = tt.clientX; sy = tt.clientY; cancel(); t = setTimeout(() => openMenu(sx, sy, m), 480); }, { passive: true });
+  row.addEventListener('touchend', cancel); row.addEventListener('touchcancel', cancel);
+  row.addEventListener('touchmove', e => { const tt = e.touches[0]; if (Math.abs(tt.clientX - sx) > 8 || Math.abs(tt.clientY - sy) > 8) cancel(); }, { passive: true });
+}
 function renderLog() {
   const log = $('log');
   renderPin();
@@ -795,7 +824,7 @@ function renderLog() {
     return;
   }
   const hrs = S.ttlH === 1 ? 'hour' : 'hours';
-  log.append(h('div', { class: 'sys' }, peer ? 'Only you and ' + peer.sn + ' can see this chat. Messages disappear after ' + S.ttlH + ' ' + hrs + ', photos and files after ' + IMG_H + '.' : 'Messages disappear after ' + S.ttlH + ' ' + hrs + ', photos and files after ' + IMG_H + '.'));
+  log.append(h('div', { class: 'sys' }, peer ? 'Only you and ' + peer.sn + ' can see this chat. Messages disappear after ' + S.ttlH + ' ' + hrs + ', photos and files after ' + IMG_H + '.' : 'Messages disappear after ' + S.ttlH + ' ' + hrs + ', photos and files after ' + IMG_H + '. Press and hold, or right-click, a message for pin, copy and delete.'));
   if (!items.length) { log.append(h('p', { class: 'empty' }, peer ? 'Say hi to ' + peer.sn + '.' : 'It is quiet in here. Say something. /me does actions, @name pings someone, and links show up as cards.')); return; }
   const bySnMap = new Map([...S.profiles].map(([id, p]) => [p.sn.toLowerCase(), [id, p]]));
   let prev = null;
@@ -821,6 +850,7 @@ function renderLog() {
             m.uid === S.uid ? h('button', { class: 'pinb delb', type: 'button', 'aria-label': 'Delete this message', onclick: () => delMsg(m) }, 'delete') : null)));
       prev = m;
     }
+    attachMsgMenu(row, m);
     log.append(row);
     if (isRoom(S.conv)) {
       const seen = new Set();
@@ -874,7 +904,7 @@ function renderInfo() {
     if (pend.length) body.append(h('div', { class: 'sec' }, h('h3', {}, 'Wants to join'), pend.map(b => { const p = profileOf(b.member); return h('div', { class: 'lrow2' }, h('b', {}, p ? p.sn : 'someone'), h('span', { class: 'grow' }),
       h('button', { class: 'btn sm pri', type: 'button', onclick: () => answerJoin(id, b.member, true) }, 'Yes'), h('button', { class: 'btn sm', type: 'button', onclick: () => answerJoin(id, b.member, false) }, 'No')); })));
   }
-  body.append(h('div', { class: 'itabs', role: 'tablist' }, ['members', 'media', 'pins', 'links', 'files'].map(t => h('button', { type: 'button', class: 'btn sm', role: 'tab', 'aria-selected': String(S.infoTab === t), onclick: () => { S.infoTab = t; renderProfile(); } }, t[0].toUpperCase() + t.slice(1)))));
+  body.append(h('div', { class: 'itabs', role: 'tablist' }, ['members', 'media', 'pins', 'links', 'files'].map(t => h('button', { type: 'button', class: 'btn sm', role: 'tab', 'aria-selected': String(S.infoTab === t), onclick: () => { S.infoTab = t; renderProfile(); } }, t[0].toUpperCase() + t.slice(1) + (t === 'pins' && (S.pins.get(pinKey(S.conv)) || []).length ? ' (' + (S.pins.get(pinKey(S.conv)) || []).length + ')' : '')))));
   const roomMsgs = S.msgs.filter(m => convOf(m) === S.conv).slice().reverse();
   const when = m => profileOf(m.uid) ? profileOf(m.uid).sn + ' \u00b7 ' + fmtTime(m.ts) : fmtTime(m.ts);
   const card = (m, inner, name, size) => { const p = profileOf(m.uid); return h('div', { class: 'fcard' }, h('div', { class: 'fprev' }, inner),
@@ -1236,8 +1266,7 @@ function modPanel(id, p) {
   const open = kind => () => { S.modForm = { kind, target: id }; renderProfile(); };
   const row = h('div', { class: 'modrow' },
     h('button', { class: 'btn sm starb', type: 'button', title: 'Give a star (one a day)', onclick: () => doStar(id) }, h('img', { src: STAR, alt: '', width: 16, height: 16 }), ' Star'),
-    btn('\u{1F44E}', open('down')), btn('Report', open('report')));
-  row.children[1].setAttribute('aria-label', 'Thumbs down'); row.children[1].title = 'Thumbs down (only the admin sees it)';
+    btn('Report', open('report')));
   if (isStaff() && p.role !== 'admin' && !(p.role === 'mod' && !isAdmin())) row.append(btn('Warn', open('warn')), btn('Corner', open('timeout')));
   if (isAdmin()) row.append(btn(p.role === 'mod' ? 'Remove mod' : 'Make mod', () => doRole(id, p.role === 'mod' ? 'member' : 'mod')));
   const wrap = h('div', { class: 'sec' }, row);
@@ -1253,11 +1282,13 @@ async function showLog() {
   const [rp, ev] = await Promise.all([sb.from('reports').select('*').order('created_at', { ascending: false }).limit(60), sb.from('events').select('*').order('created_at', { ascending: false }).limit(60)]);
   S.logUnread = 0; renderMe();
   const nm = i => { const p = profileOf(i ? String(i) : ''); return p ? p.sn : 'someone'; };
+  const wc = {}, warnNo = new Map();
+  for (const r of [...(ev.data || [])].reverse()) if (r.kind === 'warn') { wc[r.target] = (wc[r.target] || 0) + 1; warnNo.set(r.id, wc[r.target]); }
   const items = [...(rp.data || []).map(r => ({ ts: Date.parse(r.created_at), text: (r.kind === 'down' ? '\u{1F44E} ' : '\u{1F6A9} report: ') + nm(r.reporter) + ' about ' + nm(r.target) + (r.comment ? ' \u2014 ' + r.comment : '') })),
-    ...(ev.data || []).map(r => ({ ts: Date.parse(r.created_at), text: ({ board: 'new board by ' + nm(r.actor) + ': ' + r.note, warn: nm(r.actor) + ' warned ' + nm(r.target) + (r.note ? ': ' + r.note : ''), timeout: nm(r.actor) + ' put ' + nm(r.target) + ' in the corner (' + r.note + ')', role: nm(r.actor) + ' set ' + nm(r.target) + ' to ' + r.note })[r.kind] || r.kind }))].sort((a, b) => b.ts - a.ts);
+    ...(ev.data || []).map(r => ({ ts: Date.parse(r.created_at), text: ({ board: 'new board by ' + nm(r.actor) + ': ' + r.note, warn: nm(r.actor) + ' warned ' + nm(r.target) + ' (warning ' + (warnNo.get(r.id) || 1) + ')' + (r.note ? ': ' + r.note : ''), timeout: nm(r.actor) + ' put ' + nm(r.target) + ' in the corner (' + r.note + ')', role: nm(r.actor) + ' set ' + nm(r.target) + ' to ' + r.note })[r.kind] || r.kind }))].sort((a, b) => b.ts - a.ts);
   const prev = document.activeElement;
   const done = () => { ov.remove(); if (prev && prev.focus) prev.focus(); };
-  const ov = h('div', { class: 'ovl', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Admin log' }, h('div', { class: 'ovbox logbox' }, h('h3', {}, 'Admin log'),
+  const ov = h('div', { class: 'ovl', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Admin log' }, h('div', { class: 'ovbox logbox' }, h('h3', {}, 'Admin log'), h('p', { class: 'muted' }, 'You decide what happens. A simple rule to try: 3 warnings, then 15 minutes in the corner. Nothing here is automatic.'),
     items.length ? items.map(i => h('div', { class: 'logrow' }, h('small', { class: 'muted' }, new Date(i.ts).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })), h('div', {}, i.text))) : h('p', { class: 'muted' }, 'Nothing yet.'),
     h('div', { class: 'ovbtn' }, h('button', { class: 'btn pri', type: 'button', onclick: done }, 'Close'))));
   ov.addEventListener('keydown', e => { if (e.key === 'Escape') done(); });
