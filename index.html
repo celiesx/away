@@ -166,6 +166,8 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 body.editing #editWin{display:flex}
 body.editing #chatWin{display:none}
 
+@media (min-width:901px){body.noprof #desk{grid-template-columns:260px minmax(0,1fr)}body.noprof #profWin{display:none}}
+body.editing #profX{display:none}
 @media (max-width:900px){
   #tabs{display:flex}
   #desk{grid-template-columns:minmax(0,1fr)}
@@ -190,6 +192,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 .chform input{flex:1 1 110px;min-width:0}
 .pinbar{display:flex;gap:8px;align-items:flex-start;padding:5px 10px;font-size:12px;background:var(--ac-soft);border-bottom:1px solid var(--line)}
 .pinbar .pt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;text-align:left;background:none;border:0;color:inherit;font:inherit;padding:0}
+.pinbar.open{flex-wrap:wrap}.pinpic{flex-basis:100%;order:5}.pinpic img{max-height:200px}
 .pinbar.open .pt{white-space:normal;overflow-wrap:anywhere}
 .pinbar .x,.pinb{background:none;border:0;color:var(--muted);font:inherit;cursor:pointer;padding:0 2px}
 .m .body{position:relative}
@@ -297,7 +300,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
     </section>
 
     <section id="profWin" class="win theme" aria-label="Profile">
-      <div class="tb"><span id="profTitle">profile</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+      <div class="tb"><span id="profTitle">profile</span><button id="profX" class="tbx" type="button" aria-label="Close profile">&times;</button></div>
       <div id="profBody" class="pbody"></div>
     </section>
   </div>
@@ -648,7 +651,7 @@ function renderLog() {
         h('div', { class: 'body' },
           cont ? null : h('div', { class: 'hd' }, h('button', { class: 'chip', type: 'button', style: sty, onclick: open }, sn), h('time', {}, fmtTime(m.ts))),
           h('div', { class: 'tx' }, r.nodes, m.image ? picEl(m.image) : null), r.cards,
-          isRoom(S.conv) && m.text ? h('button', { class: 'pinb', type: 'button', 'aria-label': 'Pin this message', onclick: () => pinMsg(m) }, 'pin') : null));
+          isRoom(S.conv) && (m.text || m.image) ? h('button', { class: 'pinb', type: 'button', 'aria-label': 'Pin this message', onclick: () => pinMsg(m) }, 'pin') : null));
       prev = m;
     }
     log.append(row);
@@ -698,7 +701,7 @@ function renderProfile() {
   if (p.created) body.append(h('div', { class: 'joined' }, 'Joined ' + new Date(p.created).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })));
 }
 
-function selectProfile(id) { if (S.editing) return; S.selected = id; renderProfile(); renderBuddies(); }
+function selectProfile(id) { if (S.editing) return; document.body.classList.remove('noprof'); S.selected = id; renderProfile(); renderBuddies(); }
 
 function renderAll() {
   applyViewer(S.editing && S.draft ? S.draft.theme : S.theme);
@@ -739,7 +742,7 @@ function addMsg(r, live) {
   return true;
 }
 const chanRow = c => ({ id: String(c.id), name: clamp(c.name, 20), keep: !!c.keep, by: String(c.created_by || '') });
-const pinRow = p => ({ id: String(p.id), ch: p.channel ? String(p.channel) : null, text: clamp(p.body, 300), author: p.author ? String(p.author) : '', by: p.pinned_by ? String(p.pinned_by) : '' });
+const pinRow = p => ({ id: String(p.id), ch: p.channel ? String(p.channel) : null, text: clamp(p.body, 300), image: p.image ? String(p.image) : '', author: p.author ? String(p.author) : '', by: p.pinned_by ? String(p.pinned_by) : '' });
 const MSG_COLS = 'id,sender,recipient,channel,kind,body,image,created_at';
 async function sync(live) {
   const [pr, ms, chs, pns] = await Promise.all([
@@ -800,18 +803,29 @@ function renderPin() {
   b.hidden = !p; b.replaceChildren(); if (!p) return;
   const a = profileOf(p.author);
   b.append(h('span', { 'aria-hidden': 'true' }, '\u{1F4CC}'),
-    h('button', { class: 'pt', type: 'button', 'aria-expanded': String(b.classList.contains('open')), onclick: () => { b.classList.toggle('open'); renderPin(); } }, (a ? a.sn + ': ' : '') + p.text),
+    h('button', { class: 'pt', type: 'button', 'aria-expanded': String(b.classList.contains('open')), onclick: () => { b.classList.toggle('open'); renderPin(); } }, (a ? a.sn + ': ' : '') + (p.text || (p.image ? '(photo)' : ''))),
+    p.image && b.classList.contains('open') ? h('div', { class: 'pinpic' }, picEl(p.image)) : null,
     h('button', { class: 'x', type: 'button', 'aria-label': 'Unpin', onclick: unpin }, '\u00d7'));
 }
 async function pinMsg(m) {
-  const { error } = await sb.rpc('set_pin', { p_msg: Number(m.id) });
-  if (error) { S.extra = 'Could not pin that.'; renderNote(); clearExtraSoon(); return; }
+  const fail = () => { S.extra = 'Could not pin that.'; renderNote(); clearExtraSoon(); };
+  let copy = null;
+  if (m.image) {
+    copy = 'pins/' + crypto.randomUUID() + '.' + m.image.split('.').pop();
+    const c = await sb.storage.from('media').copy(m.image, copy);
+    if (c.error) return fail();
+  }
+  const old = S.pins.get(pinKey(S.conv));
+  const { error } = await sb.rpc('set_pin', { p_msg: Number(m.id), p_image: copy });
+  if (error) { if (copy) fire(sb.storage.from('media').remove([copy])); return fail(); }
+  if (old && old.image) fire(sb.storage.from('media').remove([old.image]));
   await loadPins();
 }
 async function unpin() {
-  const k = pinKey(S.conv);
+  const k = pinKey(S.conv), old = S.pins.get(k);
   const { error } = await sb.rpc('clear_pin', { p_channel: k === 'lounge' ? null : k });
   if (error) return;
+  if (old && old.image) fire(sb.storage.from('media').remove([old.image]));
   S.pins.delete(k); renderPin();
 }
 async function loadPins() {
@@ -1097,7 +1111,7 @@ function readEditor() {
 function livePreview() { readEditor(); syncLook(); applyViewer(S.draft.theme); renderProfile(); }
 function openEditor() {
   const p = mine(); if (!p) return;
-  S.draft = JSON.parse(JSON.stringify(p)); S.editing = true; S.selected = S.uid;
+  document.body.classList.remove('noprof'); S.draft = JSON.parse(JSON.stringify(p)); S.editing = true; S.selected = S.uid;
   document.body.classList.add('editing'); fillEditor(); renderAll(); setTab('chat');
 }
 function closeEditor() {
@@ -1146,6 +1160,7 @@ function pickAvatar(file) {
 /* ---------- wiring ---------- */
 $('soForm').addEventListener('submit', onSignon);
 $('soSwap').addEventListener('click', swapMode);
+$('profX').addEventListener('click', () => { if (isPhone()) setTab('chat'); else document.body.classList.add('noprof'); });
 $('chForm').addEventListener('submit', makeChannel);
 $('chCancel').addEventListener('click', () => { $('chForm').hidden = true; });
 $('photoBtn').addEventListener('click', () => $('photoIn').click());
