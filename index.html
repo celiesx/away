@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="20261107152241">
+<meta name="build" content="20261107152639">
 <link rel="icon" href="data:,">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -745,7 +745,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=20261107152241"></script>
+<script src="config.js?v=20261107152639"></script>
 <script>
 (() => {
 'use strict';
@@ -2125,6 +2125,7 @@ function subscribe() {
         const id = String(p.new.id), old = S.profiles.get(id), np = fromRow(p.new);
         if (old && !('avatar' in p.new)) np.avatar = old.avatar;
         if (old && !('banner' in p.new)) np.banner = old.banner;
+        if (p.eventType === 'INSERT' && !old && S.presSettled && id !== S.uid) { S.sys.push({ ts: Date.now(), text: np.sn + ' just joined for the first time.' }); sfx('open'); }
         if (old && S.presSettled && id !== S.uid && old.awayOn !== np.awayOn) S.sys.push({ ts: Date.now(), text: np.sn + (np.awayOn ? ' went to sleep' + (np.away ? ': ' + np.away : '.') : ' woke up.') });
         S.profiles.set(id, np);
       }
@@ -2137,11 +2138,11 @@ function subscribe() {
     const ps0 = S.presChan.presenceState(), isInv = u => { const e = ps0[u] && ps0[u][ps0[u].length - 1]; return !!e && e.st === 'invis'; };
     const now = new Set(Object.keys(ps0).filter(u => !isInv(u)));
     if (S.presSettled) {
-      for (const u of now) if (!S.online.has(u) && u !== S.uid) { const p = profileOf(u); sfx('open'); S.sys.push({ ts: Date.now(), text: (p ? p.sn : 'Someone') + ' has signed on.' }); }
+      for (const u of now) if (!S.online.has(u) && u !== S.uid) { const p = profileOf(u); S.sys.push({ ts: Date.now(), text: (p ? p.sn : 'Someone') + ' has signed on.' }); }
       S.grace = S.grace || new Map();
       for (const u of now) S.grace.delete(u);
       for (const u of S.online) if (!now.has(u) && u !== S.uid && !S.grace.has(u)) { if (isInv(u)) { const p = profileOf(u); S.sys.push({ ts: Date.now(), text: (p ? p.sn : 'Someone') + ' has signed off.' }); } else S.grace.set(u, Date.now()); }
-      for (const [u, t] of [...S.grace]) if (Date.now() - t > 75000 && !now.has(u)) { S.grace.delete(u); S.online.delete(u); const p = profileOf(u); sfx('close'); S.sys.push({ ts: Date.now(), text: (p ? p.sn : 'Someone') + ' has signed off.' }); }
+      for (const [u, t] of [...S.grace]) if (Date.now() - t > 75000 && !now.has(u)) { S.grace.delete(u); S.online.delete(u); const p = profileOf(u); S.sys.push({ ts: Date.now(), text: (p ? p.sn : 'Someone') + ' has signed off.' }); }
       if (S.sys.length > 40) S.sys.splice(0, S.sys.length - 40);
     }
     S.online = new Set([...now, ...(S.grace ? [...S.grace.keys()] : [])]);
@@ -2277,7 +2278,7 @@ async function signOff(why) { sfx('close'); S.awayNote = typeof why === 'string'
 const autoMs = () => { const v = LS.get('am.auto'); const n = v == null || v === '' ? 30 : Number(v); return n > 0 ? n * 60000 : 0; };
 const AUTO_MSG = 'You were signed off after being away. Sign back on when you are ready.';
 function autoExpired() { const ms = autoMs(); return !!(S.signedOn && ms && Date.now() - S.lastAct > ms); }
-setInterval(() => { if (autoExpired()) signOff(AUTO_MSG); else if (S.signedOn && S.grace && S.grace.size && S.presChan) { const now = new Set(Object.keys(S.presChan.presenceState())); let ch = false; for (const [u, t] of [...S.grace]) if (Date.now() - t > 75000 && !now.has(u)) { S.grace.delete(u); S.online.delete(u); ch = true; const p = profileOf(u); sfx('close'); S.sys.push({ ts: Date.now(), text: (p ? p.sn : 'Someone') + ' has signed off.' }); } if (ch) { renderBuddies(); renderLog(); } } }, 20000);
+setInterval(() => { if (autoExpired()) signOff(AUTO_MSG); else if (S.signedOn && S.grace && S.grace.size && S.presChan) { const now = new Set(Object.keys(S.presChan.presenceState())); let ch = false; for (const [u, t] of [...S.grace]) if (Date.now() - t > 75000 && !now.has(u)) { S.grace.delete(u); S.online.delete(u); ch = true; const p = profileOf(u); S.sys.push({ ts: Date.now(), text: (p ? p.sn : 'Someone') + ' has signed off.' }); } if (ch) { renderBuddies(); renderLog(); } } }, 20000);
 
 /* ---------- editor ---------- */
 function buildEditorStatic() {
