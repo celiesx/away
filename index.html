@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794083672">
+<meta name="build" content="1794083879">
 <link rel="icon" href="data:,">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -2112,6 +2112,15 @@ async function afterAuth() {
   await enterApp();
   return true;
 }
+async function showUploads() {
+  try {
+    const { data } = await sb.storage.from('site-assets').list('', { limit: 20 }); const have = new Map((data || []).map(f => [f.name, f]));
+    for (const [file, id, nm] of [['hand.otf', 'eFontNote', 'font'], ['planner.pdf', 'ePdfNote', 'planner'], ['covers.pdf', 'eCovNote', 'covers']]) {
+      const f = have.get(file), el = $(id); if (!el) continue;
+      el.textContent = f ? '\u2713 ' + nm + ' uploaded' + (f.created_at ? ' on ' + new Date(f.updated_at || f.created_at).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '') + '. Pick a file to replace it.' : 'Nothing uploaded yet.';
+    }
+  } catch { /* status is optional */ }
+}
 async function loadHand() {
   try { const { data, error } = await sb.storage.from('site-assets').download('hand.otf'); if (error || !data) return; const ff = new FontFace('Hand', await data.arrayBuffer()); await ff.load(); document.fonts.add(ff); } catch { /* font is optional */ }
 }
@@ -2217,7 +2226,7 @@ function fillTop() {
 }
 function fillEditor() {
   const d = S.draft;
-  $('eDm').value = d.dmFriends ? 'friends' : 'all'; $('eFontBox').hidden = !isAdmin(); $('eSn').value = d.sn; $('eBio').value = d.bio; $('eSongT').value = d.song.title; $('eSongU').value = d.song.url;
+  $('eDm').value = d.dmFriends ? 'friends' : 'all'; $('eFontBox').hidden = !isAdmin(); if (isAdmin()) fire(showUploads()); $('eSn').value = d.sn; $('eBio').value = d.bio; $('eSongT').value = d.song.title; $('eSongU').value = d.song.url;
   for (let i = 0; i < 3; i++) { const l = d.links[i] || { label: '', url: '' }; $('eL' + i + 'n').value = l.label; $('eL' + i + 'u').value = l.url; }
   syncLook(); fillTop(); showBnPrev(); $('eAvPrev').replaceChildren(avatar(d, 44)); $('eErr').hidden = true;
 }
@@ -2767,21 +2776,21 @@ $('ePdf').addEventListener('change', async e => {
   if (f.size > 2000000) { note.textContent = 'That file is too big.'; return; }
   note.textContent = 'Uploading...';
   const { error } = await sb.storage.from('site-assets').upload('planner.pdf', f, { upsert: true, contentType: 'application/pdf' });
-  note.textContent = error ? 'That did not go through.' : 'Done. The Planner button opens it now.';
+  note.textContent = error ? 'That did not go through.' : 'Done. The Planner button opens it now.'; if (!error) setTimeout(() => fire(showUploads()), 1500);
 });
 $('eCov').addEventListener('change', async e => {
   const f = e.target.files[0], note = $('eCovNote'); if (!f) return;
   if (f.size > 2000000) { note.textContent = 'That file is too big (2 MB max).'; return; }
   note.textContent = 'Uploading...';
   const { error } = await sb.storage.from('site-assets').upload('covers.pdf', f, { upsert: true, contentType: 'application/pdf' });
-  note.textContent = error ? 'That did not go through.' : 'Done. Open the Planner and tap Cover.';
+  note.textContent = error ? 'That did not go through.' : 'Done. Open the Planner and tap Cover.'; if (!error) setTimeout(() => fire(showUploads()), 1500);
 });
 $('eFont').addEventListener('change', async e => {
   const f = e.target.files[0], note = $('eFontNote'); if (!f) return;
   if (f.size > 2000000) { note.textContent = 'That file is too big.'; return; }
   note.textContent = 'Uploading...';
   const { error } = await sb.storage.from('site-assets').upload('hand.otf', f, { upsert: true, contentType: 'application/octet-stream' });
-  note.textContent = error ? 'That did not go through.' : 'Done. Everyone gets it next time they sign on.'; if (!error) loadHand();
+  note.textContent = error ? 'That did not go through.' : 'Done. Everyone gets it next time they sign on.'; if (!error) { loadHand(); setTimeout(() => fire(showUploads()), 1500); }
 });
 try { if (LS.get('am.hand') === '1') document.body.classList.add('hand'); $('eHand').checked = LS.get('am.hand') === '1'; } catch {}
 $('eHand').addEventListener('change', () => { LS.set('am.hand', $('eHand').checked ? '1' : '0'); document.body.classList.toggle('hand', $('eHand').checked); });
@@ -2813,12 +2822,12 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && S.
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '1794083672' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '1794083879' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '1794083672') { newBuild = m[1]; $('updBar').hidden = false; }
+    if (m && m[1] !== BUILD && m[1] !== '1794083879') { newBuild = m[1]; $('updBar').hidden = false; }
   } catch {}
 }
 $('updBtn').addEventListener('click', () => { location.replace(location.pathname + '?v=' + encodeURIComponent(newBuild || Date.now())); });
