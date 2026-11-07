@@ -186,6 +186,8 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .sohelp{margin:8px 0;padding:8px 10px;border:1px solid var(--line);background:var(--panel);font-size:13px}
 .sohelp h3{margin:0 0 4px}
 .sohelp p{margin:5px 0}
+.banner{height:96px;margin:-14px -14px 12px;background-size:cover;background-position:center;border-bottom:2px solid var(--ac)}
+.bnprev{display:block;width:96px;height:32px;flex:none;border:1px solid var(--line);background:var(--panel2) center/cover}
 .pstars{display:flex;gap:5px;align-items:center;margin-top:4px;color:var(--muted);cursor:default}
 .pstars .dn{margin-left:8px}
 .rolechip{margin-left:6px;padding:0 6px;border:1px solid var(--ac);color:var(--ac);font-size:11px;text-transform:uppercase}
@@ -352,6 +354,8 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
         <fieldset><legend>You</legend>
           <label for="eSn">Screen name</label><input id="eSn" maxlength="20" spellcheck="false">
           <label for="eBio">About me</label><textarea id="eBio" rows="4" maxlength="400"></textarea>
+          <label for="eBn">Banner (wide picture across the top of your page)</label>
+          <div class="avrow"><span id="eBnPrev" class="bnprev"></span><input id="eBn" type="file" accept="image/*" aria-label="Profile banner"><button id="eBnRm" class="btn sm" type="button">Remove banner</button></div>
           <div class="avrow"><span id="eAvPrev"></span><input id="eAv" type="file" accept="image/*" aria-label="Profile photo"><button id="eAvRm" class="btn sm" type="button">Remove photo</button></div>
         </fieldset>
         <fieldset><legend>Now playing</legend>
@@ -482,6 +486,7 @@ function applyViewer(t) { applyTheme(document.documentElement, t); document.body
 
 /* ---------- profiles ---------- */
 const safeUrl = u => { try { const x = new URL(String(u).trim()); return (x.protocol === 'https:' || x.protocol === 'http:') ? x.href : null; } catch { return null; } };
+const okBanner = a => (typeof a === 'string' && a.length < 70000 && /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(a)) ? a : '';
 const okAvatar = a => (typeof a === 'string' && a.length < 40000 && /^data:image\/(jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(a)) ? a : '';
 function fromRow(r) {
   r = r && typeof r === 'object' ? r : {};
@@ -492,10 +497,10 @@ function fromRow(r) {
     song: { title: clamp(r.song_title, 60), url: clamp(r.song_url, 300) },
     links: links.slice(0, 3).map(l => ({ label: clamp(l && l.label, 24), url: clamp(l && l.url, 300) })),
     top: (Array.isArray(r.top) ? r.top : []).filter(x => typeof x === 'string').slice(0, 8),
-    theme: cleanTheme(r.theme), avatar: okAvatar(r.avatar), created: r.created_at ? (Date.parse(r.created_at) || 0) : 0, lastSeen: r.last_seen ? (Date.parse(r.last_seen) || 0) : 0, role: r.role === 'admin' || r.role === 'mod' ? r.role : 'member', stars: Math.max(0, Number(r.stars) || 0), downs: Math.max(0, Number(r.downs) || 0), mutedUntil: r.muted_until ? (Date.parse(r.muted_until) || 0) : 0
+    theme: cleanTheme(r.theme), avatar: okAvatar(r.avatar), banner: okBanner(r.banner), created: r.created_at ? (Date.parse(r.created_at) || 0) : 0, lastSeen: r.last_seen ? (Date.parse(r.last_seen) || 0) : 0, role: r.role === 'admin' || r.role === 'mod' ? r.role : 'member', stars: Math.max(0, Number(r.stars) || 0), downs: Math.max(0, Number(r.downs) || 0), mutedUntil: r.muted_until ? (Date.parse(r.muted_until) || 0) : 0
   };
 }
-const toRow = p => ({ sn: p.sn, bio: p.bio, away: p.away, away_on: p.awayOn, mood: p.mood, song_title: p.song.title, song_url: p.song.url, links: p.links, top: p.top, theme: p.theme, avatar: p.avatar });
+const toRow = p => ({ sn: p.sn, bio: p.bio, away: p.away, away_on: p.awayOn, mood: p.mood, song_title: p.song.title, song_url: p.song.url, links: p.links, top: p.top, theme: p.theme, avatar: p.avatar, banner: p.banner || '' });
 
 /* ---------- state ---------- */
 const S = {
@@ -958,6 +963,7 @@ function renderProfile() {
   const id = S.editing ? S.uid : S.selected;
   $('profTitle').textContent = (p.sn || 'profile') + "'s page";
   const st = S.editing ? { cls: '', text: 'Preview. This is how your page looks.' } : statusOf(id, p);
+  if (p.banner) body.append(h('div', { class: 'banner', role: 'img', 'aria-label': (p.sn || 'their') + ' banner', style: 'background-image:url(' + p.banner + ')' }));
   body.append(h('div', { class: 'phead' }, avatar({ sn: p.sn || '?', avatar: p.avatar, theme: t }, 84),
     h('div', { class: 'grow' }, h('h2', { class: 'psn' }, p.sn || '...'),
       st.text ? h('div', { class: 'pst' }, h('span', { class: 'dot ' + st.cls, 'aria-hidden': 'true' }), st.text) : null,
@@ -1384,6 +1390,7 @@ function subscribe() {
       else if (p.new && p.new.id) {
         const id = String(p.new.id), old = S.profiles.get(id), np = fromRow(p.new);
         if (old && !('avatar' in p.new)) np.avatar = old.avatar;
+        if (old && !('banner' in p.new)) np.banner = old.banner;
         S.profiles.set(id, np);
       }
       const me = mine(); if (me && !S.editing) S.theme = me.theme;
@@ -1531,7 +1538,7 @@ function fillEditor() {
   const d = S.draft;
   $('eSn').value = d.sn; $('eBio').value = d.bio; $('eSongT').value = d.song.title; $('eSongU').value = d.song.url;
   for (let i = 0; i < 3; i++) { const l = d.links[i] || { label: '', url: '' }; $('eL' + i + 'n').value = l.label; $('eL' + i + 'u').value = l.url; }
-  syncLook(); fillTop(); $('eAvPrev').replaceChildren(avatar(d, 44)); $('eErr').hidden = true;
+  syncLook(); fillTop(); showBnPrev(); $('eAvPrev').replaceChildren(avatar(d, 44)); $('eErr').hidden = true;
 }
 function syncLook() {
   const t = S.draft.theme;
@@ -1555,7 +1562,7 @@ function openEditor() {
   document.body.classList.add('editing'); fillEditor(); renderAll(); setTab('chat');
 }
 function closeEditor() {
-  S.editing = false; S.draft = null; document.body.classList.remove('editing');
+  S.editing = false; S.draft = null; S.showInfo = false; S.selected = S.uid; document.body.classList.remove('editing');
   S.theme = (mine() || { theme: S.theme }).theme; renderAll();
 }
 async function saveEditor(ev) {
@@ -1578,6 +1585,26 @@ async function saveEditor(ev) {
   if (error) return fail(error.code === '23505' ? 'Somebody already has that screen name.' : 'Could not save. Try again in a moment.');
   S.profiles.set(S.uid, next); S.theme = next.theme; LS.set('am.theme', JSON.stringify(next.theme));
   closeEditor();
+}
+function showBnPrev() { const el = $('eBnPrev'); el.replaceChildren(); el.style.backgroundImage = S.draft && S.draft.banner ? 'url(' + S.draft.banner + ')' : ''; }
+function pickBanner(file) {
+  if (!file) return;
+  const fr = new FileReader();
+  fr.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const W = 480, H = 160, c = document.createElement('canvas'); c.width = W; c.height = H;
+      const sc = Math.max(W / img.width, H / img.height), sw = W / sc, sh = H / sc;
+      c.getContext('2d').drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, 0, 0, W, H);
+      let out = '';
+      for (const q of [.72, .55, .4]) { out = okBanner(c.toDataURL('image/jpeg', q)); if (out) break; }
+      if (!out) { const e = $('eErr'); e.textContent = 'That banner is too detailed. Try another picture.'; e.hidden = false; return; }
+      S.draft.banner = out; showBnPrev(); renderProfile();
+    };
+    img.onerror = () => { const e = $('eErr'); e.textContent = 'That file could not be read as a picture.'; e.hidden = false; };
+    img.src = fr.result;
+  };
+  fr.readAsDataURL(file);
 }
 function pickAvatar(file) {
   if (!file) return;
@@ -1624,6 +1651,8 @@ $('eCancel').addEventListener('click', closeEditor);
 $('editForm').addEventListener('submit', saveEditor);
 $('editForm').addEventListener('input', e => { if (e.target.type === 'file' || e.target.type === 'checkbox') return; livePreview(); });
 $('editForm').addEventListener('change', e => { if (e.target.id === 'eAv') pickAvatar(e.target.files[0]); });
+$('eBn').addEventListener('change', e => { pickBanner(e.target.files && e.target.files[0]); e.target.value = ''; });
+$('eBnRm').addEventListener('click', () => { S.draft.banner = ''; showBnPrev(); renderProfile(); });
 $('eAvRm').addEventListener('click', () => { S.draft.avatar = ''; $('eAv').value = ''; $('eAvPrev').replaceChildren(avatar(S.draft, 44)); renderProfile(); });
 $('ePre').addEventListener('click', e => {
   const b = e.target.closest('[data-preset]'); if (!b) return;
