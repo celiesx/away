@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794042041">
+<meta name="build" content="1794056427">
 <link rel="icon" href="data:,">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -280,6 +280,15 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 .msgmenu .qrow button{border:0;padding:6px 7px;font-size:20px;line-height:1;border-radius:8px;text-align:center}
 .picker{position:fixed;z-index:70;width:min(300px,calc(100vw - 16px));max-height:min(340px,60vh);overflow:auto;background:var(--panel);border:2px solid var(--ac);border-radius:var(--rs);box-shadow:0 6px 18px #0009;padding:8px;color:var(--fg)}
 .picker h4{margin:6px 2px 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ptabs{display:flex;gap:4px;margin-bottom:6px;position:sticky;top:-8px;background:var(--panel);padding:4px 0 2px;z-index:1}
+.ptabs button{flex:1;border:1px solid var(--line);background:transparent;color:inherit;font:inherit;padding:5px;border-radius:8px;cursor:pointer}
+.ptabs button.on{background:var(--ac-soft);border-color:var(--ac)}
+.gq{width:100%;box-sizing:border-box;margin-bottom:6px}
+.ggrid{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;min-height:60px}
+.ggrid button{border:0;padding:0;background:var(--panel2);border-radius:6px;overflow:hidden;cursor:pointer;aspect-ratio:1;display:block}
+.ggrid img{width:100%;height:100%;object-fit:cover;display:block}
+.ggrid p{grid-column:1/-1}
+.gifimg{display:block;max-width:min(240px,100%);max-height:240px;border-radius:8px;margin-top:4px}
 .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(38px,1fr));gap:2px}
 .pgrid button{border:0;background:transparent;padding:4px;font-size:22px;line-height:1;cursor:pointer;border-radius:8px;display:flex;align-items:center;justify-content:center;min-height:38px;color:inherit}
 .pgrid button img{width:28px;height:28px;object-fit:contain}
@@ -644,6 +653,7 @@ function rich(text) {
       let u = m[1], tail = '';
       while (/[.,!?)\]]$/.test(u)) { tail = u.slice(-1) + tail; u = u.slice(0, -1); }
       const safe = safeUrl(u);
+      if (safe && gifOk(safe)) { nodes.push(h('img', { class: 'gifimg', src: safe, alt: 'GIF', loading: 'lazy', referrerpolicy: 'no-referrer' })); if (tail) nodes.push(tail); last = m.index + m[0].length; continue; }
       if (safe) { nodes.push(h('a', { href: safe, target: '_blank', rel: 'noopener noreferrer' }, u)); if (cards.length < 2) cards.push(linkCard(safe)); }
       else nodes.push(u);
       if (tail) nodes.push(tail);
@@ -873,20 +883,43 @@ function reactBar(m) {
 }
 let pickEl = null;
 function closePicker() { if (pickEl) { pickEl.remove(); pickEl = null; } }
-function openPicker(x, y, onPick) {
+function gifOk(u) { try { const x = new URL(u); return x.protocol === 'https:' && /^(media\d*|i)\.giphy\.com$/.test(x.hostname) && /\.gif$/i.test(x.pathname); } catch { return false; } }
+function openPicker(x, y, onPick, canGif, onGif) {
   closePicker(); closeMenu();
   const cell = (label, node, val) => h('button', { type: 'button', 'aria-label': label, onclick: () => { closePicker(); onPick(val); } }, node);
   const mineE = [...S.emotes].filter(([, v]) => v.owner === S.uid), others = [...S.emotes].filter(([, v]) => v.owner !== S.uid);
   const grid = list => h('div', { class: 'pgrid' }, list.map(([n]) => cell(':' + n + ':', emoImg(n, 'em'), ':' + n + ':')));
-  pickEl = h('div', { class: 'picker', role: 'dialog', 'aria-label': 'Pick an emoji' },
-    h('h4', {}, 'Emoji'), h('div', { class: 'pgrid' }, EMOJI.map(e => cell(e, e, e))),
-    mineE.length ? [h('h4', {}, 'Your emotes'), grid(mineE)] : null,
-    others.length ? [h('h4', {}, 'Everyone\u2019s emotes'), grid(others)] : null,
-    !S.emotes.size ? h('p', { class: 'muted' }, 'Add your own emotes in Edit profile.') : null);
+  const body = h('div', {});
+  const tabs = h('div', { class: 'ptabs' });
+  const showEmoji = () => {
+    body.replaceChildren(h('div', {}, h('h4', {}, 'Emoji'), h('div', { class: 'pgrid' }, EMOJI.map(e => cell(e, e, e))),
+      mineE.length ? [h('h4', {}, 'Your emotes'), grid(mineE)] : null,
+      others.length ? [h('h4', {}, 'Everyone\u2019s emotes'), grid(others)] : null,
+      !S.emotes.size ? h('p', { class: 'muted' }, 'Add your own emotes in Edit profile.') : null));
+  };
+  let gt = 0;
+  const showGif = () => {
+    const q = h('input', { type: 'search', maxlength: '50', placeholder: 'Search GIFs', 'aria-label': 'Search GIFs', class: 'gq' });
+    const res = h('div', { class: 'ggrid' });
+    const go = async () => {
+      const my = ++gt; res.replaceChildren(h('p', { class: 'muted' }, 'Looking...'));
+      let items = [];
+      try { const r = await sb.functions.invoke('gif-search', { body: { q: q.value.trim() } }); items = (r.data && r.data.items) || []; } catch {}
+      if (my !== gt || !pickEl) return;
+      res.replaceChildren(...(items.length ? items.filter(g => g.url.split('?')[0].length <= 280 && gifOk(g.url.split('?')[0]) && /^https:\/\/(media\d*|i)\.giphy\.com\//.test(g.thumb)).map(g => h('button', { type: 'button', 'aria-label': 'Send this GIF', onclick: () => { closePicker(); onGif(g.url.split('?')[0]); } }, h('img', { src: g.thumb, alt: '', loading: 'lazy' }))) : [h('p', { class: 'muted' }, 'No GIFs found.')]));
+    };
+    let tm = null; q.addEventListener('input', () => { clearTimeout(tm); tm = setTimeout(go, 350); });
+    body.replaceChildren(q, res, h('small', { class: 'muted' }, 'GIFs from GIPHY'));
+    go(); if (!isPhone()) q.focus();
+  };
+  const setTab = which => { [...tabs.children].forEach(b => b.classList.toggle('on', b.dataset.k === which)); (which === 'gif' ? showGif : showEmoji)(); };
+  if (canGif) tabs.append(h('button', { type: 'button', 'data-k': 'emoji', onclick: () => setTab('emoji') }, 'Emoji'), h('button', { type: 'button', 'data-k': 'gif', onclick: () => setTab('gif') }, 'GIFs'));
+  pickEl = h('div', { class: 'picker', role: 'dialog', 'aria-label': 'Pick an emoji' }, canGif ? tabs : null, body);
   document.body.append(pickEl);
+  canGif ? setTab('emoji') : showEmoji();
   const r = pickEl.getBoundingClientRect();
   pickEl.style.left = Math.max(8, Math.min(x, innerWidth - r.width - 8)) + 'px'; pickEl.style.top = Math.max(8, Math.min(y, innerHeight - r.height - 8)) + 'px';
-  const b = pickEl.querySelector('button'); if (b) b.focus();
+  const b = pickEl.querySelector('.pgrid button'); if (b && !canGif) b.focus();
 }
 document.addEventListener('pointerdown', e => { if (pickEl && !pickEl.contains(e.target) && !e.target.closest('#emoBtn,.rxb')) closePicker(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closePicker(); });
@@ -907,7 +940,7 @@ function openMenu(x, y, m) {
 document.addEventListener('pointerdown', e => { if (menuEl && !menuEl.contains(e.target)) closeMenu(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
 function attachMsgMenu(row, m) {
-  row.addEventListener('contextmenu', e => { if (e.target.closest('a,img,button')) return; e.preventDefault(); openMenu(e.clientX, e.clientY, m); });
+  row.addEventListener('contextmenu', e => { if (e.target.closest('a,img:not(.gifimg),button')) return; e.preventDefault(); openMenu(e.clientX, e.clientY, m); });
   let t = null, sx = 0, sy = 0;
   const cancel = () => clearTimeout(t);
   row.addEventListener('touchstart', e => { const tt = e.touches[0]; sx = tt.clientX; sy = tt.clientY; cancel(); t = setTimeout(() => openMenu(sx, sy, m), 480); }, { passive: true });
@@ -1795,7 +1828,7 @@ async function addEmote() {
   S.emotes.set(name, { id: String(row.id), owner: S.uid, data }); $('emFile').value = ''; $('emName').value = ''; renderEmotes();
 }
 $('emAdd').addEventListener('click', addEmote);
-$('emoBtn').addEventListener('click', e => { const b = e.currentTarget.getBoundingClientRect(); openPicker(b.left, Math.max(8, b.top - 340), v => { const i = $('msg'), a = i.selectionStart == null ? i.value.length : i.selectionStart; i.value = (i.value.slice(0, a) + v + ' ' + i.value.slice(i.selectionEnd == null ? a : i.selectionEnd)).slice(0, 300); i.focus(); }); });
+$('emoBtn').addEventListener('click', e => { const b = e.currentTarget.getBoundingClientRect(); openPicker(b.left, Math.max(8, b.top - 360), v => { const i = $('msg'), a = i.selectionStart == null ? i.value.length : i.selectionStart; i.value = (i.value.slice(0, a) + v + ' ' + i.value.slice(i.selectionEnd == null ? a : i.selectionEnd)).slice(0, 300); i.focus(); }, !!$('msg') && !$('msg').disabled, u => send(u)); });
 /* ---------- wiring ---------- */
 $('soForm').addEventListener('submit', onSignon);
 $('soSwap').addEventListener('click', swapMode);
