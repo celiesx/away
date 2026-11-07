@@ -128,6 +128,12 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .ovbox{max-width:min(92vw,420px);max-height:92vh;overflow:auto;padding:14px;background:var(--panel);border:2px solid var(--ac);border-radius:var(--rs);color:var(--fg)}
 .ovbox img{display:block;max-width:100%;max-height:50vh;margin:8px auto}
 .ovbtn{display:flex;gap:8px;justify-content:flex-end}
+.card.rich{align-items:flex-start;justify-content:space-between;max-width:min(100%,440px);border-left:4px solid var(--ac);padding:9px 11px}
+.card.rich .ctext{flex:1}
+.card.rich .ctitle{color:var(--ac);white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin:2px 0}
+.card.rich .cdesc{white-space:normal;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.card.rich .csite{font-size:11px}
+.card.rich .cart{width:76px;height:76px;border-radius:6px}
 .cart{width:44px;height:44px;object-fit:cover;border-radius:4px;flex:none}
 .song{position:relative}
 .sphover{position:absolute;left:0;right:0;bottom:calc(100% + 6px);z-index:5;display:flex;gap:10px;align-items:center;padding:8px;background:var(--panel2);border:1px solid var(--ac);border-radius:var(--rs);box-shadow:0 4px 14px #0008;pointer-events:none}
@@ -197,7 +203,9 @@ img{max-width:100%}
 html{padding-bottom:env(safe-area-inset-bottom,0px)}
 .dmb{flex:none;margin-right:8px;position:relative}
 .pip{position:absolute;right:-5px;top:-7px;min-width:16px;padding:0 4px;background:var(--ac);color:var(--on-ac);font-size:10px;line-height:16px;text-align:center;border-radius:8px;font-weight:800}
-.convs{display:flex;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line);overflow-x:auto;flex:none}
+.convbar{display:flex;align-items:center;gap:6px;padding-right:10px;border-bottom:1px solid var(--line);flex:none}
+.convs{display:flex;gap:8px;padding:8px 0 8px 10px;overflow-x:auto;flex:1;min-width:0}
+.convs .tabx{margin-left:4px;padding:0 3px;background:none;border:0;color:inherit;font:inherit;cursor:pointer;opacity:.6}
 .convs .btn{flex:none;white-space:nowrap;position:relative}
 .convs .plus{padding:2px 9px;font-weight:800}
 .chform{display:flex;gap:6px;padding:6px 10px;border-bottom:1px solid var(--line);flex-wrap:wrap;align-items:center}
@@ -258,7 +266,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 
     <section id="chatWin" class="win" aria-label="Chat">
       <div class="tb"><span id="chatTitle">the lounge</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
-      <div id="convs" class="convs" aria-label="Conversations"></div>
+      <div class="convbar"><div id="convs" class="convs" aria-label="Conversations"></div><button id="newCh" class="btn sm plus" type="button" aria-label="Make a channel">+</button></div>
       <form id="chForm" class="chform" autocomplete="off" hidden>
         <label class="sr" for="chName">Channel name</label><input id="chName" maxlength="20" spellcheck="false" placeholder="channel name">
         <label class="sr" for="chKeep">Messages</label><select id="chKeep"><option value="temp">temporary</option><option value="keep">keep messages</option></select>
@@ -491,9 +499,10 @@ function linkCard(href) {
   const card = h('a', { class: 'card', href, target: '_blank', rel: 'noopener noreferrer' }, glyph, h('span', { class: 'ctext' }, b, sm));
   if (kind !== 'Image') getMeta(href).then(m => {
     if (!m || !m.title) return;
-    b.textContent = m.title;
-    sm.textContent = m.site || m.desc ? [m.site, clamp(m.desc, 90)].filter(Boolean).join(' · ') : [m.sub, kind, fmtDur(m.ms)].filter(Boolean).join(' · ');
-    if (m.thumb) { const im = h('img', { class: 'cart', src: m.thumb, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer' }); im.onerror = () => im.replaceWith(glyph); glyph.replaceWith(im); }
+    const line = m.desc || [m.sub, fmtDur(m.ms)].filter(Boolean).join(' · ');
+    const kids = [h('span', { class: 'ctext' }, h('small', { class: 'csite' }, m.site || kind), h('b', { class: 'ctitle' }, m.title), line ? h('small', { class: 'cdesc' }, clamp(line, 200)) : null)];
+    if (m.thumb) { const im = h('img', { class: 'cart', src: m.thumb, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer' }); im.onerror = () => im.remove(); kids.push(im); }
+    card.classList.add('rich'); card.replaceChildren(...kids);
   });
   return card;
 }
@@ -603,20 +612,29 @@ function renderBuddies() {
   }
 }
 
+try { S.closedDms = new Set(JSON.parse(LS.get('am.closed') || '[]')); } catch { S.closedDms = new Set(); }
+function closeDm(id) {
+  S.closedDms.add(id); LS.set('am.closed', JSON.stringify([...S.closedDms]));
+  if (S.conv === id) { S.conv = 'lounge'; renderLog(); renderNote(); }
+  renderConvs(); renderTabs();
+}
 function dmPeers() {
   const set = new Set(S.opened);
   for (const m of S.msgs) if (m.to) set.add(convOf(m));
-  return [...set].filter(id => id !== S.uid && S.profiles.has(id)).map(id => [id, S.profiles.get(id)]).sort(bySn);
+  return [...set].filter(id => id !== S.uid && S.profiles.has(id) && (!S.closedDms.has(id) || S.conv === id)).map(id => [id, S.profiles.get(id)]).sort(bySn);
 }
 function renderConvs() {
   const box = $('convs'); box.replaceChildren();
   const mk = (key, label) => { const n = S.unread[key] || 0; return h('button', { type: 'button', class: 'btn sm', 'aria-current': S.conv === key ? 'true' : 'false', onclick: () => openConv(key) }, label, n && S.conv !== key ? h('span', { class: 'pip' }, n > 9 ? '9+' : n) : null); };
   box.append(mk('lounge', 'Lounge'));
   for (const c of [...S.channels.values()].sort((a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1)) box.append(mk('c:' + c.id, '#' + c.name));
-  box.append(h('button', { type: 'button', class: 'btn sm plus', 'aria-label': 'Make a channel', onclick: () => { const f = $('chForm'); f.hidden = !f.hidden; if (!f.hidden) $('chName').focus(); } }, '+'));
   const cur = S.conv.startsWith('c:') ? S.channels.get(S.conv.slice(2)) : null;
   if (cur && cur.by === S.uid) box.append(h('button', { type: 'button', class: 'btn sm', 'aria-label': 'Delete this channel', onclick: delChannel }, 'Delete #' + cur.name));
-  for (const [id, p] of dmPeers()) box.append(mk(id, '@' + p.sn));
+  for (const [id, p] of dmPeers()) {
+    const b = mk(id, '@' + p.sn);
+    b.append(h('span', { class: 'tabx', role: 'button', 'aria-label': 'Close chat with ' + p.sn, onclick: e => { e.stopPropagation(); closeDm(id); } }, '\u00d7'));
+    box.append(b);
+  }
 }
 
 function renderNote() {
@@ -770,7 +788,7 @@ function openConv(key) {
   if (S.editing) return;
   if (!isRoom(key) && !S.profiles.has(key)) key = 'lounge';
   if (key.startsWith('c:') && !S.channels.has(key.slice(2))) key = 'lounge';
-  S.conv = key; if (!isRoom(key)) S.opened.add(key);
+  S.conv = key; if (!isRoom(key)) { S.opened.add(key); if (S.closedDms.delete(key)) LS.set('am.closed', JSON.stringify([...S.closedDms])); }
   S.unread[key] = 0;
   setTab('chat'); renderConvs(); renderLog(); renderNote(); renderBuddies(); renderTabs();
   const l = $('log'); l.scrollTop = l.scrollHeight;
@@ -791,7 +809,7 @@ function addMsg(r, live) {
       sfx('in');
       const viewing = c === S.conv && (S.tab === 'chat' || !isPhone()) && !document.hidden;
       if (!viewing) S.unread[c] = (S.unread[c] || 0) + 1;
-      if (!isRoom(c)) S.opened.add(c);
+      if (!isRoom(c)) { S.opened.add(c); if (S.closedDms.delete(c)) LS.set('am.closed', JSON.stringify([...S.closedDms])); }
     }
   }
   return true;
@@ -1242,6 +1260,7 @@ function pickAvatar(file) {
 $('soForm').addEventListener('submit', onSignon);
 $('soSwap').addEventListener('click', swapMode);
 $('profX').addEventListener('click', () => { if (isPhone()) setTab('chat'); else document.body.classList.add('noprof'); });
+$('newCh').addEventListener('click', () => { const f = $('chForm'); f.hidden = !f.hidden; if (!f.hidden) $('chName').focus(); });
 $('chForm').addEventListener('submit', makeChannel);
 $('chCancel').addEventListener('click', () => { $('chForm').hidden = true; });
 $('photoBtn').addEventListener('click', () => $('photoIn').click());
