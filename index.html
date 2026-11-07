@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794075545">
+<meta name="build" content="1794076682">
 <link rel="icon" href="data:,">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -98,7 +98,7 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .psn .dot.away{width:20px;height:20px;margin-left:-2px}
 #profWin{position:relative}
 .brow.faint{opacity:.5}
-.bx{padding:0 6px;font-size:14px;line-height:1.2;opacity:.6;background:none;border:0;cursor:pointer}
+.bx,.bxs{padding:0 6px;font-size:14px;line-height:1.2;opacity:.6;background:none;border:0;cursor:pointer}
 .when{white-space:nowrap;color:var(--muted);font-weight:400;font-size:11px}
 .env{image-rendering:pixelated;display:block}
 .start{display:flex;gap:6px;align-items:center;flex:none!important;font-weight:800;color:var(--ac);padding:3px 9px!important}
@@ -192,12 +192,16 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .card{display:flex;align-items:center;gap:10px;margin-top:5px;padding:7px 10px;border:1px solid var(--line);background:var(--panel2);color:var(--fg)!important;text-decoration:none;max-width:min(100%,380px);border-radius:var(--rs)}
 .card:hover{border-color:var(--ac)}
 .calov{z-index:60;padding:8px}
-.calbox{position:relative;width:min(98vw,760px);height:min(94vh,860px);display:flex;flex-direction:column;overflow:hidden;background:#fff;color:#2a2f45;border:1.5px solid #3a54a8;border-radius:6px;box-shadow:4px 4px 0 #0007;font-family:var(--font);font-size:14px}
+.calbox{position:relative;width:min(98vw,720px);height:min(97vh,1000px);display:flex;flex-direction:column;overflow:hidden;background:#fff;color:#2a2f45;border:1.5px solid #3a54a8;border-radius:6px;box-shadow:4px 4px 0 #0007;font-family:var(--font);font-size:14px}
 .calhead{flex:none;display:flex;align-items:center;gap:6px;padding:7px 8px;background:#3a54a8;color:#fff}
 .caltitle{flex:1;min-width:0;text-align:center;letter-spacing:.06em;text-transform:uppercase;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .cbtn{flex:none;padding:2px 9px;background:#eef1fb;color:#2a2f45;border:0;border-radius:3px;font-weight:700;cursor:pointer}
 .calbody{position:relative;flex:1;min-height:0;overflow:auto;background:#fff;-webkit-overflow-scrolling:touch}
-.cmonth{padding-bottom:10px}
+.calbody[data-mode=m]{scroll-snap-type:y mandatory}
+.cmonth{display:flex;flex-direction:column;height:100%;min-height:560px;scroll-snap-align:start;scroll-snap-stop:always}
+.cmonth .cgrid.dg{flex:1;min-height:0;grid-auto-rows:minmax(0,1fr)}
+.cd.blank{cursor:default;background:#fff}
+.cd.tk{grid-column:span var(--n);padding:2px 4px;cursor:default;overflow:auto;justify-content:flex-start}
 .pbanner{display:flex;align-items:stretch;gap:10px;padding:8px 8px 6px}
 .pmini{flex:none;width:158px;border:1px solid #3a54a8}
 .pmini .pmh{background:#3a54a8;color:#fff;text-align:center;font-size:11px;font-weight:700;letter-spacing:.1em;padding:1px 0}
@@ -217,6 +221,8 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .ce span{background:linear-gradient(transparent 52%,#fff2a0 52%);padding:0 1px;box-decoration-break:clone;-webkit-box-decoration-break:clone}
 .cmore{font-size:10px;color:#889}
 .trk{flex:none;border-top:1.5px solid #3a54a8;padding:5px 8px 7px;background:#fff;font-size:12px}
+.trk.cn2{border:0;padding:0;width:100%}.trk.cn2 .th small{display:none}.trk.cn2 .tg{grid-template-columns:minmax(40px,1fr) repeat(7,16px) 10px;gap:1px}.trk.cn2 .dt{width:14px;height:14px}.trk.cn2 input{font-size:16px;padding:0}.trk.cn2 .tg b{font-size:9px}
+@media(max-width:520px){.trk.cn2 .tg{grid-template-columns:minmax(30px,1fr) repeat(7,13px) 8px}.trk.cn2 .dt{width:12px;height:12px}}
 .trk .th{display:flex;align-items:center;gap:6px;color:#3a54a8;font-weight:700;margin-bottom:2px}
 .trk .tg{display:grid;grid-template-columns:minmax(70px,1fr) repeat(7,22px) 18px;gap:2px 2px;align-items:center}
 .trk .tg b{text-align:center;font-size:10px;color:#3a54a8}.trk .tg b.we{color:#8fa0d6}.trk .tg b.td{background:#3a54a8;color:#fff;border-radius:50%}
@@ -242,6 +248,8 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .evpop{position:absolute;left:8px;right:8px;bottom:8px;z-index:8;padding:8px 10px;background:#fff;border:1.5px solid #3a54a8;box-shadow:3px 3px 0 #0005}
 .evpop .evh{display:flex;align-items:center;gap:7px}
 .evpop .evh b{flex:1;min-width:0;overflow-wrap:anywhere}
+.rx1 img{height:1.1em;vertical-align:middle}
+.evpop input{background:#fff;color:#2a2f45;border:1px solid #b8bccd;font-size:16px;min-width:0}
 .evpop .wrx{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
 .rx1{padding:1px 8px;font-size:13px;background:#fff;color:#2a2f45;border:1px solid #c9cde0;border-radius:11px;cursor:pointer}
 .rx1.me{background:#e3e9ff;border-color:#3a54a8}.rx1.zero{opacity:.5}
@@ -260,6 +268,7 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .plrow .rm,.plbox .addh{background:none;border:0;color:#3a54a8;cursor:pointer;font-weight:700;padding:0 4px}
 .plmini{padding:0}.plmini .plh,.plmini .pmh{margin:0;text-align:center;display:block}
 .plmini .pmh{background:#3a54a8;color:#fff;font-size:11px;font-weight:700;letter-spacing:.1em}
+.pl3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.pl3 .plbox{margin:0 0 8px}.pl3 textarea{width:100%;min-width:0;resize:none;background:transparent;color:#2a2f45;border:0;font-family:'Comic Neue',var(--font);font-weight:700;font-size:16px;line-height:1.35}
 .plmood{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
 .mdb{display:flex;flex-direction:column;align-items:center;padding:2px 0;background:#fff;color:#2a2f45;border:1px solid #c9cde0;border-radius:4px;font-size:20px;cursor:pointer}.mdb i{font-style:normal;font-size:10px;color:#3a54a8;font-weight:700}.mdb.td{border-color:#3a54a8}
 .plbody .trk{border:1px solid #aeb7d6}
@@ -966,7 +975,7 @@ function renderBuddies() {
           avatar(p, 30),
           h('span', { class: 'grow' }, h('span', { class: 'nm' }, h('span', { class: 'dot ' + (S.presLive ? st.cls : (p.awayOn ? 'away' : '')), 'aria-hidden': 'true', title: p.awayOn ? (p.away || 'Away') : null }), fr ? heartImg(12) : null, p.sn, ld ? h('small', { class: 'when' }, ' ' + ago(ld.ts)) : null), sub ? h('div', { class: 'sub' }, sub) : null)),
         h('button', { class: 'btn sm dmb', type: 'button', 'aria-label': 'Message ' + p.sn, onclick: () => openConv(id) }, 'DM', n ? h('span', { class: 'pip' }, n > 9 ? '9+' : n) : null),
-        !fr ? h('button', { class: 'bx', type: 'button', 'aria-label': 'Remove ' + p.sn + ' from this list', title: 'Hide from list', onclick: () => { S.hid.add(id); LS.set('am.hid', JSON.stringify([...S.hid])); renderBuddies(); } }, '×') : null));
+        fr ? h('span', { class: 'bxs', 'aria-hidden': 'true', style: 'visibility:hidden' }, '×') : h('button', { class: 'bx', type: 'button', 'aria-label': 'Remove ' + p.sn + ' from this list', title: 'Hide from list', onclick: () => { S.hid.add(id); LS.set('am.hid', JSON.stringify([...S.hid])); renderBuddies(); } }, '×')));
     }
   }
 }
@@ -2321,6 +2330,12 @@ async function calAdd(day, at, title) {
   if (error) return /too_many/.test(error.message || '') ? 'You have a lot of events already.' : /row-level|policy|42501/i.test((error.message || '') + (error.code || '')) ? 'That date is too far off, or already passed.' : 'That did not go through.';
   cal.add = null; await loadCal(); drawCal(true, true); return '';
 }
+async function calUpd(ev, at, title) {
+  title = clamp(String(title || '').trim(), 60); if (!title) return 'Give it a name.';
+  const { error } = await sb.from('cal_events').update({ at: clamp(String(at || '').trim(), 11), title }).eq('id', ev.id);
+  if (error) return 'That did not save.';
+  cal.edit = null; await loadCal(); drawCal(true, true); return '';
+}
 async function calDel(ev) { const { error } = await sb.from('cal_events').delete().eq('id', ev.id); if (!error) { cal.events = cal.events.filter(x => x.id !== ev.id); cal.ev = null; drawCal(true, true); } }
 async function calReact(ev, emo) {
   const list = cal.reacts.get(ev.id) || [], mine = list.some(x => x.u === S.uid && x.e === emo);
@@ -2340,32 +2355,37 @@ function miniCal(first, month, today, byDay) {
   return mini;
 }
 function monthBlock(m0, today, byDay) {
-  const first = sunOf(m0), wrap = h('section', { class: 'cmonth', 'data-m': dstr(m0) });
+  const first = sunOf(m0), wrap = h('section', { class: 'cmonth', 'data-m': dstr(m0) }), nd = new Date(m0.getFullYear(), m0.getMonth() + 1, 0).getDate(), used = m0.getDay() + nd;
+  let rows = Math.ceil(used / 7), free = rows * 7 - used; if (free < 3) { rows++; free += 7; }
+  const span = Math.min(free, 7), fill = free - span;
   wrap.append(h('div', { class: 'pbanner' }, h('div', { class: 'pmini' }, h('div', { class: 'pmh' }, MON[m0.getMonth()].toUpperCase()), miniCal(first, m0.getMonth(), today, byDay)), h('div', { class: 'pname' }, h('b', {}, MON[m0.getMonth()].toUpperCase()), h('small', {}, String(m0.getFullYear())))));
   wrap.append(h('div', { class: 'cgrid cdow' }, DOW.map((d, i) => h('div', { class: i % 6 === 0 ? 'we' : '' }, d))));
-  const grid = h('div', { class: 'cgrid' });
-  for (let i = 0; i < 42; i++) {
-    const d = addDays(first, i); if (i >= 35 && d.getMonth() !== m0.getMonth()) break;
-    const k = dstr(d), evs = byDay.get(k) || [], inM = d.getMonth() === m0.getMonth();
-    grid.append(h('button', { type: 'button', class: 'cd' + (!inM ? ' oth' : '') + (d.getDay() % 6 === 0 ? ' we' : '') + (k === today ? ' td' : ''), 'data-d': k, onclick: () => { cal.week = sunOf(d); cal.add = null; cal.ev = null; cal.jump = k; drawCal(true); } },
+  const grid = h('div', { class: 'cgrid dg', style: 'grid-template-rows:repeat(' + rows + ',minmax(0,1fr))' });
+  for (let i = 0; i < used; i++) {
+    const d = addDays(first, i), blank = i < m0.getDay();
+    if (blank) { grid.append(h('div', { class: 'cd blank' + (d.getDay() % 6 === 0 ? ' we' : '') })); continue; }
+    const k = dstr(d), evs = byDay.get(k) || [];
+    grid.append(h('button', { type: 'button', class: 'cd' + (d.getDay() % 6 === 0 ? ' we' : '') + (k === today ? ' td' : ''), 'data-d': k, onclick: () => { cal.week = sunOf(d); cal.add = null; cal.ev = null; cal.jump = k; drawCal(true); } },
       h('span', { class: 'cn' }, String(d.getDate())),
-      inM ? evs.slice(0, 3).map(ev => h('span', { class: 'ce' }, h('span', {}, (ev.at ? ev.at + ' ' : '') + ev.title))) : null,
-      inM && evs.length > 3 ? h('span', { class: 'cmore' }, '+' + (evs.length - 3) + ' more') : null));
+      evs.slice(0, 4).map(ev => h('span', { class: 'ce' }, h('span', {}, (ev.at ? ev.at + ' ' : '') + ev.title))),
+      evs.length > 4 ? h('span', { class: 'cmore' }, '+' + (evs.length - 4) + ' more') : null));
   }
-  wrap.append(grid); return wrap;
+  for (let i = 0; i < fill; i++) grid.append(h('div', { class: 'cd blank' + ((used + i) % 7 % 6 === 0 ? ' we' : '') }));
+  const tk = h('div', { class: 'cd tk', style: '--n:' + span }); tk.append(trkBox(cal.trk, () => drawCal(true, true), true));
+  grid.append(tk); wrap.append(grid); return wrap;
 }
-function trkBox(t, redraw) {
+function trkBox(t, redraw, compact) {
   const today = dstr(new Date()), sun = sunOf(new Date()), days = [...Array(7)].map((_, i) => addDays(sun, i));
-  const box = h('div', { class: 'trk' }, h('div', { class: 'th' }, 'Habit tracker', h('small', { class: 'muted' }, 'resets every week · only you see this')));
+  const box = h('div', { class: 'trk' + (compact ? ' cn2' : '') }, h('div', { class: 'th' }, 'Habit tracker', h('small', { class: 'muted' }, 'resets every week · only you see this')));
   const g = h('div', { class: 'tg' }, h('span', {}), days.map((d, i) => h('b', { class: (i % 6 === 0 ? 'we ' : '') + (dstr(d) === today ? 'td' : '') }, DOW[i][0])), h('span', {}));
   t.habits.forEach((nm, hi) => {
     const inp = h('input', { type: 'text', maxlength: '20', value: nm, 'aria-label': 'Habit name' });
     inp.addEventListener('input', () => { t.habits[hi] = inp.value; t.save(); });
-    g.append(inp, ...days.map(d => { const k = dstr(d), on = (t.marks[k] || []).includes(hi); return h('button', { type: 'button', class: 'dt' + (on ? ' on' : ''), 'aria-label': DOW[d.getDay()] + (on ? ' done' : ''), 'aria-pressed': String(on), onclick: e => { const a = t.marks[k] || []; t.marks[k] = on ? a.filter(x => x !== hi) : [...a, hi]; e.currentTarget.classList.toggle('on', !on); e.currentTarget.setAttribute('aria-pressed', String(!on)); t.save(); } }); }),
+    g.append(inp, ...days.map(d => { const k = dstr(d), on0 = (t.marks[k] || []).includes(hi); return h('button', { type: 'button', class: 'dt' + (on0 ? ' on' : ''), 'aria-label': DOW[d.getDay()], 'aria-pressed': String(on0), onclick: e => { const a = t.marks[k] || [], on = a.includes(hi); t.marks[k] = on ? a.filter(x => x !== hi) : [...a, hi]; e.currentTarget.classList.toggle('on', !on); e.currentTarget.setAttribute('aria-pressed', String(!on)); t.save(); } }); }),
       h('button', { class: 'rm', type: 'button', 'aria-label': 'Remove habit', onclick: () => { t.habits.splice(hi, 1); for (const k in t.marks) t.marks[k] = t.marks[k].filter(x => x !== hi).map(x => x > hi ? x - 1 : x); t.save(); redraw(); } }, '×'));
   });
   box.append(g);
-  if (t.habits.length < 5) box.append(h('button', { class: 'addh', type: 'button', onclick: () => { t.habits.push(''); t.save(); redraw(); setTimeout(() => { const l = document.querySelectorAll('.trk input'); if (l && l.length) l[l.length - 1].focus(); }, 0); } }, '+ habit'));
+  if (t.habits.length < 5) box.append(h('button', { class: 'addh', type: 'button', onclick: () => { t.habits.push(''); t.save(); redraw(); setTimeout(() => { const v = [...document.querySelectorAll('.trk')].find(e => { const r = e.getBoundingClientRect(); return r.height > 0 && r.top > 0 && r.top < innerHeight; }); const l = v && v.querySelectorAll('input'); if (l && l.length) l[l.length - 1].focus(); }, 0); } }, '+ habit'));
   return box;
 }
 function weekBlock(today, byDay) {
@@ -2398,7 +2418,7 @@ function drawCal(force, keep) {
     inWeek ? h('button', { class: 'cbtn', type: 'button', onclick: () => { cal.week = null; cal.add = null; cal.ev = null; cal.jump = true; drawCal(true); } }, '‹ Month') : null,
     title,
     h('button', { class: 'cbtn', type: 'button', onclick: () => { cal.jump = inWeek ? today : true; drawCal(true); } }, 'Today'),
-    !inWeek ? h('button', { class: 'cbtn', type: 'button', onclick: () => { cal.add = { day: today, dated: true }; drawCal(true); } }, '+ Add') : null,
+    !inWeek ? h('button', { class: 'cbtn', type: 'button', onclick: () => { cal.add = { day: today, dated: true }; drawCal(true, true); } }, '+ Add') : null,
     h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Close calendar', onclick: closeCal }, '×'));
   const body = h('div', { class: 'calbody', 'data-mode': inWeek ? 'w' : 'm' });
   if (inWeek) body.append(weekBlock(today, byDay));
@@ -2407,10 +2427,21 @@ function drawCal(force, keep) {
   if (cal.add) { const w = h('div', { class: 'calformwrap' }); w.append(calForm(cal.add.day, !!cal.add.dated, cal.add.at)); kids.push(w); }
   kids.push(body);
   const ev = cal.ev != null ? cal.events.find(x => x.id === cal.ev) : null;
-  if (ev) { const rs = cal.reacts.get(ev.id) || [], a = profileOf(ev.by);
-    kids.push(h('div', { class: 'evpop' }, h('div', { class: 'evh' }, a ? avatar(a, 22) : null, h('b', {}, (ev.at ? ev.at + ' · ' : '') + ev.title), (ev.by === S.uid || isStaff()) ? h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Delete event', onclick: () => calDel(ev) }, 'Delete') : null, h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Close', onclick: () => { cal.ev = null; drawCal(true, true); } }, '×')),
-      h('div', { class: 'wrx' }, CAL_EMO.map(e => { const n = rs.filter(x => x.e === e).length, mine = rs.some(x => x.u === S.uid && x.e === e); return h('button', { type: 'button', class: 'rx1' + (mine ? ' me' : '') + (n ? '' : ' zero'), 'aria-pressed': String(mine), onclick: () => calReact(ev, e) }, e, n ? ' ' + n : ''); })))); }
-  if (!inWeek) kids.push(trkBox(cal.trk, () => drawCal(true, true)));
+  if (ev) {
+    const rs = cal.reacts.get(ev.id) || [], a = profileOf(ev.by), mineEv = ev.by === S.uid, byE = new Map();
+    for (const x of rs) { if (!byE.has(x.e)) byE.set(x.e, []); byE.get(x.e).push(x.u); }
+    const rn = e => { const m = /^:([\w-]+):$/.exec(e), im = m ? emoImg(m[1], 'em') : null; return im || e; };
+    const chips = [...byE].map(([e, us]) => { const me = us.includes(S.uid); return h('button', { type: 'button', class: 'rx1' + (me ? ' me' : ''), 'aria-pressed': String(me), onclick: () => calReact(ev, e) }, rn(e), ' ' + us.length); });
+    const addR = h('button', { type: 'button', class: 'rx1 rxb', onclick: e => { const r = e.currentTarget.getBoundingClientRect(); openPicker(r.left, Math.max(8, r.top - 330), v => calReact(ev, v), false); } }, '+ React');
+    let top;
+    if (cal.edit === ev.id) {
+      const tm = h('input', { type: 'text', maxlength: '11', value: ev.at, class: 'cftime', 'aria-label': 'Time' }), ti = h('input', { type: 'text', maxlength: '60', value: ev.title, class: 'cftitle', 'aria-label': 'Event' }), note = h('small', { class: 'muted' }, '');
+      const go = async () => { const m = await calUpd(ev, tm.value, ti.value); if (m) note.textContent = m; };
+      ti.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); go(); } });
+      top = h('div', { class: 'evh' }, tm, ti, h('button', { class: 'cbtn', type: 'button', onclick: go }, 'Save'), h('button', { class: 'cbtn', type: 'button', onclick: () => { cal.edit = null; drawCal(true, true); } }, 'Cancel'), note);
+    } else top = h('div', { class: 'evh' }, a ? avatar(a, 22) : null, h('b', {}, (ev.at ? ev.at + ' · ' : '') + ev.title), mineEv ? h('button', { class: 'cbtn', type: 'button', onclick: () => { cal.edit = ev.id; drawCal(true, true); } }, 'Edit') : null, (mineEv || isStaff()) ? h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Delete event', onclick: () => calDel(ev) }, 'Delete') : null, h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Close', onclick: () => { cal.ev = null; cal.edit = null; drawCal(true, true); } }, '×'));
+    kids.push(h('div', { class: 'evpop' }, top, h('div', { class: 'wrx' }, chips, addR)));
+  }
   box.replaceChildren(...kids);
   const nb = box.querySelector('.calbody');
   const upd = () => { if (inWeek) { const c = [...nb.querySelectorAll('.wcol')].find(x => x.offsetLeft + x.offsetWidth > nb.scrollLeft + 30); if (c) { const d = pday(c.dataset.d), j = new Date(d.getFullYear(), 0, 1); title.textContent = MON[d.getMonth()].toUpperCase() + ' ' + d.getFullYear(); } } else { const ms = [...nb.querySelectorAll('.cmonth')]; let cur = ms[0]; for (const m of ms) if (m.offsetTop <= nb.scrollTop + 60) cur = m; if (cur) { const d = pday(cur.dataset.m); title.textContent = MON[d.getMonth()] + ' ' + d.getFullYear(); } } };
@@ -2433,7 +2464,7 @@ function plSave() {
     for (const k in PL.marks) if (k >= cut && PL.marks[k].length) marks[k] = PL.marks[k];
     for (const k in PL.mood) if (k >= cut) mood[k] = PL.mood[k];
     const todos = PL.todos.filter(x => x.t.trim() && !(x.d && x.d < wk)).slice(0, 12).map(x => ({ t: clamp(x.t, 60), d: x.d || '' }));
-    fire(sb.from('planner').upsert({ owner: S.uid, data: { habits: PL.habits, marks, mood, pri: PL.pri.map(x => clamp(x, 50)), todos }, updated_at: new Date().toISOString() }));
+    fire(sb.from('planner').upsert({ owner: S.uid, data: { habits: PL.habits, marks, mood, pri: PL.pri.map(x => clamp(x, 50)), lists: { phone: clamp(PL.lists.phone, 150), write: clamp(PL.lists.write, 150), see: clamp(PL.lists.see, 150) }, todos }, updated_at: new Date().toISOString() }));
   }, 700);
 }
 async function openPlanner() {
@@ -2447,7 +2478,7 @@ async function openPlanner() {
   if (!plEl) return;
   const d = (data && data.data) || {}, wk = dstr(sunOf(new Date()));
   PL = { habits: Array.isArray(d.habits) ? d.habits.slice(0, 5).map(x => clamp(String(x), 20)) : [], marks: d.marks && typeof d.marks === 'object' ? d.marks : {}, mood: d.mood && typeof d.mood === 'object' ? d.mood : {},
-    pri: [0, 1, 2].map(i => clamp(String((d.pri || [])[i] || ''), 50)), todos: (Array.isArray(d.todos) ? d.todos : []).filter(x => x && typeof x.t === 'string' && !(x.d && x.d < wk)).slice(0, 12).map(x => ({ t: clamp(x.t, 60), d: typeof x.d === 'string' ? x.d : '' })), save: plSave };
+    pri: [0, 1, 2].map(i => clamp(String((d.pri || [])[i] || ''), 50)), lists: { phone: clamp(String((d.lists || {}).phone || ''), 150), write: clamp(String((d.lists || {}).write || ''), 150), see: clamp(String((d.lists || {}).see || ''), 150) }, todos: (Array.isArray(d.todos) ? d.todos : []).filter(x => x && typeof x.t === 'string' && !(x.d && x.d < wk)).slice(0, 12).map(x => ({ t: clamp(x.t, 60), d: typeof x.d === 'string' ? x.d : '' })), save: plSave };
   drawPlanner();
 }
 function closePlanner() { if (!plEl) return; clearTimeout(plTimer); if (PL) { const f = plSave; f(); } plEl.remove(); plEl = null; setTimeout(() => { PL = null; }, 900); }
@@ -2456,6 +2487,7 @@ function drawPlanner(focusLast) {
   const box = plEl.firstChild, sun = sunOf(new Date()), today = dstr(new Date()), days = [...Array(7)].map((_, i) => addDays(sun, i));
   const head = h('div', { class: 'calhead' }, h('b', { class: 'caltitle' }, 'Week of ' + MON[sun.getMonth()].slice(0, 3) + ' ' + sun.getDate()), h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Close planner', onclick: closePlanner }, '×'));
   const pri = h('div', { class: 'plbox' }, h('div', { class: 'plh' }, 'Priorities'), PL.pri.map((v, i) => { const inp = h('input', { type: 'text', maxlength: '50', value: v, 'aria-label': 'Priority ' + (i + 1) }); inp.addEventListener('input', () => { PL.pri[i] = inp.value; plSave(); }); return inp; }));
+  const lst = h('div', { class: 'pl3' }, [['phone', 'Phone'], ['write', 'Write'], ['see', 'See / Do']].map(([k, nm]) => { const ta = h('textarea', { maxlength: '150', 'aria-label': nm, rows: '3' }); ta.value = PL.lists[k]; ta.addEventListener('input', () => { PL.lists[k] = ta.value; plSave(); }); return h('div', { class: 'plbox' }, h('div', { class: 'plh' }, nm), ta); }));
   const todo = h('div', { class: 'plbox' }, h('div', { class: 'plh' }, 'To-do', h('small', { class: 'muted' }, 'stays until you check it off')));
   PL.todos.forEach((x, i) => {
     const cb = h('input', { type: 'checkbox', 'aria-label': 'Done' }); cb.checked = !!x.d;
@@ -2469,7 +2501,7 @@ function drawPlanner(focusLast) {
     const b = h('button', { type: 'button', class: 'mdb' + (k === today ? ' td' : ''), 'aria-label': DOW[i] + ' mood', onclick: () => { const j = MOODS.indexOf(PL.mood[k] || ''), nx = j + 1 < MOODS.length ? MOODS[j + 1] : ''; if (nx) PL.mood[k] = nx; else delete PL.mood[k]; b.lastChild.textContent = nx || '·'; plSave(); } }, h('i', {}, DOW[i][0]), h('span', {}, cur || '·')); return b; })));
   const nm = addDays(new Date(sun.getFullYear(), sun.getMonth(), 1), 0), nx = new Date(nm.getFullYear(), nm.getMonth() + 1, 1);
   const side = h('div', { class: 'plbox plmini' }, h('div', { class: 'pmh' }, MON[nx.getMonth()].toUpperCase()), miniCal(sunOf(nx), nx.getMonth(), '', new Map()));
-  box.replaceChildren(head, h('div', { class: 'calbody plbody' }, h('div', { class: 'plgrid' }, pri, side), todo, mood, trkBox(PL, drawPlanner)));
+  box.replaceChildren(head, h('div', { class: 'calbody plbody' }, h('div', { class: 'plgrid' }, pri, side), lst, todo, mood, trkBox(PL, drawPlanner)));
   if (focusLast) setTimeout(() => { const l = plEl && plEl.querySelectorAll('.plrow input[type=text]'); if (l && l.length) l[l.length - 1].focus(); }, 0);
 }
 /* ---------- notepad ---------- */
@@ -2547,12 +2579,12 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && S.
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '1794075545' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '1794076682' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '1794075545') { newBuild = m[1]; $('updBar').hidden = false; }
+    if (m && m[1] !== BUILD && m[1] !== '1794076682') { newBuild = m[1]; $('updBar').hidden = false; }
   } catch {}
 }
 $('updBtn').addEventListener('click', () => { location.replace(location.pathname + '?v=' + encodeURIComponent(newBuild || Date.now())); });
