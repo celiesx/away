@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794082675">
+<meta name="build" content="1794083053">
 <link rel="icon" href="data:,">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -313,6 +313,8 @@ body.hand{--font:'Patrick Hand','Comic Neue',cursive;--fs:16px}
 .pvhead .cbtn{background:transparent;color:#1a1a1a;border:1px solid #1a1a1a;border-radius:2px;font-weight:400;font-family:inherit;padding:3px 11px;font-size:13px;letter-spacing:.04em}
 .pvhead .cbtn:hover{background:#1a1a1a;color:#f4f2ee}
 .pvsel,.pvform select,.pvform input{background:transparent;color:#1a1a1a;border:1px solid #1a1a1a;border-radius:2px;font-family:inherit;font-size:13px;padding:3px 6px;max-width:160px}
+.pvcovers{flex:none;display:flex;gap:8px;padding:6px 10px;overflow-x:auto;background:#ebe8e1;border-bottom:1px solid #1a1a1a}
+.pvthumb{flex:none;height:78px;width:auto;border:2px solid transparent;cursor:pointer;background:#fff}.pvthumb.on{border-color:#1a1a1a}
 .pvform{flex:none;display:flex;gap:8px;align-items:center;padding:6px 10px;background:#ebe8e1;border-bottom:1px solid #1a1a1a}
 .pvform .cbtn{background:#1a1a1a;color:#f4f2ee;border:0;border-radius:2px}
 .pvbody{background:#f4f2ee;padding:8px;display:flex;justify-content:center;align-items:center;overflow:auto}
@@ -320,7 +322,8 @@ body.hand{--font:'Patrick Hand','Comic Neue',cursive;--fs:16px}
 .pvcv{display:block}
 .pvlayer{position:absolute;inset:0;cursor:text}
 .pvlink{position:absolute;display:block;cursor:pointer}.pvlink:hover{background:#3a54a822}
-.pvn{position:absolute;min-width:60px;padding:0;margin:0;background:transparent;border:0;border-radius:0;resize:none;overflow:hidden;color:#1d2a5c;font-family:var(--hand);font-weight:700;line-height:1.15}
+.pvnw{position:absolute;min-width:60px}.pvgrip{position:absolute;left:-15px;top:0;width:14px;text-align:center;font-size:15px;line-height:1.1;color:#1d2a5c;cursor:grab;touch-action:none;opacity:0;user-select:none}.pvnw:hover .pvgrip,.pvnw:focus-within .pvgrip,.pvnw.drag .pvgrip{opacity:.8}
+.pvn{display:block;width:100%;min-width:60px;padding:0;margin:0;background:transparent;border:0;border-radius:0;resize:none;overflow:hidden;color:#1d2a5c;font-family:var(--hand);font-weight:700;line-height:1.15}
 .pvn:focus{outline:1px dashed #3a54a8;background:#ffffffaa}
 .npwin{width:min(94vw,520px);display:flex;flex-direction:column;background:#d4d0c8;color:#111;border:2px solid #404040;box-shadow:4px 4px 0 #0007;font-family:VT323,'Courier New',monospace}
 .npwin .nptb{display:flex;align-items:center;justify-content:space-between;padding:2px 3px 2px 8px;background:#3a54a8;color:#fff;font-size:19px}
@@ -626,7 +629,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
         <details class="esec"><summary>Social</summary>
           <label class="chk"><input type="checkbox" id="eHand"> Handwriting font everywhere</label>
           <label for="eDm">Who can message me</label><select id="eDm"><option value="all">Everyone</option><option value="friends">Friends only</option></select>
-          <div id="eFontBox" hidden><label for="eFont">Handwriting font for the planner (admin only)</label><input id="eFont" type="file" accept=".otf,.ttf,.woff,.woff2"><small id="eFontNote" class="muted"></small><label for="ePdf">Planner PDF (admin only)</label><input id="ePdf" type="file" accept="application/pdf,.pdf"><small id="ePdfNote" class="muted"></small></div>
+          <div id="eFontBox" hidden><label for="eFont">Handwriting font for the planner (admin only)</label><input id="eFont" type="file" accept=".otf,.ttf,.woff,.woff2"><small id="eFontNote" class="muted"></small><label for="ePdf">Planner PDF (admin only)</label><input id="ePdf" type="file" accept="application/pdf,.pdf"><small id="ePdfNote" class="muted"></small><label for="eCov">Planner covers PDF (admin only)</label><input id="eCov" type="file" accept="application/pdf,.pdf"><small id="eCovNote" class="muted"></small></div>
           <p class="muted" style="margin:8px 0 0">Friends are people who accepted your request. Mods can always reach you.</p>
         </details>
         <details class="esec"><summary>Favorites</summary>
@@ -2590,24 +2593,25 @@ async function openPdfPlanner(blob) {
   const r = await sb.from('pdfnotes').select('data').eq('owner', S.uid).maybeSingle();
   const notes = r.data && r.data.data && typeof r.data.data === 'object' ? r.data.data : {};
   if (!Array.isArray(notes._pages)) notes._pages = [];
-  pv = { doc, page: Math.min(4, doc.numPages), key: '4', notes, tok: 0, form: false, del: false };
+  let cdoc = null; try { const cr = await sb.storage.from('site-assets').download('covers.pdf'); if (!cr.error && cr.data) cdoc = await window.pdfjsLib.getDocument({ data: await cr.data.arrayBuffer() }).promise; } catch { /* no covers uploaded */ }
+  pv = { doc, cdoc, page: Math.min(4, doc.numPages), key: '4', notes, tok: 0, form: false, del: false, covers: false };
   pvEl = h('div', { class: 'ovl calov', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Planner' }, h('div', { class: 'calbox pvwin' }));
   pvEl.addEventListener('keydown', e => { if (e.key === 'Escape' && !/TEXTAREA|INPUT|SELECT/.test(e.target.tagName)) closePv(); });
   pvEl.addEventListener('pointerdown', e => { if (e.target === pvEl) closePv(); });
   document.body.append(pvEl); await pvRender();
 }
 function closePv() { if (!pvEl) return; clearTimeout(pvTimer); pvFlush(); pvEl.remove(); pvEl = null; pv = null; }
-function pvGo(n) { if (!pv || n < 1 || n > pv.doc.numPages) return; pv.page = n; pv.key = String(n); pv.form = false; pv.del = false; pvRender(); }
-function pvGoCustom(c) { pv.page = c.tpl; pv.key = 'u' + c.id; pv.form = false; pv.del = false; pvRender(); }
+function pvGo(n) { if (!pv || n < 1 || n > pv.doc.numPages) return; pv.page = n; pv.key = String(n); pv.form = false; pv.del = false; pv.covers = false; pvRender(); }
+function pvGoCustom(c) { pv.page = c.tpl; pv.key = 'u' + c.id; pv.form = false; pv.del = false; pv.covers = false; pvRender(); }
 async function pvRender() {
   if (!pv || !pvEl) return;
-  const my = ++pv.tok, box = pvEl.firstChild, pg = await pv.doc.getPage(pv.page);
+  const my = ++pv.tok, box = pvEl.firstChild, onCover = pv.page === 1 && !!pv.cdoc, pg = onCover ? await pv.cdoc.getPage(Math.min(pv.notes._cover || 1, pv.cdoc.numPages)) : await pv.doc.getPage(pv.page);
   if (!pv || my !== pv.tok) return;
   const custom = pv.key[0] === 'u' ? pv.notes._pages.find(c => 'u' + c.id === pv.key) : null;
   const sel = h('select', { class: 'pvsel', 'aria-label': 'My pages' }, h('option', { value: '' }, 'My pages' + (pv.notes._pages.length ? '' : ' (none yet)')), pv.notes._pages.map(c => h('option', { value: c.id }, c.label)));
   if (custom) sel.value = custom.id;
   sel.addEventListener('change', () => { const c = pv.notes._pages.find(x => x.id === sel.value); if (c) pvGoCustom(c); });
-  const head = h('div', { class: 'calhead pvhead' }, h('button', { class: 'cbtn', type: 'button', onclick: () => pvGo(3) }, 'Index'), h('button', { class: 'cbtn', type: 'button', onclick: () => pvGo(4) }, 'This week'), sel,
+  const head = h('div', { class: 'calhead pvhead' }, pv.cdoc ? h('button', { class: 'cbtn', type: 'button', onclick: () => { pv.page = 1; pv.key = '1'; pv.covers = true; pv.form = false; pv.del = false; pvRender(); } }, 'Cover') : null, h('button', { class: 'cbtn', type: 'button', onclick: () => pvGo(3) }, 'Index'), h('button', { class: 'cbtn', type: 'button', onclick: () => pvGo(4) }, 'This week'), sel,
     h('button', { class: 'cbtn', type: 'button', onclick: () => { pv.form = !pv.form; pvRender(); } }, '+ New page'),
     h('b', { class: 'caltitle' }, custom ? custom.label : 'Page ' + pv.page + ' of ' + pv.doc.numPages),
     custom ? h('button', { class: 'cbtn', type: 'button', onclick: () => { if (!pv.del) { pv.del = true; pvRender(); return; } pv.notes._pages = pv.notes._pages.filter(x => x !== custom); delete pv.notes[pv.key]; pvSave(); pvGo(4); } }, pv.del ? 'Really delete?' : 'Delete page') : null,
@@ -2619,8 +2623,17 @@ async function pvRender() {
     lb.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); go(); } });
     form = h('div', { class: 'pvform' }, tp, lb, h('button', { class: 'cbtn', type: 'button', onclick: go }, 'Add'));
   }
+  let cstrip = null;
+  if (pv.covers && pv.cdoc) {
+    cstrip = h('div', { class: 'pvcovers' });
+    for (let i = 1; i <= pv.cdoc.numPages; i++) {
+      const cnv = h('canvas', { class: 'pvthumb' + ((pv.notes._cover || 1) === i ? ' on' : ''), title: 'Use this cover', onclick: () => { pv.notes._cover = i; pv.covers = true; pvSave(); pvRender(); } });
+      cstrip.append(cnv);
+      pv.cdoc.getPage(i).then(p => { const v = p.getViewport({ scale: 110 / p.getViewport({ scale: 1 }).width }); cnv.width = v.width; cnv.height = v.height; return p.render({ canvasContext: cnv.getContext('2d'), viewport: v }).promise; }).catch(() => {});
+    }
+  }
   const body = h('div', { class: 'calbody pvbody' });
-  box.replaceChildren(...[head, form, body].filter(Boolean));
+  box.replaceChildren(...[head, form, cstrip, body].filter(Boolean));
   const base = pg.getViewport({ scale: 1 }), availW = Math.max(320, box.clientWidth - 16), availH = Math.max(240, body.clientHeight - 16), sc = Math.min(availW / base.width, availH / base.height), dpr = Math.min(window.devicePixelRatio || 1, 2);
   const css = pg.getViewport({ scale: sc }), cv = pg.getViewport({ scale: sc * dpr });
   const canvas = h('canvas', { class: 'pvcv' }); canvas.width = Math.floor(cv.width); canvas.height = Math.floor(cv.height); canvas.style.width = css.width + 'px'; canvas.style.height = css.height + 'px';
@@ -2628,11 +2641,18 @@ async function pvRender() {
   body.append(stage);
   const fs = Math.max(11, 17 * sc);
   const addNote = n => {
-    const ta = h('textarea', { class: 'pvn', rows: '1', maxlength: '300', 'aria-label': 'Note', style: 'left:' + n.x * 100 + '%;top:' + n.y * 100 + '%;width:' + Math.max(8, Math.min(40, (1 - n.x) * 100 - 1)) + '%;font-size:' + fs + 'px' }); ta.value = n.t;
+    const ta = h('textarea', { class: 'pvn', rows: '1', maxlength: '300', 'aria-label': 'Note', style: 'font-size:' + fs + 'px' }); ta.value = n.t;
+    const grip = h('span', { class: 'pvgrip', title: 'Drag to move', 'aria-label': 'Move note' }, '\u2807');
+    const wrap = h('div', { class: 'pvnw', style: 'left:' + n.x * 100 + '%;top:' + n.y * 100 + '%;width:' + Math.max(8, Math.min(40, (1 - n.x) * 100 - 1)) + '%' }, grip, ta);
     const fit = () => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; };
     ta.addEventListener('input', () => { n.t = ta.value; fit(); pvSave(); });
-    ta.addEventListener('blur', () => { if (!n.t.trim()) { const l = pv && pv.notes[pv.key]; if (l) { pv.notes[pv.key] = l.filter(x => x !== n); pvSave(); } ta.remove(); } });
-    layer.append(ta); fit(); return ta;
+    ta.addEventListener('blur', () => { setTimeout(() => { if (!n.t.trim() && document.activeElement !== ta) { const l = pv && pv.notes[pv.key]; if (l) { pv.notes[pv.key] = l.filter(x => x !== n); pvSave(); } wrap.remove(); } }, 150); });
+    let off = null;
+    grip.addEventListener('pointerdown', e => { e.preventDefault(); const r = wrap.getBoundingClientRect(); off = [e.clientX - r.left, e.clientY - r.top]; grip.setPointerCapture(e.pointerId); wrap.classList.add('drag'); });
+    grip.addEventListener('pointermove', e => { if (!off) return; const r = layer.getBoundingClientRect(); n.x = Math.max(0, Math.min(0.97, Math.round((e.clientX - off[0] - r.left) / r.width * 1000) / 1000)); n.y = Math.max(0, Math.min(0.97, Math.round((e.clientY - off[1] - r.top) / r.height * 1000) / 1000)); wrap.style.left = n.x * 100 + '%'; wrap.style.top = n.y * 100 + '%'; });
+    const end = () => { if (!off) return; off = null; wrap.classList.remove('drag'); pvSave(); };
+    grip.addEventListener('pointerup', end); grip.addEventListener('pointercancel', end);
+    layer.append(wrap); fit(); return ta;
   };
   for (const n of pv.notes[pv.key] || []) addNote(n);
   layer.addEventListener('click', e => {
@@ -2706,6 +2726,13 @@ $('ePdf').addEventListener('change', async e => {
   const { error } = await sb.storage.from('site-assets').upload('planner.pdf', f, { upsert: true, contentType: 'application/pdf' });
   note.textContent = error ? 'That did not go through.' : 'Done. The Planner button opens it now.';
 });
+$('eCov').addEventListener('change', async e => {
+  const f = e.target.files[0], note = $('eCovNote'); if (!f) return;
+  if (f.size > 2000000) { note.textContent = 'That file is too big (2 MB max).'; return; }
+  note.textContent = 'Uploading...';
+  const { error } = await sb.storage.from('site-assets').upload('covers.pdf', f, { upsert: true, contentType: 'application/pdf' });
+  note.textContent = error ? 'That did not go through.' : 'Done. Open the Planner and tap Cover.';
+});
 $('eFont').addEventListener('change', async e => {
   const f = e.target.files[0], note = $('eFontNote'); if (!f) return;
   if (f.size > 2000000) { note.textContent = 'That file is too big.'; return; }
@@ -2743,12 +2770,12 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && S.
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '1794082675' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '1794083053' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '1794082675') { newBuild = m[1]; $('updBar').hidden = false; }
+    if (m && m[1] !== BUILD && m[1] !== '1794083053') { newBuild = m[1]; $('updBar').hidden = false; }
   } catch {}
 }
 $('updBtn').addEventListener('click', () => { location.replace(location.pathname + '?v=' + encodeURIComponent(newBuild || Date.now())); });
