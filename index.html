@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794075260">
+<meta name="build" content="1794075545">
 <link rel="icon" href="data:,">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -249,6 +249,21 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .calform{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .calform input{background:#fff;color:#2a2f45;border:1px solid #b8bccd;font-size:16px}
 .cftime{width:5.5em}.cftitle{flex:1;min-width:8em}
+.plbody{padding:8px}
+.plgrid{display:grid;grid-template-columns:1fr 150px;gap:8px}
+.plbox{border:1px solid #aeb7d6;padding:5px 7px;margin-bottom:8px;background:#fff}
+.plh{background:#3a54a8;color:#fff;margin:-5px -7px 4px;padding:1px 7px;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;display:flex;gap:8px;align-items:baseline}
+.plh small{color:#dfe6ff;text-transform:none;letter-spacing:0;font-weight:400}
+.plbox>input[type=text],.plrow input[type=text]{display:block;width:100%;min-width:0;padding:2px 3px;font-size:16px;background:transparent;color:#2a2f45;border:0;border-bottom:1px dotted #aeb7d6;border-radius:0;font-family:'Comic Neue',var(--font);font-weight:700}
+.plrow{display:flex;align-items:center;gap:6px}.plrow input.dn{text-decoration:line-through;opacity:.5}
+.plrow input[type=checkbox]{flex:none;width:18px;height:18px;accent-color:#3a54a8}
+.plrow .rm,.plbox .addh{background:none;border:0;color:#3a54a8;cursor:pointer;font-weight:700;padding:0 4px}
+.plmini{padding:0}.plmini .plh,.plmini .pmh{margin:0;text-align:center;display:block}
+.plmini .pmh{background:#3a54a8;color:#fff;font-size:11px;font-weight:700;letter-spacing:.1em}
+.plmood{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.mdb{display:flex;flex-direction:column;align-items:center;padding:2px 0;background:#fff;color:#2a2f45;border:1px solid #c9cde0;border-radius:4px;font-size:20px;cursor:pointer}.mdb i{font-style:normal;font-size:10px;color:#3a54a8;font-weight:700}.mdb.td{border-color:#3a54a8}
+.plbody .trk{border:1px solid #aeb7d6}
+.buddy .grow{min-width:0}.brow{min-width:0}#buddies{overflow-x:hidden}.buddy .nm{min-width:0}
 .npwin{width:min(94vw,520px);display:flex;flex-direction:column;background:#d4d0c8;color:#111;border:2px solid #404040;box-shadow:4px 4px 0 #0007;font-family:VT323,'Courier New',monospace}
 .npwin .nptb{display:flex;align-items:center;justify-content:space-between;padding:2px 3px 2px 8px;background:#3a54a8;color:#fff;font-size:19px}
 .npwin .nptb button{padding:0 7px;font-size:16px;color:#111;background:#d4d0c8;border:2px solid;border-color:#fff #404040 #404040 #fff;border-radius:0;cursor:pointer}
@@ -514,7 +529,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
         <button id="editBtn" class="btn" type="button">Edit my profile</button>
       </div>
       <div id="buddies" class="scroll"></div>
-      <div class="foot"><button id="sndBtn" class="btn sm" type="button">Sound on</button><label class="sr" for="toneSel">Message sound</label><select id="toneSel" class="sm"></select><label class="sr" for="autoSel">Auto sign-off</label><select id="autoSel" class="sm" title="Sign off automatically after being away"><option value="0">Stay signed in</option><option value="10">Sign off after 10 min</option><option value="30">Sign off after 30 min</option><option value="60">Sign off after 1 hour</option></select><button id="calBtn" class="btn sm" type="button">Calendar</button><button id="npBtn" class="btn sm" type="button">Notepad</button><button id="logBtn" class="btn sm" type="button" hidden>Log</button><button id="offBtn" class="btn sm" type="button">Sign off</button></div>
+      <div class="foot"><button id="sndBtn" class="btn sm" type="button">Sound on</button><label class="sr" for="toneSel">Message sound</label><select id="toneSel" class="sm"></select><label class="sr" for="autoSel">Auto sign-off</label><select id="autoSel" class="sm" title="Sign off automatically after being away"><option value="0">Stay signed in</option><option value="10">Sign off after 10 min</option><option value="30">Sign off after 30 min</option><option value="60">Sign off after 1 hour</option></select><button id="calBtn" class="btn sm" type="button">Calendar</button><button id="plBtn" class="btn sm" type="button">Planner</button><button id="npBtn" class="btn sm" type="button">Notepad</button><button id="logBtn" class="btn sm" type="button" hidden>Log</button><button id="offBtn" class="btn sm" type="button">Sign off</button></div>
     </section>
 
     <section id="chatWin" class="win" aria-label="Chat">
@@ -2277,7 +2292,7 @@ async function loadTrk() {
   if (!cal) return;
   const { data, error } = await sb.from('planner').select('data').eq('owner', S.uid).maybeSingle();
   if (!cal || error) return;
-  const d = (data && data.data) || {}; cal.trk = { habits: Array.isArray(d.habits) ? d.habits.slice(0, 5).map(x => clamp(String(x), 20)) : [], marks: d.marks && typeof d.marks === 'object' ? d.marks : {} };
+  const d = (data && data.data) || {}; cal.trk = { habits: Array.isArray(d.habits) ? d.habits.slice(0, 5).map(x => clamp(String(x), 20)) : [], marks: d.marks && typeof d.marks === 'object' ? d.marks : {}, extra: d, save: saveTrk };
   if (!calEl.contains(document.activeElement)) drawCal(false, true);
 }
 function saveTrk() {
@@ -2286,12 +2301,12 @@ function saveTrk() {
     if (!cal || !cal.trk) return;
     const cut = dstr(addDays(new Date(), -14)), marks = {};
     for (const k in cal.trk.marks) if (k >= cut && cal.trk.marks[k].length) marks[k] = cal.trk.marks[k];
-    fire(sb.from('planner').upsert({ owner: S.uid, data: { habits: cal.trk.habits, marks }, updated_at: new Date().toISOString() }));
+    fire(sb.from('planner').upsert({ owner: S.uid, data: { ...(cal.trk.extra || {}), habits: cal.trk.habits, marks }, updated_at: new Date().toISOString() }));
   }, 600);
 }
 function openCalendar() {
   if (calEl) return;
-  const n = new Date(); cal = { month: new Date(n.getFullYear(), n.getMonth(), 1), week: null, events: [], reacts: new Map(), add: null, ev: null, trk: { habits: [], marks: {} }, jump: true };
+  const n = new Date(); cal = { month: new Date(n.getFullYear(), n.getMonth(), 1), week: null, events: [], reacts: new Map(), add: null, ev: null, trk: { habits: [], marks: {}, extra: {}, save: saveTrk }, jump: true };
   calEl = h('div', { class: 'ovl calov', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Calendar' }, h('div', { class: 'calbox' }));
   calEl.addEventListener('keydown', e => { if (e.key === 'Escape') closeCal(); });
   calEl.addEventListener('pointerdown', e => { if (e.target === calEl) closeCal(); });
@@ -2339,18 +2354,18 @@ function monthBlock(m0, today, byDay) {
   }
   wrap.append(grid); return wrap;
 }
-function trkBox() {
-  const t = cal.trk, today = dstr(new Date()), sun = sunOf(new Date()), days = [...Array(7)].map((_, i) => addDays(sun, i));
+function trkBox(t, redraw) {
+  const today = dstr(new Date()), sun = sunOf(new Date()), days = [...Array(7)].map((_, i) => addDays(sun, i));
   const box = h('div', { class: 'trk' }, h('div', { class: 'th' }, 'Habit tracker', h('small', { class: 'muted' }, 'resets every week · only you see this')));
   const g = h('div', { class: 'tg' }, h('span', {}), days.map((d, i) => h('b', { class: (i % 6 === 0 ? 'we ' : '') + (dstr(d) === today ? 'td' : '') }, DOW[i][0])), h('span', {}));
   t.habits.forEach((nm, hi) => {
     const inp = h('input', { type: 'text', maxlength: '20', value: nm, 'aria-label': 'Habit name' });
-    inp.addEventListener('input', () => { t.habits[hi] = inp.value; saveTrk(); });
-    g.append(inp, ...days.map(d => { const k = dstr(d), on = (t.marks[k] || []).includes(hi); return h('button', { type: 'button', class: 'dt' + (on ? ' on' : ''), 'aria-label': DOW[d.getDay()] + (on ? ' done' : ''), 'aria-pressed': String(on), onclick: e => { const a = t.marks[k] || []; t.marks[k] = on ? a.filter(x => x !== hi) : [...a, hi]; e.currentTarget.classList.toggle('on', !on); e.currentTarget.setAttribute('aria-pressed', String(!on)); saveTrk(); } }); }),
-      h('button', { class: 'rm', type: 'button', 'aria-label': 'Remove habit', onclick: () => { t.habits.splice(hi, 1); for (const k in t.marks) t.marks[k] = t.marks[k].filter(x => x !== hi).map(x => x > hi ? x - 1 : x); saveTrk(); drawCal(true, true); } }, '×'));
+    inp.addEventListener('input', () => { t.habits[hi] = inp.value; t.save(); });
+    g.append(inp, ...days.map(d => { const k = dstr(d), on = (t.marks[k] || []).includes(hi); return h('button', { type: 'button', class: 'dt' + (on ? ' on' : ''), 'aria-label': DOW[d.getDay()] + (on ? ' done' : ''), 'aria-pressed': String(on), onclick: e => { const a = t.marks[k] || []; t.marks[k] = on ? a.filter(x => x !== hi) : [...a, hi]; e.currentTarget.classList.toggle('on', !on); e.currentTarget.setAttribute('aria-pressed', String(!on)); t.save(); } }); }),
+      h('button', { class: 'rm', type: 'button', 'aria-label': 'Remove habit', onclick: () => { t.habits.splice(hi, 1); for (const k in t.marks) t.marks[k] = t.marks[k].filter(x => x !== hi).map(x => x > hi ? x - 1 : x); t.save(); redraw(); } }, '×'));
   });
   box.append(g);
-  if (t.habits.length < 5) box.append(h('button', { class: 'addh', type: 'button', onclick: () => { t.habits.push(''); saveTrk(); drawCal(true, true); setTimeout(() => { const l = calEl && calEl.querySelectorAll('.trk input'); if (l && l.length) l[l.length - 1].focus(); }, 0); } }, '+ habit'));
+  if (t.habits.length < 5) box.append(h('button', { class: 'addh', type: 'button', onclick: () => { t.habits.push(''); t.save(); redraw(); setTimeout(() => { const l = document.querySelectorAll('.trk input'); if (l && l.length) l[l.length - 1].focus(); }, 0); } }, '+ habit'));
   return box;
 }
 function weekBlock(today, byDay) {
@@ -2395,7 +2410,7 @@ function drawCal(force, keep) {
   if (ev) { const rs = cal.reacts.get(ev.id) || [], a = profileOf(ev.by);
     kids.push(h('div', { class: 'evpop' }, h('div', { class: 'evh' }, a ? avatar(a, 22) : null, h('b', {}, (ev.at ? ev.at + ' · ' : '') + ev.title), (ev.by === S.uid || isStaff()) ? h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Delete event', onclick: () => calDel(ev) }, 'Delete') : null, h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Close', onclick: () => { cal.ev = null; drawCal(true, true); } }, '×')),
       h('div', { class: 'wrx' }, CAL_EMO.map(e => { const n = rs.filter(x => x.e === e).length, mine = rs.some(x => x.u === S.uid && x.e === e); return h('button', { type: 'button', class: 'rx1' + (mine ? ' me' : '') + (n ? '' : ' zero'), 'aria-pressed': String(mine), onclick: () => calReact(ev, e) }, e, n ? ' ' + n : ''); })))); }
-  if (!inWeek) kids.push(trkBox());
+  if (!inWeek) kids.push(trkBox(cal.trk, () => drawCal(true, true)));
   box.replaceChildren(...kids);
   const nb = box.querySelector('.calbody');
   const upd = () => { if (inWeek) { const c = [...nb.querySelectorAll('.wcol')].find(x => x.offsetLeft + x.offsetWidth > nb.scrollLeft + 30); if (c) { const d = pday(c.dataset.d), j = new Date(d.getFullYear(), 0, 1); title.textContent = MON[d.getMonth()].toUpperCase() + ' ' + d.getFullYear(); } } else { const ms = [...nb.querySelectorAll('.cmonth')]; let cur = ms[0]; for (const m of ms) if (m.offsetTop <= nb.scrollTop + 60) cur = m; if (cur) { const d = pday(cur.dataset.m); title.textContent = MON[d.getMonth()] + ' ' + d.getFullYear(); } } };
@@ -2406,6 +2421,56 @@ function drawCal(force, keep) {
     else { const m = nb.querySelector('.cmonth[data-m="' + dstr(new Date(new Date().getFullYear(), new Date().getMonth(), 1)) + '"]'); if (m) nb.scrollTop = m.offsetTop - 4; }
   } else if (keep && hadMode === (inWeek ? 'w' : 'm')) { nb.scrollLeft = sx; nb.scrollTop = sy; }
   upd();
+}
+/* ---------- planner ---------- */
+let plEl = null, plTimer = null, PL = null;
+const MOODS = ['\u{1F604}', '\u{1F642}', '\u{1F610}', '\u{1F61E}', '\u{1F620}'];
+function plSave() {
+  clearTimeout(plTimer);
+  plTimer = setTimeout(() => {
+    if (!PL) return;
+    const cut = dstr(addDays(new Date(), -14)), marks = {}, mood = {}, wk = dstr(sunOf(new Date()));
+    for (const k in PL.marks) if (k >= cut && PL.marks[k].length) marks[k] = PL.marks[k];
+    for (const k in PL.mood) if (k >= cut) mood[k] = PL.mood[k];
+    const todos = PL.todos.filter(x => x.t.trim() && !(x.d && x.d < wk)).slice(0, 12).map(x => ({ t: clamp(x.t, 60), d: x.d || '' }));
+    fire(sb.from('planner').upsert({ owner: S.uid, data: { habits: PL.habits, marks, mood, pri: PL.pri.map(x => clamp(x, 50)), todos }, updated_at: new Date().toISOString() }));
+  }, 700);
+}
+async function openPlanner() {
+  if (plEl) return;
+  const box = h('div', { class: 'calbox' });
+  plEl = h('div', { class: 'ovl calov', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Planner' }, box);
+  plEl.addEventListener('keydown', e => { if (e.key === 'Escape') closePlanner(); });
+  plEl.addEventListener('pointerdown', e => { if (e.target === plEl) closePlanner(); });
+  document.body.append(plEl);
+  const { data } = await sb.from('planner').select('data').eq('owner', S.uid).maybeSingle();
+  if (!plEl) return;
+  const d = (data && data.data) || {}, wk = dstr(sunOf(new Date()));
+  PL = { habits: Array.isArray(d.habits) ? d.habits.slice(0, 5).map(x => clamp(String(x), 20)) : [], marks: d.marks && typeof d.marks === 'object' ? d.marks : {}, mood: d.mood && typeof d.mood === 'object' ? d.mood : {},
+    pri: [0, 1, 2].map(i => clamp(String((d.pri || [])[i] || ''), 50)), todos: (Array.isArray(d.todos) ? d.todos : []).filter(x => x && typeof x.t === 'string' && !(x.d && x.d < wk)).slice(0, 12).map(x => ({ t: clamp(x.t, 60), d: typeof x.d === 'string' ? x.d : '' })), save: plSave };
+  drawPlanner();
+}
+function closePlanner() { if (!plEl) return; clearTimeout(plTimer); if (PL) { const f = plSave; f(); } plEl.remove(); plEl = null; setTimeout(() => { PL = null; }, 900); }
+function drawPlanner(focusLast) {
+  if (!plEl || !PL) return;
+  const box = plEl.firstChild, sun = sunOf(new Date()), today = dstr(new Date()), days = [...Array(7)].map((_, i) => addDays(sun, i));
+  const head = h('div', { class: 'calhead' }, h('b', { class: 'caltitle' }, 'Week of ' + MON[sun.getMonth()].slice(0, 3) + ' ' + sun.getDate()), h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Close planner', onclick: closePlanner }, '×'));
+  const pri = h('div', { class: 'plbox' }, h('div', { class: 'plh' }, 'Priorities'), PL.pri.map((v, i) => { const inp = h('input', { type: 'text', maxlength: '50', value: v, 'aria-label': 'Priority ' + (i + 1) }); inp.addEventListener('input', () => { PL.pri[i] = inp.value; plSave(); }); return inp; }));
+  const todo = h('div', { class: 'plbox' }, h('div', { class: 'plh' }, 'To-do', h('small', { class: 'muted' }, 'stays until you check it off')));
+  PL.todos.forEach((x, i) => {
+    const cb = h('input', { type: 'checkbox', 'aria-label': 'Done' }); cb.checked = !!x.d;
+    const inp = h('input', { type: 'text', maxlength: '60', value: x.t, 'aria-label': 'To-do', class: x.d ? 'dn' : '' });
+    cb.addEventListener('change', () => { x.d = cb.checked ? today : ''; inp.classList.toggle('dn', cb.checked); plSave(); });
+    inp.addEventListener('input', () => { x.t = inp.value; plSave(); });
+    todo.append(h('div', { class: 'plrow' }, cb, inp, h('button', { class: 'rm', type: 'button', 'aria-label': 'Remove', onclick: () => { PL.todos.splice(i, 1); plSave(); drawPlanner(); } }, '×')));
+  });
+  if (PL.todos.length < 12) todo.append(h('button', { class: 'addh', type: 'button', onclick: () => { PL.todos.push({ t: '', d: '' }); drawPlanner(true); } }, '+ add'));
+  const mood = h('div', { class: 'plbox' }, h('div', { class: 'plh' }, 'Mood'), h('div', { class: 'plmood' }, days.map((d, i) => { const k = dstr(d), cur = PL.mood[k] || '';
+    const b = h('button', { type: 'button', class: 'mdb' + (k === today ? ' td' : ''), 'aria-label': DOW[i] + ' mood', onclick: () => { const j = MOODS.indexOf(PL.mood[k] || ''), nx = j + 1 < MOODS.length ? MOODS[j + 1] : ''; if (nx) PL.mood[k] = nx; else delete PL.mood[k]; b.lastChild.textContent = nx || '·'; plSave(); } }, h('i', {}, DOW[i][0]), h('span', {}, cur || '·')); return b; })));
+  const nm = addDays(new Date(sun.getFullYear(), sun.getMonth(), 1), 0), nx = new Date(nm.getFullYear(), nm.getMonth() + 1, 1);
+  const side = h('div', { class: 'plbox plmini' }, h('div', { class: 'pmh' }, MON[nx.getMonth()].toUpperCase()), miniCal(sunOf(nx), nx.getMonth(), '', new Map()));
+  box.replaceChildren(head, h('div', { class: 'calbody plbody' }, h('div', { class: 'plgrid' }, pri, side), todo, mood, trkBox(PL, drawPlanner)));
+  if (focusLast) setTimeout(() => { const l = plEl && plEl.querySelectorAll('.plrow input[type=text]'); if (l && l.length) l[l.length - 1].focus(); }, 0);
 }
 /* ---------- notepad ---------- */
 let npEl = null, npTimer = null;
@@ -2454,6 +2519,7 @@ $('offBtn').addEventListener('click', signOff);
 $('logBtn').addEventListener('click', showLog);
 $('calBtn').addEventListener('click', openCalendar);
 $('npBtn').addEventListener('click', openNotepad);
+$('plBtn').addEventListener('click', openPlanner);
 $('sndBtn').addEventListener('click', () => { S.sound = !S.sound; LS.set('am.sound', S.sound ? 'on' : 'off'); renderMe(); if (S.sound) sfx('in'); });
 $('eClose').addEventListener('click', closeEditor);
 $('eCancel').addEventListener('click', closeEditor);
@@ -2481,12 +2547,12 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && S.
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '1794075260' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '1794075545' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '1794075260') { newBuild = m[1]; $('updBar').hidden = false; }
+    if (m && m[1] !== BUILD && m[1] !== '1794075545') { newBuild = m[1]; $('updBar').hidden = false; }
   } catch {}
 }
 $('updBtn').addEventListener('click', () => { location.replace(location.pathname + '?v=' + encodeURIComponent(newBuild || Date.now())); });
