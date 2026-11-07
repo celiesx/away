@@ -1,8 +1,13 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Away Message</title>
-<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="icon" href="data:,">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Share+Tech+Mono&family=VT323&display=swap">
 <style>
+
 /* Layout: an AIM-style desktop. Buddy list | chat | profile windows on a patterned wall, tabs on phones.
    Every color comes from three tokens (--bg, --fg, --ac) that a profile sets, so each window looks like its owner. */
 :root{
@@ -12,7 +17,7 @@
   --ok:#3ecf5b;--warn:#f5a623;
   color-scheme:dark;
 }
-.theme{
+:root,.theme{
   --panel:color-mix(in srgb,var(--fg) 7%,var(--bg));
   --panel2:color-mix(in srgb,var(--fg) 13%,var(--bg));
   --line:color-mix(in srgb,var(--fg) 28%,var(--bg));
@@ -85,16 +90,15 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .me-row{display:flex;gap:10px;align-items:center}
 .me-row .sn{font-weight:800;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ac)}
 .grp{margin:0;padding:3px 10px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);background:var(--panel2);position:sticky;top:0;z-index:1}
-.buddy{display:flex;gap:9px;align-items:center;width:100%;border:0;background:none;text-align:left;cursor:pointer;padding:6px 10px}
-.buddy:hover,.buddy[aria-current=true]{background:var(--ac-soft)}
+.buddy{display:flex;gap:9px;align-items:center;flex:1;min-width:0;border:0;background:none;text-align:left;cursor:pointer;padding:6px 10px}
+.brow{display:flex;align-items:center}
+.brow:hover,.brow.cur{background:var(--ac-soft)}
 .buddy .nm{font-weight:700;display:flex;gap:6px;align-items:center}
 .buddy .sub{font-size:12px;color:var(--muted);font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .dot{width:9px;height:9px;border-radius:50%;flex:none;background:var(--muted)}
 .dot.on{background:var(--ok)}
 .dot.away{background:transparent;border:2px solid var(--warn)}
 .empty{margin:0;padding:14px;color:var(--muted)}
-#spRow{display:flex;flex-direction:column;gap:4px}
-#spStat{font-size:12px;color:var(--muted);overflow-wrap:anywhere}
 .foot{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--line)}
 .av{--s:28px;width:var(--s);height:var(--s);flex:none;display:grid;place-items:center;background:var(--c,var(--ac));color:var(--oc,var(--on-ac));
   font-weight:800;font-size:calc(var(--s)*.5);border:1px solid var(--line);object-fit:cover;border-radius:var(--rs);text-shadow:none}
@@ -132,8 +136,8 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .song{display:flex;gap:9px;align-items:center;border:1px solid var(--line);padding:6px 9px;background:var(--panel)}
 .song a{color:var(--ac)}
 .mq{flex:1;min-width:0;overflow:hidden;white-space:nowrap}
-.mq span{display:inline-block;animation:mq 12s linear infinite;padding-left:100%}
-@keyframes mq{to{transform:translateX(-100%)}}
+.mq span{display:inline-block;animation:mq 12s linear infinite}
+@keyframes mq{0%,25%{transform:translateX(0)}100%{transform:translateX(-100%)}}
 .t8{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 .t8 button{border:0;background:none;padding:0;cursor:pointer;text-align:center;font-size:12px;position:relative}
 .t8 .av{width:100%;height:auto;aspect-ratio:1;font-size:26px;display:grid}
@@ -169,19 +173,37 @@ body.editing #chatWin{display:none}
 }
 @media (max-width:420px){.t8{grid-template-columns:repeat(3,minmax(0,1fr))}.colors{grid-template-columns:1fr}.presets{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:reduce){.tb,.mq span{animation:none}.mq span{padding-left:0}}
-</style>
 
+[hidden]{display:none!important}
+img{max-width:100%}
+html{padding-bottom:env(safe-area-inset-bottom,0px)}
+.dmb{flex:none;margin-right:8px;position:relative}
+.pip{position:absolute;right:-5px;top:-7px;min-width:16px;padding:0 4px;background:var(--ac);color:var(--on-ac);font-size:10px;line-height:16px;text-align:center;border-radius:8px;font-weight:800}
+.convs{display:flex;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line);overflow-x:auto;flex:none}
+.convs .btn{flex:none;white-space:nowrap;position:relative}
+.convs .btn[aria-current=true]{background:var(--ac);color:var(--on-ac);border-color:var(--ac)}
+.f{display:flex;flex-direction:column}
+.fine{font-size:12px;color:var(--muted);margin:3px 0 0}
+.swap{margin-top:6px;align-self:flex-start}
+.pmsg{margin-top:14px;width:100%;padding:8px}
+#npIn{font-size:13px}
+</style>
+</head>
+<body>
 <div id="app">
   <main id="signon">
-    <form id="soForm" class="win" autocomplete="off">
+    <form id="soForm" class="win" autocomplete="on">
       <div class="tb"><span>sign on</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
       <div class="so-body">
         <h1 class="logo">Away<br><span>Message</span></h1>
-        <p id="soMsg" class="muted" style="margin:6px 0 10px"></p>
-        <label for="snIn">Screen name</label>
-        <input id="snIn" name="sn" maxlength="20" autocomplete="off" spellcheck="false">
+        <p id="soMsg" class="muted" style="margin:6px 0 6px"></p>
+        <div id="fEmail" class="f"><label for="emIn">Email</label><input id="emIn" type="email" maxlength="120" autocomplete="username"><p class="fine">Only used to log in. Nobody sees it.</p></div>
+        <div id="fPass" class="f"><label for="pwIn">Password</label><input id="pwIn" type="password" minlength="6" maxlength="72" autocomplete="current-password"></div>
+        <div id="fSn" class="f"><label for="snIn">Screen name</label><input id="snIn" maxlength="20" autocomplete="off" spellcheck="false"></div>
+        <div id="fCode" class="f"><label for="cdIn">Room code</label><input id="cdIn" maxlength="60" autocomplete="off" spellcheck="false"><p class="fine">Ask whoever made this room.</p></div>
         <p id="soErr" class="warn" role="alert" hidden></p>
         <button id="soBtn" class="btn pri" type="submit">Sign On</button>
+        <button id="soSwap" class="btn sm swap" type="button"></button>
       </div>
     </form>
   </main>
@@ -195,7 +217,8 @@ body.editing #chatWin{display:none}
           <select id="stSel"><option value="on">Available</option><option value="away">Away</option></select></div></div>
         <label class="sr" for="awayIn">Away message</label>
         <input id="awayIn" maxlength="80" placeholder="Away message" hidden>
-        <div id="spRow" hidden><button id="spBtn" class="btn sm" type="button" aria-pressed="false">Sync from Spotify</button><div id="spStat" role="status"></div></div>
+        <label class="sr" for="npIn">Now playing</label>
+        <input id="npIn" maxlength="160" placeholder="&#9834; now playing: artist - song (links work)">
         <button id="editBtn" class="btn" type="button">Edit my profile</button>
       </div>
       <div id="buddies" class="scroll"></div>
@@ -204,11 +227,12 @@ body.editing #chatWin{display:none}
 
     <section id="chatWin" class="win" aria-label="Chat">
       <div class="tb"><span id="chatTitle">the lounge</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
+      <div id="convs" class="convs" aria-label="Conversations"></div>
       <div id="note" class="note" role="status" hidden></div>
       <div id="log" class="log" role="log" aria-live="polite" aria-label="Messages"></div>
       <form id="compose" class="compose" autocomplete="off">
         <label class="sr" for="msg">Message</label>
-        <input id="msg" maxlength="300" autocomplete="off" placeholder="Say something. Try /me waves, @name, or paste a link">
+        <input id="msg" maxlength="300" autocomplete="off" placeholder="Message (try /me or @name)">
         <button id="sendBtn" class="btn pri" type="submit">Send</button>
       </form>
     </section>
@@ -223,7 +247,7 @@ body.editing #chatWin{display:none}
         </fieldset>
         <fieldset><legend>Now playing</legend>
           <label for="eSongT">Song</label><input id="eSongT" maxlength="60" placeholder="Artist - Title">
-          <label for="eSongU">Link</label><input id="eSongU" maxlength="300" inputmode="url" placeholder="YouTube, Spotify, SoundCloud...">
+          <label for="eSongU">Link</label><input id="eSongU" maxlength="300" inputmode="url" placeholder="Apple Music, Spotify, YouTube...">
         </fieldset>
         <fieldset><legend>Links</legend>
           <div class="lrow"><input id="eL0n" maxlength="24" placeholder="Label" aria-label="Link 1 label"><input id="eL0u" maxlength="300" inputmode="url" placeholder="https://" aria-label="Link 1 address"></div>
@@ -263,6 +287,8 @@ body.editing #chatWin{display:none}
   </nav>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
+<script src="config.js"></script>
 <script>
 (() => {
 'use strict';
@@ -281,23 +307,34 @@ const h = (t, a, ...k) => {
 };
 const LS = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
 const clamp = (s, n) => typeof s === 'string' ? s.slice(0, n) : '';
-const use = n => { try { return window.claude && window.claude.use ? window.claude.use(n).catch(() => null) : Promise.resolve(null); } catch { return Promise.resolve(null); } };
+const fire = b => { try { return Promise.resolve(b).catch(() => {}); } catch { return Promise.resolve(); } };
+
+/* ---------- connection ---------- */
+const CFG = window.AWAY_CONFIG || {};
+let sb = null;
+try {
+  if (window.supabase && CFG.url && CFG.key && !/PASTE/i.test(String(CFG.url) + String(CFG.key))) {
+    sb = window.supabase.createClient(CFG.url, CFG.key, { auth: { persistSession: true, autoRefreshToken: true } });
+  }
+} catch { sb = null; }
 
 /* ---------- colors and themes ---------- */
 const HEX = /^#[0-9a-fA-F]{6}$/;
-const cvs = document.createElement('canvas').getContext('2d');
-function toHex(c) {
-  try {
-    cvs.fillStyle = '#000'; cvs.fillStyle = c; const v = cvs.fillStyle;
-    if (HEX.test(v)) return v.toLowerCase();
-    const m = v.match(/\d+(\.\d+)?/g);
-    if (m && m.length >= 3) return '#' + m.slice(0, 3).map(n => Math.round(+n).toString(16).padStart(2, '0')).join('');
-  } catch {}
-  return null;
-}
 const lum = hex => { const [r, g, b] = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255).map(v => v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4)); return .2126 * r + .7152 * g + .0722 * b; };
 const ratio = (a, b) => { const x = lum(a), y = lum(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); };
 const readable = hex => ratio(hex, '#000000') >= ratio(hex, '#ffffff') ? '#000000' : '#ffffff';
+function hsl2hex(hh, s, l) {
+  s /= 100; l /= 100;
+  const k = n => (n + hh / 30) % 12, a = s * Math.min(l, 1 - l);
+  const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+  return '#' + [f(0), f(8), f(4)].map(x => Math.round(255 * x).toString(16).padStart(2, '0')).join('');
+}
+function hashColor(sn) {
+  let x = 7; for (const c of sn) x = (x * 31 + c.charCodeAt(0)) >>> 0;
+  let l = 58, hex = hsl2hex(x % 360, 85, l);
+  while (ratio(hex, '#0b0b0c') < 6 && l < 86) { l += 3; hex = hsl2hex(x % 360, 85, l); }
+  return hex;
+}
 
 const PRESETS = {
   dollars:  { label: 'Dollars',    ac: '#ffd400', bg: '#0b0b0c', fg: '#ecebe3', font: 'mono',   pat: 'none',  style: 'flat' },
@@ -337,29 +374,30 @@ function applyViewer(t) { applyTheme(document.documentElement, t); document.body
 /* ---------- profiles ---------- */
 const safeUrl = u => { try { const x = new URL(String(u).trim()); return (x.protocol === 'https:' || x.protocol === 'http:') ? x.href : null; } catch { return null; } };
 const okAvatar = a => (typeof a === 'string' && a.length < 40000 && /^data:image\/(jpeg|png);base64,[A-Za-z0-9+/=]+$/.test(a)) ? a : '';
-function cleanProfile(r) {
+function fromRow(r) {
   r = r && typeof r === 'object' ? r : {};
-  const song = r.song && typeof r.song === 'object' ? r.song : {};
+  const links = Array.isArray(r.links) ? r.links : [];
   return {
-    sn: clamp(r.sn, 20) || 'unknown', bio: clamp(r.bio, 400), away: clamp(r.away, 80), awayOn: !!r.awayOn,
-    song: { title: clamp(song.title, 60), url: clamp(song.url, 300), auto: !!song.auto },
-    links: (Array.isArray(r.links) ? r.links : []).slice(0, 3).map(l => ({ label: clamp(l && l.label, 24), url: clamp(l && l.url, 300) })),
+    id: String(r.id || ''), sn: clamp(r.sn, 20) || 'unknown', bio: clamp(r.bio, 400), away: clamp(r.away, 80), awayOn: !!r.away_on,
+    song: { title: clamp(r.song_title, 60), url: clamp(r.song_url, 300) },
+    links: links.slice(0, 3).map(l => ({ label: clamp(l && l.label, 24), url: clamp(l && l.url, 300) })),
     top: (Array.isArray(r.top) ? r.top : []).filter(x => typeof x === 'string').slice(0, 8),
-    theme: cleanTheme(r.theme), avatar: okAvatar(r.avatar), created: +r.created || 0, updated: +r.updated || 0
+    theme: cleanTheme(r.theme), avatar: okAvatar(r.avatar), created: r.created_at ? (Date.parse(r.created_at) || 0) : 0
   };
 }
+const toRow = p => ({ sn: p.sn, bio: p.bio, away: p.away, away_on: p.awayOn, song_title: p.song.title, song_url: p.song.url, links: p.links, top: p.top, theme: p.theme, avatar: p.avatar });
 
 /* ---------- state ---------- */
 const S = {
-  id: null, color: '#ffd400', user: null, db: null, room: null, mode: 'pending', readOnly: false,
-  profiles: new Map(), msgs: [], sys: [], online: new Set(), roomLive: false, roomInit: false,
-  signedOn: false, selected: null, tab: 'chat', editing: false, draft: null, sound: LS.get('am.sound') !== 'off',
-  mcpOk: false, spOn: false, spBusy: false, unread: 0, t0: Date.now(), gotSnap: false, slow: false, extra: '', theme: cleanTheme(null), peersSettled: false
+  mode: 'login', busy: false, session: null, uid: null,
+  profiles: new Map(), msgs: [], msgIds: new Set(), sys: [], online: new Set(), presLive: false, presSettled: false, rt: false,
+  signedOn: false, selected: null, tab: 'chat', conv: 'lounge', opened: new Set(), unread: {},
+  editing: false, draft: null, sound: LS.get('am.sound') !== 'off', extra: '', ttlH: 24, timers: [], theme: cleanTheme(null)
 };
 try { const t = LS.get('am.theme'); if (t) S.theme = cleanTheme(JSON.parse(t)); } catch {}
-const key = () => S.id || 'me';
-const mine = () => S.profiles.get(key()) || null;
+const mine = () => S.profiles.get(S.uid) || null;
 const profileOf = id => S.profiles.get(id) || null;
+const SN_OK = /^[A-Za-z0-9._-]{2,20}$/;
 
 function avatar(p, size) {
   const c = (p && p.theme && p.theme.ac) || '#888888';
@@ -392,7 +430,7 @@ function linkCard(href) {
   const u = new URL(href), host = u.hostname.replace(/^www\./, '');
   let kind = host, g = '→';
   if (/(^|\.)youtube\.com$|(^|\.)youtu\.be$|vimeo\.com$|twitch\.tv$/.test(host)) { kind = host.includes('twitch') ? 'Twitch' : host.includes('vimeo') ? 'Vimeo' : 'YouTube'; g = '▶'; }
-  else if (/spotify\.com$|soundcloud\.com$|bandcamp\.com$|apple\.com$/.test(host)) { const k = host.split('.').slice(-2)[0]; kind = k[0].toUpperCase() + k.slice(1); g = '♪'; }
+  else if (/spotify\.com$|soundcloud\.com$|bandcamp\.com$|apple\.com$/.test(host)) { const k = host.split('.').slice(-2)[0]; kind = k === 'apple' ? 'Apple Music' : k[0].toUpperCase() + k.slice(1); g = '♪'; }
   else if (/\.(png|jpe?g|gif|webp)$/i.test(u.pathname)) { kind = 'Image'; g = '▣'; }
   return h('a', { class: 'card', href, target: '_blank', rel: 'noopener noreferrer' },
     h('span', { class: 'glyph', 'aria-hidden': 'true' }, g),
@@ -419,29 +457,34 @@ function rich(text) {
 /* ---------- rendering ---------- */
 const fmtTime = ts => new Date(ts).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 const isPhone = () => window.matchMedia('(max-width:900px)').matches;
+const totalUnread = () => Object.values(S.unread).reduce((a, b) => a + b, 0);
+const convOf = m => m.to ? (m.uid === S.uid ? m.to : m.uid) : 'lounge';
+const clearExtraSoon = () => setTimeout(() => { S.extra = ''; renderNote(); }, 6000);
 
 function setTab(t) {
   S.tab = t; document.body.dataset.tab = t;
-  if (t === 'chat') S.unread = 0;
+  if (t === 'chat') S.unread[S.conv] = 0;
   renderTabs();
 }
 function renderTabs() {
   document.querySelectorAll('#tabs [data-go]').forEach(b => b.setAttribute('aria-current', b.dataset.go === S.tab ? 'true' : 'false'));
-  const u = $('unread'); u.hidden = !S.unread || S.tab === 'chat'; u.textContent = S.unread > 9 ? '9+' : String(S.unread);
+  const n = totalUnread(), u = $('unread'); u.hidden = !n || S.tab === 'chat'; u.textContent = n > 9 ? '9+' : String(n);
 }
 
 function renderSignon() {
-  const p = mine(), btn = $('soBtn'), inp = $('snIn'), msg = $('soMsg');
-  const waiting = S.mode === 'pending' || (S.mode === 'db' && !S.readOnly && !S.gotSnap);
-  inp.hidden = S.readOnly; inp.previousElementSibling.hidden = S.readOnly;
-  inp.disabled = waiting; btn.disabled = waiting;
-  if (waiting) { msg.textContent = S.slow ? 'Still reaching the room. Hang tight.' : 'Connecting to the room...'; btn.textContent = 'Connecting...'; return; }
-  if (S.readOnly) { msg.textContent = 'You can read this room, but posting needs an editor invite from whoever made it.'; btn.textContent = 'Look Around'; return; }
-  btn.textContent = 'Sign On';
-  if (S.mode === 'local') msg.textContent = 'The shared room is not available here, so this is a local copy only you can see.';
-  else if (p) msg.textContent = 'Welcome back.';
-  else msg.textContent = 'Pick a screen name. Letters, numbers, dot, dash and underscore, 2 to 20 characters.';
-  if (p) { inp.value = p.sn; inp.readOnly = true; } else inp.readOnly = false;
+  const m = S.mode, ok = !!sb, resuming = S.busy && !!S.session && !S.signedOn;
+  $('fEmail').hidden = $('fPass').hidden = (m === 'setup');
+  $('fSn').hidden = $('fCode').hidden = (m === 'login');
+  $('pwIn').setAttribute('autocomplete', m === 'signup' ? 'new-password' : 'current-password');
+  $('soBtn').textContent = m === 'signup' ? 'Create Account' : m === 'setup' ? 'Finish' : 'Sign On';
+  $('soSwap').textContent = m === 'login' ? 'New here? Make an account' : m === 'signup' ? 'Have an account? Sign on' : 'Use a different account';
+  $('soSwap').hidden = !ok;
+  $('soBtn').disabled = !ok || S.busy;
+  $('soMsg').textContent = !ok ? 'This site is not connected to its room yet. If you run it, check config.js.'
+    : resuming ? 'Signing you back on...'
+    : m === 'signup' ? 'Make an account. You need the room code from whoever runs this.'
+    : m === 'setup' ? 'Almost there. Pick a screen name and enter the room code.'
+    : 'Sign on with your email and password.';
 }
 
 function renderMe() {
@@ -451,86 +494,110 @@ function renderMe() {
   $('stSel').value = p.awayOn ? 'away' : 'on';
   const a = $('awayIn'); a.hidden = !p.awayOn;
   if (document.activeElement !== a) a.value = p.away;
-  $('editBtn').disabled = S.readOnly;
+  const n = $('npIn'); if (document.activeElement !== n) n.value = p.song.title;
   $('sndBtn').textContent = S.sound ? 'Sound on' : 'Sound off';
-  renderSp();
 }
 
 function statusOf(id, p) {
   if (p.awayOn) return { cls: 'away', text: p.away ? 'Away: ' + p.away : 'Away' };
-  if (S.roomLive) return S.online.has(id) ? { cls: 'on', text: 'Online' } : { cls: '', text: 'Offline' };
+  if (S.presLive) return S.online.has(id) ? { cls: 'on', text: 'Online' } : { cls: '', text: 'Offline' };
   return { cls: '', text: '' };
 }
+const bySn = (a, b) => a[1].sn.toLowerCase().localeCompare(b[1].sn.toLowerCase());
 
 function renderBuddies() {
   const box = $('buddies'); box.replaceChildren();
-  const others = [...S.profiles].filter(([id]) => id !== key()).sort((a, b) => a[1].sn.toLowerCase().localeCompare(b[1].sn.toLowerCase()));
-  if (!others.length) { box.append(h('p', { class: 'empty' }, 'Nobody else is here yet. Send your friends the link. They show up here as they sign on.')); return; }
-  const groups = S.roomLive
+  const others = [...S.profiles].filter(([id]) => id !== S.uid).sort(bySn);
+  if (!others.length) { box.append(h('p', { class: 'empty' }, 'Nobody else is here yet. Send your friends the link and the room code. They show up here as they sign on.')); return; }
+  const groups = S.presLive
     ? [['Online', others.filter(([id, p]) => S.online.has(id) && !p.awayOn)], ['Away', others.filter(([id, p]) => S.online.has(id) && p.awayOn)], ['Offline', others.filter(([id]) => !S.online.has(id))]]
     : [['Everyone', others]];
   for (const [name, list] of groups) {
     if (!list.length) continue;
     box.append(h('h4', { class: 'grp' }, name + ' (' + list.length + ')'));
     for (const [id, p] of list) {
-      const st = statusOf(id, p);
+      const st = statusOf(id, p), n = S.unread[id] || 0;
       const sub = p.awayOn ? (p.away || 'Away') : (p.song.title ? '♪ ' + p.song.title : '');
-      box.append(h('button', { class: 'buddy', type: 'button', 'aria-current': S.selected === id ? 'true' : 'false', onclick: () => { selectProfile(id); if (isPhone()) setTab('profile'); } },
-        avatar(p, 30),
-        h('span', { class: 'grow' }, h('span', { class: 'nm' }, h('span', { class: 'dot ' + (S.roomLive ? st.cls : (p.awayOn ? 'away' : '')), 'aria-hidden': 'true' }), p.sn), sub ? h('div', { class: 'sub' }, sub) : null)));
+      box.append(h('div', { class: 'brow' + (S.selected === id ? ' cur' : '') },
+        h('button', { class: 'buddy', type: 'button', onclick: () => { selectProfile(id); if (isPhone()) setTab('profile'); } },
+          avatar(p, 30),
+          h('span', { class: 'grow' }, h('span', { class: 'nm' }, h('span', { class: 'dot ' + (S.presLive ? st.cls : (p.awayOn ? 'away' : '')), 'aria-hidden': 'true' }), p.sn), sub ? h('div', { class: 'sub' }, sub) : null)),
+        h('button', { class: 'btn sm dmb', type: 'button', 'aria-label': 'Message ' + p.sn, onclick: () => openConv(id) }, 'DM', n ? h('span', { class: 'pip' }, n > 9 ? '9+' : n) : null)));
     }
   }
 }
 
+function dmPeers() {
+  const set = new Set(S.opened);
+  for (const m of S.msgs) if (m.to) set.add(convOf(m));
+  return [...set].filter(id => id !== S.uid && S.profiles.has(id)).map(id => [id, S.profiles.get(id)]).sort(bySn);
+}
+function renderConvs() {
+  const box = $('convs'); box.replaceChildren();
+  const mk = (key, label) => { const n = S.unread[key] || 0; return h('button', { type: 'button', class: 'btn sm', 'aria-current': S.conv === key ? 'true' : 'false', onclick: () => openConv(key) }, label, n && S.conv !== key ? h('span', { class: 'pip' }, n > 9 ? '9+' : n) : null); };
+  box.append(mk('lounge', 'Lounge'));
+  for (const [id, p] of dmPeers()) box.append(mk(id, '@' + p.sn));
+}
+
 function renderNote() {
   const n = $('note'); let t = '';
-  if (S.mode === 'local') t = 'Room offline. Messages here stay on this device and nobody else sees them.';
-  else if (S.readOnly) t = 'View only. You can read along, but posting needs an editor invite from the owner.';
-  else if (S.mode === 'db' && !S.gotSnap && S.slow) t = 'Still reaching the room. What you see may be out of date.';
+  const peer = S.conv !== 'lounge' ? profileOf(S.conv) : null;
   if (S.extra) t = S.extra;
+  else if (peer && peer.awayOn) t = peer.sn + ' is away: ' + (peer.away || 'be back later');
+  else if (!S.rt && S.signedOn && S.rtTried) t = 'Live updates are not connecting. New messages will show up every few seconds.';
   n.hidden = !t; n.textContent = t;
 }
-
 function renderComposer() {
-  const can = S.signedOn && !!mine() && !S.readOnly;
+  const can = S.signedOn && !!mine();
   $('msg').disabled = !can; $('sendBtn').disabled = !can;
-  $('msg').placeholder = S.readOnly ? 'View only' : 'Say something. Try /me waves, @name, or paste a link';
 }
 
+function pruneMsgs() {
+  const cut = Date.now() - S.ttlH * 3600000;
+  if (S.msgs.some(m => m.ts < cut)) { S.msgs = S.msgs.filter(m => m.ts >= cut); S.msgIds = new Set(S.msgs.map(m => m.id)); }
+}
 function renderLog() {
   const log = $('log');
+  pruneMsgs();
   const near = log.scrollHeight - log.scrollTop - log.clientHeight < 90;
-  const items = [...S.msgs.map(m => ({ t: 'm', ts: m.ts, m })), ...S.sys.map(s => ({ t: 's', ts: s.ts, s }))].sort((a, b) => a.ts - b.ts);
+  const peer = S.conv !== 'lounge' ? profileOf(S.conv) : null;
+  const list = S.msgs.filter(m => convOf(m) === S.conv);
+  const items = [...list.map(m => ({ ts: m.ts, m })), ...(S.conv === 'lounge' ? S.sys.map(s => ({ ts: s.ts, s })) : [])].sort((a, b) => a.ts - b.ts);
   log.replaceChildren();
-  $('chatTitle').textContent = 'the lounge' + (S.roomLive && S.online.size ? ' · ' + S.online.size + ' here' : '');
-  if (!items.length) { log.append(h('p', { class: 'empty' }, 'It is quiet in here. Say something. /me does actions, @name pings someone, and links show up as cards.')); return; }
-  const bySn = new Map([...S.profiles].map(([id, p]) => [p.sn.toLowerCase(), [id, p]]));
+  $('chatTitle').textContent = peer ? 'dm · ' + peer.sn : 'the lounge' + (S.presLive && S.online.size ? ' · ' + S.online.size + ' here' : '');
+  const hrs = S.ttlH === 1 ? 'hour' : 'hours';
+  log.append(h('div', { class: 'sys' }, peer ? 'Only you and ' + peer.sn + ' can see this chat. Messages disappear after ' + S.ttlH + ' ' + hrs + '.' : 'Messages disappear after ' + S.ttlH + ' ' + hrs + '.'));
+  if (!items.length) { log.append(h('p', { class: 'empty' }, peer ? 'Say hi to ' + peer.sn + '.' : 'It is quiet in here. Say something. /me does actions, @name pings someone, and links show up as cards.')); return; }
+  const bySnMap = new Map([...S.profiles].map(([id, p]) => [p.sn.toLowerCase(), [id, p]]));
   let prev = null;
   for (const it of items) {
-    if (it.t === 's') { log.append(h('div', { class: 'sys' }, it.s.text)); prev = null; continue; }
+    if (it.s) { log.append(h('div', { class: 'sys' }, it.s.text)); prev = null; continue; }
     const m = it.m, p = profileOf(m.uid), sn = p ? p.sn : 'unknown', ac = p ? p.theme.ac : '#888888';
     const sty = '--c:' + ac + ';--oc:' + readable(ac);
     const r = rich(m.text);
+    const open = () => { selectProfile(m.uid); if (isPhone()) setTab('profile'); };
     let row;
     if (m.kind === 'me') {
-      row = h('div', { class: 'act' }, '* ', h('button', { class: 'chip', type: 'button', style: sty, onclick: () => { selectProfile(m.uid); if (isPhone()) setTab('profile'); } }, sn), ' ', r.nodes);
+      row = h('div', { class: 'act' }, '* ', h('button', { class: 'chip', type: 'button', style: sty, onclick: open }, sn), ' ', r.nodes);
       prev = null;
     } else {
       const cont = prev && prev.uid === m.uid && m.ts - prev.ts < 120000;
       row = h('div', { class: 'm' + (cont ? ' cont' : '') },
         cont ? h('span') : avatar(p || { sn: '?', theme: { ac } }, 32),
         h('div', { class: 'body' },
-          cont ? null : h('div', { class: 'hd' }, h('button', { class: 'chip', type: 'button', style: sty, onclick: () => { selectProfile(m.uid); if (isPhone()) setTab('profile'); } }, sn), h('time', {}, fmtTime(m.ts))),
+          cont ? null : h('div', { class: 'hd' }, h('button', { class: 'chip', type: 'button', style: sty, onclick: open }, sn), h('time', {}, fmtTime(m.ts))),
           h('div', { class: 'tx' }, r.nodes), r.cards));
       prev = m;
     }
     log.append(row);
-    const seen = new Set();
-    for (const t of m.text.matchAll(/@([\w.-]{2,20})/g)) {
-      const hit = bySn.get(t[1].toLowerCase());
-      if (hit && hit[0] !== m.uid && hit[1].awayOn && !seen.has(hit[0])) {
-        seen.add(hit[0]);
-        log.append(h('div', { class: 'auto', style: '--c:' + hit[1].theme.ac }, hit[1].sn + ' is away: ' + (hit[1].away || 'be back later')));
+    if (S.conv === 'lounge') {
+      const seen = new Set();
+      for (const t of m.text.matchAll(/@([\w.-]{2,20})/g)) {
+        const hit = bySnMap.get(t[1].toLowerCase());
+        if (hit && hit[0] !== m.uid && hit[1].awayOn && !seen.has(hit[0])) {
+          seen.add(hit[0]);
+          log.append(h('div', { class: 'auto', style: '--c:' + hit[1].theme.ac }, hit[1].sn + ' is away: ' + (hit[1].away || 'be back later')));
+        }
       }
     }
   }
@@ -544,128 +611,256 @@ function renderProfile() {
   if (!p) { $('profTitle').textContent = 'profile'; body.append(h('p', { class: 'muted' }, 'Pick someone from the buddy list to see their page.')); return; }
   const t = cleanTheme(p.theme);
   applyTheme(win, t); body.dataset.pat = t.pat;
-  const id = S.editing ? key() : S.selected;
+  const id = S.editing ? S.uid : S.selected;
   $('profTitle').textContent = (p.sn || 'profile') + "'s page";
   const st = S.editing ? { cls: '', text: 'Preview. This is how your page looks.' } : statusOf(id, p);
   body.append(h('div', { class: 'phead' }, avatar({ sn: p.sn || '?', avatar: p.avatar, theme: t }, 84),
     h('div', { class: 'grow' }, h('h2', { class: 'psn' }, p.sn || '...'),
       st.text ? h('div', { class: 'pst' }, h('span', { class: 'dot ' + st.cls, 'aria-hidden': 'true' }), st.text) : null)));
+  if (!S.editing && id && id !== S.uid) body.append(h('button', { class: 'btn pri pmsg', type: 'button', onclick: () => openConv(id) }, 'Message ' + p.sn));
   if (p.bio) body.append(h('div', { class: 'sec' }, h('h3', {}, 'About me'), h('p', {}, p.bio)));
   if (p.song && p.song.title) {
     const href = safeUrl(p.song.url);
-    body.append(h('div', { class: 'sec' }, h('h3', {}, p.song.auto ? 'Now playing on Spotify' : 'Now playing'),
+    body.append(h('div', { class: 'sec' }, h('h3', {}, 'Now playing'),
       h('div', { class: 'song' }, h('span', { 'aria-hidden': 'true' }, '♪'), h('div', { class: 'mq' }, h('span', {}, p.song.title)),
         href ? h('a', { href, target: '_blank', rel: 'noopener noreferrer' }, 'Listen') : null)));
   }
   const top = (p.top || []).map(x => [x, profileOf(x)]).filter(x => x[1]);
   if (top.length) {
     body.append(h('div', { class: 'sec' }, h('h3', {}, 'Top ' + top.length),
-      h('div', { class: 't8' }, top.map(([fid, fp], i) => h('button', { type: 'button', onclick: () => { if (!S.editing) { selectProfile(fid); } } },
+      h('div', { class: 't8' }, top.map(([fid, fp], i) => h('button', { type: 'button', onclick: () => { if (!S.editing) selectProfile(fid); } },
         avatar(fp, 80), h('b', {}, String(i + 1)), h('span', { class: 'nm' }, fp.sn))))));
   }
   const links = (p.links || []).map(l => [l, safeUrl(l.url)]).filter(x => x[1]);
   if (links.length) body.append(h('div', { class: 'sec links' }, h('h3', {}, 'Links'), links.map(([l, u]) => h('a', { href: u, target: '_blank', rel: 'noopener noreferrer' }, l.label || new URL(u).hostname))));
-  if (p.created) body.append(h('div', { class: 'joined' }, 'Signed on first ' + new Date(p.created).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })));
+  if (p.created) body.append(h('div', { class: 'joined' }, 'Joined ' + new Date(p.created).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })));
 }
 
-function selectProfile(id) {
-  if (S.editing) return;
-  S.selected = id; renderProfile(); renderBuddies();
-}
+function selectProfile(id) { if (S.editing) return; S.selected = id; renderProfile(); renderBuddies(); }
 
 function renderAll() {
   applyViewer(S.editing && S.draft ? S.draft.theme : S.theme);
   $('signon').hidden = S.signedOn; $('desk').hidden = !S.signedOn; $('tabs').hidden = !S.signedOn;
   renderSignon();
-  if (S.signedOn) { renderMe(); renderBuddies(); renderLog(); renderProfile(); renderNote(); renderComposer(); renderTabs(); }
+  if (S.signedOn) { renderMe(); renderBuddies(); renderConvs(); renderLog(); renderProfile(); renderNote(); renderComposer(); renderTabs(); }
 }
 
-/* ---------- writes ---------- */
-const retry = async fn => { try { return await fn(); } catch (e) { if (e && e.code === 'unavailable') { await new Promise(r => setTimeout(r, 400 + Math.random() * 600)); return fn(); } throw e; } };
-function wErr(e) {
-  const c = e && e.code;
-  if (c === 'invalid_argument' || c === 'revoked') S.readOnly = true;
-  else if (c === 'quota_exceeded') S.extra = 'The room is full, so nothing new can be saved until the owner clears space.';
-  else S.extra = 'That did not go through. Try again in a moment.';
-  renderNote(); renderComposer(); renderSignon(); renderMe();
+/* ---------- conversations ---------- */
+function openConv(key) {
+  if (S.editing) return;
+  if (key !== 'lounge' && !S.profiles.has(key)) key = 'lounge';
+  S.conv = key; if (key !== 'lounge') S.opened.add(key);
+  S.unread[key] = 0;
+  setTab('chat'); renderConvs(); renderLog(); renderNote(); renderBuddies(); renderTabs();
+  const l = $('log'); l.scrollTop = l.scrollHeight;
+  if (!$('msg').disabled && !isPhone()) $('msg').focus();
 }
-async function persist(next, partial) {
-  next.updated = Date.now();
-  S.profiles.set(key(), next);
-  S.theme = next.theme; LS.set('am.theme', JSON.stringify(next.theme));
-  if (S.mode !== 'db' || S.readOnly || !S.id) { LS.set('am.local', JSON.stringify(next)); return true; }
-  try {
-    const ref = S.db.doc('profiles/' + S.id);
-    if (partial) await retry(() => ref.update(Object.assign({ updated: next.updated }, partial)));
-    else await retry(() => ref.set(next));
-    return true;
-  } catch (e) { wErr(e); return false; }
+
+/* ---------- messages ---------- */
+const normMsg = r => ({ id: String(r.id), uid: String(r.sender || ''), to: r.recipient ? String(r.recipient) : null, text: clamp(r.body, 300), kind: r.kind === 'me' ? 'me' : 'msg', ts: Date.parse(r.created_at) || Date.now() });
+function addMsg(r, live) {
+  const m = normMsg(r);
+  if (!m.text || S.msgIds.has(m.id)) return false;
+  if (m.ts < Date.now() - S.ttlH * 3600000) return false;
+  S.msgIds.add(m.id); S.msgs.push(m);
+  if (S.msgs.length > 1 && S.msgs[S.msgs.length - 2].ts > m.ts) S.msgs.sort((a, b) => a.ts - b.ts);
+  if (live) {
+    const c = convOf(m);
+    if (m.uid !== S.uid) {
+      sfx('in');
+      const viewing = c === S.conv && (S.tab === 'chat' || !isPhone()) && !document.hidden;
+      if (!viewing) S.unread[c] = (S.unread[c] || 0) + 1;
+      if (c !== 'lounge') S.opened.add(c);
+    }
+  }
+  return true;
 }
+const MSG_COLS = 'id,sender,recipient,kind,body,created_at';
+async function sync(live) {
+  const [pr, ms] = await Promise.all([
+    sb.from('profiles').select('*').limit(500),
+    sb.from('messages').select(MSG_COLS).order('created_at', { ascending: false }).limit(400)
+  ]);
+  if (pr.error) throw pr.error;
+  if (ms.error) throw ms.error;
+  const map = new Map(); (pr.data || []).forEach(r => map.set(String(r.id), fromRow(r)));
+  S.profiles = map;
+  (ms.data || []).slice().reverse().forEach(r => addMsg(r, live));
+}
+function refreshUi() { if (!S.signedOn) return; renderAll(); if (S.editing) fillTop(); }
+
+async function send(text) {
+  text = clamp(text.trim(), 300); if (!text || !S.signedOn || !mine()) return;
+  let kind = 'msg';
+  if (/^\/me\s+/i.test(text)) { kind = 'me'; text = text.replace(/^\/me\s+/i, ''); }
+  if (!text) return;
+  sfx('out');
+  const { data, error } = await sb.from('messages').insert({ recipient: S.conv === 'lounge' ? null : S.conv, kind, body: text }).select(MSG_COLS).single();
+  if (error) { S.extra = 'That did not go through. Try again in a moment.'; renderNote(); clearExtraSoon(); return; }
+  S.extra = '';
+  if (addMsg(data, false)) { renderLog(); renderConvs(); }
+  renderNote();
+}
+
 async function setAway() {
   const p = mine(); if (!p) return;
   const on = $('stSel').value === 'away', msg = clamp($('awayIn').value.trim(), 80);
   if (on === p.awayOn && msg === p.away) return;
-  await persist(Object.assign({}, p, { awayOn: on, away: msg }), { awayOn: on, away: msg });
-  renderMe(); renderBuddies(); renderProfile(); renderLog();
+  const { error } = await sb.from('profiles').update({ away_on: on, away: msg }).eq('id', S.uid);
+  if (error) { S.extra = 'Could not save your status.'; renderNote(); clearExtraSoon(); renderMe(); return; }
+  p.awayOn = on; p.away = msg; renderMe(); renderBuddies(); renderProfile(); renderLog();
   if (on && !msg) $('awayIn').focus();
 }
-async function send(text) {
-  text = clamp(text.trim(), 300); if (!text || !mine() || S.readOnly) return;
-  let kind = 'msg';
-  if (/^\/me\s+/i.test(text)) { kind = 'me'; text = text.replace(/^\/me\s+/i, ''); }
-  const m = { uid: key(), text, kind, ts: Date.now() };
-  sfx('out');
-  if (S.mode === 'local') { S.msgs.push(Object.assign({ id: 'l' + m.ts }, m)); renderLog(); return; }
-  try { await retry(() => S.db.collection('messages').add(m)); S.extra = ''; renderNote(); } catch (e) { wErr(e); }
+async function setNow() {
+  const p = mine(); if (!p) return;
+  let t = $('npIn').value.trim(), url = '';
+  const m = t.match(/https?:\/\/\S+/);
+  if (m) { const u = safeUrl(m[0]); if (u) url = u; t = t.replace(m[0], '').trim().replace(/[-–—:]\s*$/, '').trim(); }
+  if (!t && url) t = new URL(url).hostname.replace(/^www\./, '');
+  t = clamp(t, 60);
+  if (!t) url = '';
+  if (!m && t === p.song.title) { renderMe(); return; }
+  if (url === p.song.url && t === p.song.title) { renderMe(); return; }
+  const { error } = await sb.from('profiles').update({ song_title: t, song_url: clamp(url, 300) }).eq('id', S.uid);
+  if (error) { S.extra = 'Could not save your song.'; renderNote(); clearExtraSoon(); renderMe(); return; }
+  p.song = { title: t, url: clamp(url, 300) }; renderMe(); renderBuddies(); renderProfile();
 }
 
-/* ---------- sign on / off ---------- */
-const SN_OK = /^[A-Za-z0-9._-]{2,20}$/;
-function defaultProfile(sn) {
+/* ---------- live updates ---------- */
+function subscribe() {
+  S.rtTried = false;
+  S.rtChan = sb.channel('am-db')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, p => {
+      if (p && p.new && addMsg(p.new, true)) { renderLog(); renderConvs(); renderBuddies(); renderTabs(); }
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, p => {
+      if (p.eventType === 'DELETE') { if (p.old && p.old.id) S.profiles.delete(String(p.old.id)); }
+      else if (p.new && p.new.id) S.profiles.set(String(p.new.id), fromRow(p.new));
+      const me = mine(); if (me && !S.editing) S.theme = me.theme;
+      refreshUi();
+    })
+    .subscribe(st => { S.rtTried = true; S.rt = st === 'SUBSCRIBED'; renderNote(); });
+  S.presChan = sb.channel('am-presence', { config: { presence: { key: S.uid } } });
+  S.presChan.on('presence', { event: 'sync' }, () => {
+    const now = new Set(Object.keys(S.presChan.presenceState()));
+    if (S.presSettled) {
+      for (const u of now) if (!S.online.has(u) && u !== S.uid) { const p = profileOf(u); sfx('open'); S.sys.push({ ts: Date.now(), text: (p ? p.sn : 'Someone') + ' has signed on.' }); }
+      for (const u of S.online) if (!now.has(u) && u !== S.uid) { const p = profileOf(u); sfx('close'); S.sys.push({ ts: Date.now(), text: (p ? p.sn : 'Someone') + ' has signed off.' }); }
+      if (S.sys.length > 40) S.sys.splice(0, S.sys.length - 40);
+    }
+    S.online = now;
+    if (!S.presLive) { S.presLive = true; setTimeout(() => { S.presSettled = true; }, 2500); }
+    renderBuddies(); renderLog(); renderProfile();
+  }).subscribe(async st => { if (st === 'SUBSCRIBED') { try { await S.presChan.track({ t: Date.now() }); } catch {} } });
+}
+
+/* ---------- auth ---------- */
+function friendly(e) {
+  const m = (e && e.message) || '';
+  if (m === '__sn') return 'Screen name needs 2 to 20 letters, numbers, dots, dashes or underscores.';
+  if (m === '__email') return 'Enter your email and a password of at least 6 characters.';
+  if (m === '__confirm') return 'This room still asks for email confirmation. Whoever runs it needs to turn that off in Supabase.';
+  if (/bad_code/.test(m)) return 'That room code is not right.';
+  if (/name_taken/.test(m)) return 'Somebody already has that screen name.';
+  if (/bad_name/.test(m)) return 'Screen name needs 2 to 20 letters, numbers, dots, dashes or underscores.';
+  if (/Invalid login/i.test(m)) return 'Wrong email or password.';
+  if (/already registered|already been registered/i.test(m)) return 'That email already has an account. Try signing on instead.';
+  if (/password/i.test(m) && /(least|short|weak|characters)/i.test(m)) return 'Pick a longer password (at least 6 characters).';
+  if (/valid email|invalid format|is invalid/i.test(m)) return 'That email does not look right.';
+  if (/rate limit|too many/i.test(m)) return 'Too many tries. Wait a minute and try again.';
+  if (/Failed to fetch|NetworkError|Load failed/i.test(m)) return 'Could not reach the room. Check your connection.';
+  return 'Something went wrong' + (m ? ' (' + m.slice(0, 90) + ')' : '') + '.';
+}
+const showSoErr = t => { const e = $('soErr'); e.textContent = t; e.hidden = !t; };
+
+async function afterAuth() {
+  S.uid = S.session.user.id;
+  const { data, error } = await sb.from('profiles').select('*').eq('id', S.uid).maybeSingle();
+  if (error) throw error;
+  if (!data) { S.mode = 'setup'; return false; }
+  S.profiles.set(S.uid, fromRow(data));
+  await enterApp();
+  return true;
+}
+async function enterApp() {
+  S.msgs = []; S.msgIds = new Set(); S.sys = []; S.unread = {}; S.opened = new Set(); S.conv = 'lounge'; S.online = new Set(); S.presLive = false; S.presSettled = false;
+  const hrs = await sb.rpc('message_ttl_hours');
+  if (hrs && typeof hrs.data === 'number' && hrs.data > 0) S.ttlH = hrs.data;
+  await sync(false);
+  S.theme = mine().theme; LS.set('am.theme', JSON.stringify(S.theme));
+  S.signedOn = true; S.selected = S.uid; S.mode = 'login';
+  fire(sb.rpc('purge_expired'));
+  subscribe();
+  S.timers.push(setInterval(() => fire(sb.rpc('purge_expired')), 15 * 60000));
+  S.timers.push(setInterval(() => { pruneMsgs(); renderLog(); }, 60000));
+  S.timers.push(setInterval(() => { if (!S.rt && S.signedOn && !S.editing) sync(true).then(refreshUi).catch(() => {}); }, 8000));
+  sfx('open'); setTab('chat'); renderAll();
+  if (!$('msg').disabled && !isPhone()) $('msg').focus();
+}
+async function claim() {
+  const sn = $('snIn').value.trim(), code = $('cdIn').value;
+  if (!SN_OK.test(sn)) throw { message: '__sn' };
   const d = PRESETS.dollars;
-  return cleanProfile({ sn, bio: '', away: '', awayOn: false, song: {}, links: [], top: [], avatar: '', created: Date.now(), updated: Date.now(),
-    theme: { preset: 'dollars', ac: S.color, bg: d.bg, fg: d.fg, font: d.font, pat: d.pat } });
+  const theme = { preset: 'dollars', ac: hashColor(sn), bg: d.bg, fg: d.fg, font: d.font, pat: d.pat };
+  const { error } = await sb.rpc('claim_profile', { p_sn: sn, p_code: code, p_theme: theme });
+  if (error) throw error;
+  await afterAuth();
 }
-async function signOn(ev) {
+async function onSignon(ev) {
   ev.preventDefault();
-  const err = $('soErr'); err.hidden = true;
-  if (S.readOnly) { enter(); return; }
-  let p = mine();
-  if (!p) {
-    const sn = $('snIn').value.trim();
-    if (!SN_OK.test(sn)) { err.textContent = 'Use 2 to 20 letters, numbers, dots, dashes or underscores.'; err.hidden = false; return; }
-    if ([...S.profiles].some(([id, q]) => id !== key() && q.sn.toLowerCase() === sn.toLowerCase())) { err.textContent = 'Somebody already has that screen name.'; err.hidden = false; return; }
-    p = defaultProfile(sn);
-    $('soBtn').disabled = true;
-    const ok = await persist(p);
-    $('soBtn').disabled = false;
-    if (!ok && !S.readOnly) { err.textContent = 'Could not save your screen name. Try again.'; err.hidden = false; return; }
+  if (!sb || S.busy) return;
+  showSoErr(''); S.busy = true; renderSignon();
+  try {
+    const email = $('emIn').value.trim().toLowerCase(), password = $('pwIn').value;
+    if (S.mode === 'login') {
+      if (!email || !password) throw { message: '__email' };
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if (error) throw error;
+      S.session = data.session; await afterAuth();
+    } else if (S.mode === 'signup') {
+      if (!email.includes('@') || password.length < 6) throw { message: '__email' };
+      if (!SN_OK.test($('snIn').value.trim())) throw { message: '__sn' };
+      const { data, error } = await sb.auth.signUp({ email, password });
+      if (error) throw error;
+      if (!data.session) throw { message: '__confirm' };
+      S.session = data.session; S.uid = data.session.user.id;
+      S.mode = 'setup';
+      await claim();
+    } else {
+      await claim();
+    }
+  } catch (e) {
+    showSoErr(friendly(e));
+    if (S.session && !S.signedOn) S.mode = 'setup';
+  } finally {
+    S.busy = false; $('pwIn').value = ''; renderAll();
   }
-  enter();
 }
-function enter() {
-  S.signedOn = true; S.selected = mine() ? key() : null;
-  if (mine()) S.theme = mine().theme;
-  sfx('open'); setTab(isPhone() ? 'chat' : 'chat');
-  renderAll(); initRoom();
-  if (mcp && LS.get('am.spotify') === 'on' && !S.spOn) spStart(false);
-  if (!$('msg').disabled) $('msg').focus();
+function swapMode() {
+  showSoErr('');
+  if (S.mode === 'setup') { fire(sb.auth.signOut()); S.session = null; S.uid = null; S.mode = 'login'; }
+  else S.mode = S.mode === 'login' ? 'signup' : 'login';
+  renderSignon();
 }
-function signOff() { sfx('close'); S.signedOn = false; S.editing = false; document.body.classList.remove('editing'); renderAll(); }
+function resetApp() {
+  try { sb.removeAllChannels(); } catch {}
+  S.timers.forEach(clearInterval); S.timers = [];
+  Object.assign(S, { signedOn: false, session: null, uid: null, profiles: new Map(), msgs: [], msgIds: new Set(), sys: [], online: new Set(), presLive: false, rt: false, unread: {}, opened: new Set(), conv: 'lounge', editing: false, draft: null, mode: 'login', selected: null, extra: '' });
+  document.body.classList.remove('editing'); renderAll();
+}
+async function signOff() { sfx('close'); try { await sb.auth.signOut(); } catch {} resetApp(); }
 
 /* ---------- editor ---------- */
 function buildEditorStatic() {
   const pre = $('ePre');
-  for (const [k, v] of Object.entries(PRESETS)) {
-    pre.append(h('button', { type: 'button', class: 'pre', 'data-preset': k, 'aria-pressed': 'false', style: '--pb:' + v.bg + ';--pf:' + v.fg + ';--pa:' + v.ac }, v.label));
-  }
+  for (const [k, v] of Object.entries(PRESETS)) pre.append(h('button', { type: 'button', class: 'pre', 'data-preset': k, 'aria-pressed': 'false', style: '--pb:' + v.bg + ';--pf:' + v.fg + ';--pa:' + v.ac }, v.label));
   for (const [k, v] of Object.entries(FONTS)) $('eFont').append(h('option', { value: k }, v[0]));
   for (const [k, v] of Object.entries(PATS)) $('ePat').append(h('option', { value: k }, v));
 }
 function fillTop() {
   const box = $('eTop'); box.replaceChildren();
-  const d = S.draft;
-  const others = [...S.profiles].filter(([id]) => id !== key()).sort((a, b) => a[1].sn.toLowerCase().localeCompare(b[1].sn.toLowerCase()));
+  const d = S.draft; if (!d) return;
+  const others = [...S.profiles].filter(([id]) => id !== S.uid).sort(bySn);
   if (!others.length) { box.append(h('p', { class: 'muted' }, 'Nobody else has signed on yet. Come back to this once your friends are here.')); return; }
   for (const [id, p] of others) {
     const i = d.top.indexOf(id);
@@ -691,14 +886,14 @@ function syncLook() {
 }
 function readEditor() {
   const d = S.draft;
-  d.sn = $('eSn').value; d.bio = $('eBio').value; d.song = { title: $('eSongT').value, url: $('eSongU').value, auto: !!d.song.auto };
+  d.sn = $('eSn').value; d.bio = $('eBio').value; d.song = { title: $('eSongT').value, url: $('eSongU').value };
   d.links = [0, 1, 2].map(i => ({ label: $('eL' + i + 'n').value, url: $('eL' + i + 'u').value }));
   Object.assign(d.theme, { ac: $('eAc').value, bg: $('eBg').value, fg: $('eFg').value, font: $('eFont').value, pat: $('ePat').value });
 }
 function livePreview() { readEditor(); syncLook(); applyViewer(S.draft.theme); renderProfile(); }
 function openEditor() {
-  const p = mine(); if (!p || S.readOnly) return;
-  S.draft = JSON.parse(JSON.stringify(p)); S.editing = true; S.selected = key();
+  const p = mine(); if (!p) return;
+  S.draft = JSON.parse(JSON.stringify(p)); S.editing = true; S.selected = S.uid;
   document.body.classList.add('editing'); fillEditor(); renderAll(); setTab('chat');
 }
 function closeEditor() {
@@ -709,8 +904,8 @@ async function saveEditor(ev) {
   ev.preventDefault(); readEditor();
   const d = S.draft, err = $('eErr'), fail = m => { err.textContent = m; err.hidden = false; };
   if (!SN_OK.test(d.sn.trim())) return fail('Screen name needs 2 to 20 letters, numbers, dots, dashes or underscores.');
-  if ([...S.profiles].some(([id, q]) => id !== key() && q.sn.toLowerCase() === d.sn.trim().toLowerCase())) return fail('Somebody already has that screen name.');
-  let song = { title: d.song.title.trim(), url: '', auto: !!d.song.auto };
+  if ([...S.profiles].some(([id, q]) => id !== S.uid && q.sn.toLowerCase() === d.sn.trim().toLowerCase())) return fail('Somebody already has that screen name.');
+  const song = { title: d.song.title.trim(), url: '' };
   if (d.song.url.trim()) { const u = safeUrl(d.song.url); if (!u) return fail('The song link needs to start with http:// or https://'); song.url = u; }
   const links = [];
   for (const l of d.links) {
@@ -718,11 +913,12 @@ async function saveEditor(ev) {
     const u = safeUrl(l.url); if (!u) return fail('Each link needs a web address that starts with http:// or https://');
     links.push({ label: l.label.trim(), url: u });
   }
-  const next = cleanProfile(Object.assign({}, d, { sn: d.sn.trim(), song, links }));
+  const next = fromRow(Object.assign(toRow(Object.assign({}, d, { sn: d.sn.trim(), song, links })), { id: S.uid, created_at: d.created ? new Date(d.created).toISOString() : null }));
   $('eSave').disabled = true;
-  const ok = await persist(next);
+  const { error } = await sb.from('profiles').update(toRow(next)).eq('id', S.uid);
   $('eSave').disabled = false;
-  if (!ok && !S.readOnly) return fail('Could not save. Try again in a moment.');
+  if (error) return fail(error.code === '23505' ? 'Somebody already has that screen name.' : 'Could not save. Try again in a moment.');
+  S.profiles.set(S.uid, next); S.theme = next.theme; LS.set('am.theme', JSON.stringify(next.theme));
   closeEditor();
 }
 function pickAvatar(file) {
@@ -743,134 +939,20 @@ function pickAvatar(file) {
   fr.readAsDataURL(file);
 }
 
-/* ---------- live data ---------- */
-function loadLocal() {
-  try { const r = LS.get('am.local'); if (r) S.profiles.set('me', cleanProfile(JSON.parse(r))); } catch {}
-}
-async function init() {
-  use('mcp').then(m => { mcp = m; S.mcpOk = !!m; renderSp(); if (m && S.signedOn && LS.get('am.spotify') === 'on' && !S.spOn) spStart(false); });
-  const [user, db] = await Promise.all([use('user'), use('db')]);
-  S.user = user;
-  if (user) { try { const m = await user.me(); S.id = m.id || null; const c = m.color && toHex(m.color); if (c) S.color = c; } catch {} }
-  if (!db) { S.mode = 'local'; loadLocal(); renderAll(); return; }
-  S.db = db; S.mode = 'db';
-  if (!S.id) S.readOnly = true;
-  else { try { if ((await user.can('data.write')) === false) S.readOnly = true; } catch {} }
-  const timer = setTimeout(() => { S.slow = true; renderSignon(); renderNote(); }, 10000);
-  db.collection('profiles').onSnapshot(snap => {
-    if (!snap.metadata.fromCache) { clearTimeout(timer); S.slow = false; S.gotSnap = true; }
-    const m = new Map(); snap.docs.forEach(d => m.set(d.id, cleanProfile(d.data())));
-    S.profiles = m;
-    if (mine() && !S.editing) S.theme = mine().theme;
-    if (S.readOnly && !S.id) S.gotSnap = true;
-    if (S.signedOn) { if (S.selected && !S.profiles.has(S.selected)) S.selected = mine() ? key() : null; }
-    renderAll();
-    if (S.editing) fillTop();
-  }, () => { S.slow = true; renderSignon(); renderNote(); });
-  db.collection('messages').orderBy('ts', 'desc').limit(150).onSnapshot(snap => {
-    const prevIds = new Set(S.msgs.map(m => m.id));
-    S.msgs = snap.docs.map(d => { const x = d.data() || {}; return { id: d.id, uid: clamp(x.uid, 80), text: clamp(x.text, 300), kind: x.kind === 'me' ? 'me' : 'msg', ts: +x.ts || 0 }; }).filter(m => m.text).reverse();
-    if (S.signedOn) {
-      const fresh = S.msgs.filter(m => !prevIds.has(m.id) && m.uid !== key() && m.ts > S.t0 - 2000);
-      if (fresh.length && prevIds.size >= 0) { sfx('in'); if (S.tab !== 'chat' && isPhone()) { S.unread += fresh.length; renderTabs(); } }
-    }
-    renderLog();
-  }, () => {});
-  renderAll();
-}
-async function initRoom() {
-  if (S.roomInit) return; S.roomInit = true;
-  const room = await use('room'); if (!room) return;
-  S.room = room;
-  room.presence({ uid: S.id || null }).catch(() => {});
-  room.onPeers(ch => {
-    const now = new Set();
-    ch.peers.forEach(p => { if (p.kind !== 'viewer') return; const u = p.by || (p.presence && p.presence.uid); if (typeof u === 'string') now.add(u); });
-    if (S.peersSettled) {
-      for (const u of now) if (!S.online.has(u) && u !== key()) { const p = profileOf(u); sfx('open'); S.sys.push({ ts: Date.now(), text: (p ? p.sn : 'Someone') + ' has signed on.' }); }
-      for (const u of S.online) if (!now.has(u) && u !== key()) { const p = profileOf(u); sfx('close'); S.sys.push({ ts: Date.now(), text: (p ? p.sn : 'Someone') + ' has signed off.' }); }
-      if (S.sys.length > 40) S.sys.splice(0, S.sys.length - 40);
-    }
-    S.online = now;
-    if (!S.roomLive) { S.roomLive = true; setTimeout(() => { S.peersSettled = true; }, 2500); }
-    renderBuddies(); renderLog(); renderProfile();
-  }, () => { S.roomLive = false; S.online = new Set(); renderBuddies(); renderLog(); });
-}
-
-/* ---------- Spotify now playing ---------- */
-let mcp = null, spStop = null;
-const SP = { server: 'Spotify', tool: 'get_currently_playing' };
-const spSay = t => { $('spStat').textContent = t; };
-function renderSp() {
-  $('spRow').hidden = !(S.mcpOk && mine() && !S.readOnly);
-  $('spBtn').textContent = S.spOn ? 'Spotify sync: on' : 'Sync from Spotify';
-  $('spBtn').setAttribute('aria-pressed', S.spOn ? 'true' : 'false');
-}
-function playingFrom(res) {
-  let p = res && res.payload;
-  if (typeof p === 'string') { try { p = JSON.parse(p); } catch { return null; } }
-  const e = p && typeof p === 'object' ? p.currently_playing_entity : null;
-  if (!e || typeof e !== 'object' || !e.name) return null;
-  const artists = Array.isArray(e.creators) ? e.creators.map(c => c && c.name).filter(Boolean).join(', ') : '';
-  let url = '';
-  const su = safeUrl(e.url || '');
-  if (su) { const u = new URL(su); url = u.origin + u.pathname; }
-  return { title: clamp((artists ? artists + ' - ' : '') + String(e.name), 60), url: clamp(url, 300) };
-}
-async function applySong(np) {
-  const p = mine();
-  if (!np || !p || S.editing || S.readOnly || S.spBusy) return;
-  if (p.song.title === np.title && p.song.url === np.url && p.song.auto) return;
-  S.spBusy = true;
-  const song = { title: np.title, url: np.url, auto: true };
-  try { await persist(Object.assign({}, p, { song }), { song }); } finally { S.spBusy = false; }
-  renderBuddies(); renderProfile();
-}
-function spGot(res) {
-  const np = playingFrom(res);
-  if (np) { spSay('♪ ' + np.title); applySong(np); } else spSay('Nothing playing on Spotify right now.');
-}
-function spOff(msg) {
-  if (spStop) { spStop(); spStop = null; }
-  S.spOn = false; LS.set('am.spotify', 'off'); renderSp(); spSay(msg || '');
-}
-function spFail(e) {
-  const c = e && e.code;
-  if (c === 'approval_required' || c === 'not_in_manifest' || c === 'consent_required') return spOff('Spotify was not allowed for this page. Tap Sync to try again.');
-  if (c === 'server_not_connected' || c === 'selection_required' || c === 'server_not_found') return spOff('Spotify is not connected. Add it in claude.ai under Settings, then Connectors.');
-  if (c === 'needs_reauth') return spOff('Reconnect Spotify in claude.ai under Settings, then Connectors.');
-  if (c === 'blocked_by_policy') return spOff('Your organization blocks Spotify here.');
-  if (c === 'not_granted' || c === 'capability_disabled' || c === 'capability_removed') return spOff('Spotify sync is not available in this view.');
-  spSay(c === 'tool_error' ? 'Spotify returned an error. Is something playing?' : 'Spotify is not answering. It will try again.');
-}
-async function spStart(fromClick) {
-  if (!mcp || spStop) return;
-  if (fromClick) {
-    spSay('Asking Spotify...');
-    try { spGot(await mcp.callTool(SP.server, SP.tool, {}, { cache: false })); } catch (e) { spFail(e); return; }
-  }
-  S.spOn = true; LS.set('am.spotify', 'on'); renderSp();
-  spStop = mcp.watchTool(SP.server, SP.tool, null, ev => { if (ev.type === 'data') spGot(ev.result); else spFail(ev.error); },
-    { refetchInterval: 30000, cache: { staleTime: 20000, gcTime: 120000 } });
-}
-$('spBtn').addEventListener('click', () => { if (S.spOn) spOff(''); else spStart(true); });
-
 /* ---------- wiring ---------- */
-$('soForm').addEventListener('submit', signOn);
+$('soForm').addEventListener('submit', onSignon);
+$('soSwap').addEventListener('click', swapMode);
 $('compose').addEventListener('submit', e => { e.preventDefault(); const i = $('msg'); const v = i.value; i.value = ''; send(v); i.focus(); });
 $('stSel').addEventListener('change', setAway);
 $('awayIn').addEventListener('change', setAway);
+$('npIn').addEventListener('change', setNow);
 $('editBtn').addEventListener('click', openEditor);
 $('offBtn').addEventListener('click', signOff);
 $('sndBtn').addEventListener('click', () => { S.sound = !S.sound; LS.set('am.sound', S.sound ? 'on' : 'off'); renderMe(); if (S.sound) sfx('in'); });
 $('eClose').addEventListener('click', closeEditor);
 $('eCancel').addEventListener('click', closeEditor);
 $('editForm').addEventListener('submit', saveEditor);
-$('editForm').addEventListener('input', e => {
-  if (e.target.type === 'file' || e.target.type === 'checkbox') return;
-  if ((e.target.id === 'eSongT' || e.target.id === 'eSongU') && S.draft) S.draft.song.auto = false;
-  livePreview();
-});
+$('editForm').addEventListener('input', e => { if (e.target.type === 'file' || e.target.type === 'checkbox') return; livePreview(); });
 $('editForm').addEventListener('change', e => { if (e.target.id === 'eAv') pickAvatar(e.target.files[0]); });
 $('eAvRm').addEventListener('click', () => { S.draft.avatar = ''; $('eAv').value = ''; $('eAvPrev').replaceChildren(avatar(S.draft, 44)); renderProfile(); });
 $('ePre').addEventListener('click', e => {
@@ -886,12 +968,25 @@ $('eTop').addEventListener('change', e => {
   fillTop(); renderProfile();
 });
 document.querySelectorAll('#tabs [data-go]').forEach(b => b.addEventListener('click', () => setTab(b.dataset.go)));
+document.addEventListener('visibilitychange', () => { if (!document.hidden && S.signedOn && S.tab === 'chat') { S.unread[S.conv] = 0; renderTabs(); renderConvs(); } });
 
-buildEditorStatic();
-document.body.dataset.tab = 'chat';
-renderAll();
-init();
+async function boot() {
+  buildEditorStatic();
+  document.body.dataset.tab = 'chat';
+  renderAll();
+  if (!sb) return;
+  try {
+    const { data } = await sb.auth.getSession();
+    sb.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_OUT' && S.signedOn) setTimeout(resetApp, 0); });
+    if (data && data.session) {
+      S.session = data.session; S.busy = true; renderSignon();
+      try { await afterAuth(); } catch (e) { showSoErr(friendly(e)); }
+      S.busy = false; renderAll();
+    }
+  } catch { S.busy = false; renderAll(); }
+}
+boot();
 })();
 </script>
-
-</body></html>
+</body>
+</html>
