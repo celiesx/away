@@ -120,6 +120,8 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .tx{overflow-wrap:anywhere}
 .tx a{color:var(--ac)}
 .pic{display:block;max-width:100%;max-height:260px;margin-top:4px;border:2px solid var(--line);border-radius:6px;background:var(--bg2,#111);cursor:zoom-in}
+.fchip{display:inline-flex;gap:6px;align-items:baseline;margin-top:4px;padding:6px 10px;cursor:pointer;background:var(--panel2);border:1px solid var(--line);border-left:4px solid var(--ac);border-radius:var(--rs)}
+.fchip small{color:var(--muted)}
 .pic.ld{min-height:60px;min-width:120px}
 .at{color:var(--ac);font-weight:700}
 .act{margin-top:9px;color:var(--muted);font-style:italic;overflow-wrap:anywhere}
@@ -279,7 +281,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
       <div class="convbar"><div id="convs" class="convs" aria-label="Conversations"></div><button id="newCh" class="btn sm plus" type="button" aria-label="Make a channel">+</button></div>
       <form id="chForm" class="chform" autocomplete="off" hidden>
         <label class="sr" for="chName">Channel name</label><input id="chName" maxlength="20" spellcheck="false" placeholder="channel name">
-        <label class="sr" for="chKeep">Messages</label><select id="chKeep"><option value="temp">temporary</option><option value="keep">keep messages</option></select>
+        <label class="sr" for="chKeep">Messages</label><select id="chKeep"><option value="keep">stays around</option><option value="temp">temporary (gone in 3 days)</option></select>
         <input id="chTopic" maxlength="300" placeholder="about / rules (optional)">
         <button class="btn sm pri" type="submit">Make</button><button id="chCancel" class="btn sm" type="button">Cancel</button>
       </form>
@@ -289,7 +291,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
       <form id="compose" class="compose" autocomplete="off">
         <label class="sr" for="msg">Message</label>
         <input id="msg" maxlength="300" autocomplete="off" placeholder="Message (try /me or @name)">
-        <button id="photoBtn" class="btn" type="button" aria-label="Send a photo or GIF">Photo</button><input id="photoIn" type="file" accept="image/jpeg,image/png,image/gif,image/webp" hidden>
+        <button id="photoBtn" class="btn" type="button" aria-label="Send a file, photo or GIF">File</button><input id="photoIn" type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf" hidden>
         <button id="sendBtn" class="btn pri" type="submit">Send</button>
       </form>
     </section>
@@ -543,7 +545,6 @@ const totalUnread = () => Object.values(S.unread).reduce((a, b) => a + b, 0);
 const isRoom = k => k === 'lounge' || String(k).startsWith('c:');
 const convOf = m => m.ch ? 'c:' + m.ch : (m.to ? (m.uid === S.uid ? m.to : m.uid) : 'lounge');
 const pinKey = k => k === 'lounge' ? 'lounge' : String(k).slice(2);
-const keepCh = id => !!(id && S.channels.get(id) && S.channels.get(id).keep);
 const clearExtraSoon = () => setTimeout(() => { S.extra = ''; renderNote(); }, 6000);
 
 function setTab(t) {
@@ -664,7 +665,7 @@ function renderComposer() {
 }
 
 const IMG_H = 6;
-const expired = m => !m.image && keepCh(m.ch) ? false : m.ts < Date.now() - (m.image ? IMG_H : S.ttlH) * 3600000;
+const expired = m => m.ts < Date.now() - (m.image ? IMG_H : S.ttlH) * 3600000;
 const urlCache = new Map();
 async function mediaUrl(path) {
   const c = urlCache.get(path);
@@ -673,6 +674,20 @@ async function mediaUrl(path) {
   if (error || !data) return '';
   urlCache.set(path, { url: data.signedUrl, exp: Date.now() + 50 * 60000 });
   return data.signedUrl;
+}
+const isFile = m => !!m.image && m.image.endsWith('.pdf');
+function fileEl(m) {
+  const mineMsg = m.uid === S.uid;
+  const b = h('button', { class: 'fchip', type: 'button' }, '\u{1F4C4} ' + (m.fname || 'file.pdf'), m.once ? h('small', {}, mineMsg ? ' view once' : ' view once, open it only when ready') : null);
+  b.onclick = async () => {
+    if (m.once && !mineMsg && !confirm('This file can only be opened once. When it opens, save it right away. Open it now?')) return;
+    const w = window.open('', '_blank');
+    const { data, error } = await sb.storage.from('media').createSignedUrl(m.image, m.once && !mineMsg ? 120 : 3600);
+    if (error || !data) { if (w) w.close(); S.extra = m.once && !mineMsg ? 'That file was already opened, or it expired.' : 'That file is not available anymore.'; renderNote(); clearExtraSoon(); return; }
+    if (m.once && !mineMsg) await sb.rpc('open_file', { p_msg: Number(m.id) });
+    if (w) { w.opener = null; w.location = data.signedUrl; } else window.location = data.signedUrl;
+  };
+  return b;
 }
 function picEl(path) {
   const im = h('img', { class: 'pic ld', alt: 'photo', loading: 'lazy' });
@@ -697,7 +712,7 @@ function renderLog() {
   const chn = S.conv.startsWith('c:') ? S.channels.get(S.conv.slice(2)) : null;
   $('chatTitle').textContent = peer ? 'dm · ' + peer.sn : chn ? '#' + chn.name : 'the lounge' + (S.presLive && S.online.size ? ' · ' + S.online.size + ' here' : '');
   const hrs = S.ttlH === 1 ? 'hour' : 'hours';
-  log.append(h('div', { class: 'sys' }, peer ? 'Only you and ' + peer.sn + ' can see this chat. Messages disappear after ' + S.ttlH + ' ' + hrs + ', photos after ' + IMG_H + '.' : (chn && chn.keep ? 'This channel keeps messages. Photos disappear after ' + IMG_H + ' hours.' : 'Messages disappear after ' + S.ttlH + ' ' + hrs + ', photos after ' + IMG_H + '.')));
+  log.append(h('div', { class: 'sys' }, peer ? 'Only you and ' + peer.sn + ' can see this chat. Messages disappear after ' + S.ttlH + ' ' + hrs + ', photos and files after ' + IMG_H + '.' : 'Messages disappear after ' + S.ttlH + ' ' + hrs + ', photos and files after ' + IMG_H + '.'));
   if (!items.length) { log.append(h('p', { class: 'empty' }, peer ? 'Say hi to ' + peer.sn + '.' : 'It is quiet in here. Say something. /me does actions, @name pings someone, and links show up as cards.')); return; }
   const bySnMap = new Map([...S.profiles].map(([id, p]) => [p.sn.toLowerCase(), [id, p]]));
   let prev = null;
@@ -717,9 +732,9 @@ function renderLog() {
         cont ? h('span') : avatar(p || { sn: '?', theme: { ac } }, 32),
         h('div', { class: 'body' },
           cont ? null : h('div', { class: 'hd' }, h('button', { class: 'chip', type: 'button', style: sty, onclick: open }, sn), h('time', {}, fmtTime(m.ts))),
-          h('div', { class: 'tx' }, r.nodes, m.image ? picEl(m.image) : null), r.cards,
+          h('div', { class: 'tx' }, r.nodes, m.image ? (isFile(m) ? fileEl(m) : picEl(m.image)) : null), r.cards,
           h('div', { class: 'macts' },
-            isRoom(S.conv) && (m.text || m.image) ? h('button', { class: 'pinb', type: 'button', 'aria-label': 'Pin this message', onclick: () => pinMsg(m) }, 'pin') : null,
+            isRoom(S.conv) && (m.text || (m.image && !isFile(m))) ? h('button', { class: 'pinb', type: 'button', 'aria-label': 'Pin this message', onclick: () => pinMsg(m) }, 'pin') : null,
             m.uid === S.uid ? h('button', { class: 'pinb delb', type: 'button', 'aria-label': 'Delete this message', onclick: () => delMsg(m) }, 'delete') : null)));
       prev = m;
     }
@@ -766,7 +781,7 @@ function renderInfo() {
       } }, 'Save')));
   } else {
     aboutSec.append(h('p', {}, about || 'No about or rules yet.'));
-    if (ch) aboutSec.append(h('p', { class: 'muted' }, (ch.keep ? 'Keeps messages.' : 'Messages disappear after ' + S.ttlH + ' hours.') + (profileOf(ch.by) ? ' Made by ' + profileOf(ch.by).sn + '.' : '')));
+    if (ch) aboutSec.append(h('p', { class: 'muted' }, ('Messages disappear after ' + S.ttlH + ' hours. ' + (ch.keep ? 'This channel stays around.' : 'This channel deletes itself ' + (ch.expires ? 'on ' + new Date(ch.expires).toLocaleDateString([], { month: 'short', day: 'numeric' }) : 'in a few days') + '.')) + (profileOf(ch.by) ? ' Made by ' + profileOf(ch.by).sn + '.' : '')));
     if (mineCh) aboutSec.append(h('button', { class: 'btn sm', type: 'button', onclick: () => { S.aboutEdit = true; renderProfile(); } }, 'Edit about'));
   }
   body.append(aboutSec);
@@ -854,7 +869,7 @@ function openConv(key) {
 }
 
 /* ---------- messages ---------- */
-const normMsg = r => ({ id: String(r.id), uid: String(r.sender || ''), to: r.recipient ? String(r.recipient) : null, text: clamp(r.body, 300), kind: r.kind === 'me' ? 'me' : 'msg', ch: r.channel ? String(r.channel) : null, image: r.image ? String(r.image) : '', ts: Date.parse(r.created_at) || Date.now() });
+const normMsg = r => ({ id: String(r.id), uid: String(r.sender || ''), to: r.recipient ? String(r.recipient) : null, text: clamp(r.body, 300), kind: r.kind === 'me' ? 'me' : 'msg', ch: r.channel ? String(r.channel) : null, image: r.image ? String(r.image) : '', fname: r.file_name ? String(r.file_name) : '', once: !!r.once, ts: Date.parse(r.created_at) || Date.now() });
 function addMsg(r, live) {
   const m = normMsg(r);
   if ((!m.text && !m.image) || S.msgIds.has(m.id)) return false;
@@ -872,9 +887,9 @@ function addMsg(r, live) {
   }
   return true;
 }
-const chanRow = c => ({ id: String(c.id), name: clamp(c.name, 20), keep: !!c.keep, topic: clamp(c.topic || '', 300), by: String(c.created_by || '') });
+const chanRow = c => ({ id: String(c.id), name: clamp(c.name, 20), keep: !!c.keep, expires: c.expires_at ? (Date.parse(c.expires_at) || 0) : 0, topic: clamp(c.topic || '', 300), by: String(c.created_by || '') });
 const pinRow = p => ({ id: String(p.id), ch: p.channel ? String(p.channel) : null, text: clamp(p.body, 300), image: p.image ? String(p.image) : '', author: p.author ? String(p.author) : '', by: p.pinned_by ? String(p.pinned_by) : '' });
-const MSG_COLS = 'id,sender,recipient,channel,kind,body,image,created_at';
+const MSG_COLS = 'id,sender,recipient,channel,kind,body,image,file_name,once,created_at';
 async function sync(live) {
   const [pr, ms, chs, pns] = await Promise.all([
     sb.from('profiles').select('*').limit(500),
@@ -1000,18 +1015,21 @@ function loadImg(file) {
     im.src = u;
   });
 }
-function confirmPhoto(blob) {
+function confirmPhoto(blob, name) {
   return new Promise(res => {
-    const url = URL.createObjectURL(blob), prev = document.activeElement;
+    const isPdf = blob.type === 'application/pdf';
+    const url = isPdf ? '' : URL.createObjectURL(blob), prev = document.activeElement;
+    const once = h('input', { type: 'checkbox', id: 'onceCb' });
     let dest = 'the lounge';
     if (S.conv.startsWith('c:')) { const c = S.channels.get(S.conv.slice(2)); dest = c ? '#' + c.name : dest; }
     else if (!isRoom(S.conv)) { const p = profileOf(S.conv); dest = p ? p.sn : 'them'; }
-    const done = ok => { URL.revokeObjectURL(url); ov.remove(); document.removeEventListener('keydown', key); if (prev && prev.focus) prev.focus(); res(ok); };
+    const done = ok => { if (url) URL.revokeObjectURL(url); const o = once.checked; ov.remove(); document.removeEventListener('keydown', key); if (prev && prev.focus) prev.focus(); res(ok ? { once: isPdf && o } : null); };
     const key = e => { if (e.key === 'Escape') done(false); };
     const go = h('button', { class: 'btn pri', type: 'button', onclick: () => done(true) }, 'Send');
-    const ov = h('div', { class: 'ovl', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Send this photo?' },
-      h('div', { class: 'ovbox' }, h('p', {}, 'Send this to ' + dest + '? It disappears after ' + IMG_H + ' hours.'),
-        h('img', { src: url, alt: 'preview' }),
+    const ov = h('div', { class: 'ovl', role: 'dialog', 'aria-modal': 'true', 'aria-label': isPdf ? 'Send this file?' : 'Send this photo?' },
+      h('div', { class: 'ovbox' }, h('p', {}, 'Send ' + (isPdf ? (name || 'this file') : 'this') + ' to ' + dest + '? It disappears after ' + IMG_H + ' hours.'),
+        isPdf ? h('p', { class: 'muted' }, Math.max(1, Math.round(blob.size / 1024)) + ' KB') : h('img', { src: url, alt: 'preview' }),
+        isPdf ? h('label', { class: 'f', for: 'onceCb' }, once, ' View once. Each person can open it one time, so tell them to save it right away. Nobody can stop a person from saving it that one time.') : null,
         h('div', { class: 'ovbtn' }, h('button', { class: 'btn', type: 'button', onclick: () => done(false) }, 'Cancel'), go)));
     document.body.append(ov); document.addEventListener('keydown', key); go.focus();
   });
@@ -1019,9 +1037,9 @@ function confirmPhoto(blob) {
 async function sendPhoto(file) {
   if (!file || !S.signedOn || !mine()) return;
   const say = t => { S.extra = t; renderNote(); clearExtraSoon(); };
-  if (!/^image\/(jpeg|png|gif|webp)$/.test(file.type)) return say('Only jpg, png, gif or webp pictures.');
-  let blob = file, ext = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/webp': 'webp' }[file.type];
-  if (file.type !== 'image/gif') {
+  if (!/^(image\/(jpeg|png|gif|webp)|application\/pdf)$/.test(file.type)) return say('Pictures (jpg, png, gif, webp) and PDFs only.');
+  let blob = file, ext = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/webp': 'webp', 'application/pdf': 'pdf' }[file.type];
+  if (file.type !== 'image/gif' && file.type !== 'application/pdf') {
     try {
       const im = await loadImg(file), sc = Math.min(1, 1280 / Math.max(im.width, im.height));
       const cv = document.createElement('canvas'); cv.width = Math.max(1, Math.round(im.width * sc)); cv.height = Math.max(1, Math.round(im.height * sc));
@@ -1030,14 +1048,16 @@ async function sendPhoto(file) {
       if (b) { blob = b; ext = 'jpg'; }
     } catch { return say('Could not read that picture.'); }
   }
-  if (blob.size > 3 * 1024 * 1024) return say('That one is too big. Max is 3 MB.');
-  if (!(await confirmPhoto(blob))) return;
+  const lim = ext === 'pdf' ? 10 : 3;
+  if (blob.size > lim * 1024 * 1024) return say('That one is too big. Max is ' + lim + ' MB.');
+  const pick = await confirmPhoto(blob, clamp(file.name || 'file.pdf', 80));
+  if (!pick) return;
   const path = S.uid + '/' + crypto.randomUUID() + '.' + ext;
   sfx('out');
   const up = await sb.storage.from('media').upload(path, blob, { contentType: blob.type, upsert: false });
   if (up.error) return say('Upload did not go through. Try again.');
   const cap = clamp($('msg').value.trim(), 300);
-  const { data, error } = await sb.from('messages').insert({ ...target(), kind: 'msg', body: cap, image: path }).select(MSG_COLS).single();
+  const { data, error } = await sb.from('messages').insert({ ...target(), kind: 'msg', body: cap, image: path, ...(ext === 'pdf' ? { file_name: clamp(file.name || 'file.pdf', 80), once: pick.once } : {}) }).select(MSG_COLS).single();
   if (error) { fire(sb.storage.from('media').remove([path])); return say('That did not go through. Try again in a moment.'); }
   $('msg').value = ''; S.extra = '';
   if (addMsg(data, false)) { renderLog(); renderConvs(); }
