@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794068061">
+<meta name="build" content="1794068839">
 <link rel="icon" href="data:,">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -97,6 +97,9 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .psn .dot{display:inline-block;vertical-align:middle;margin-right:6px}
 .psn .dot.away{width:20px;height:20px;margin-left:-2px}
 #profWin{position:relative}
+.brow.faint{opacity:.5}
+.bx{padding:0 6px;font-size:14px;line-height:1.2;opacity:.6;background:none;border:0;cursor:pointer}
+.when{color:var(--muted);font-weight:400;font-size:11px}
 .env{image-rendering:pixelated;display:block}
 .start{display:flex;gap:6px;align-items:center;flex:none!important;font-weight:800;color:var(--ac);padding:3px 9px!important}
 .start.off{opacity:.8}
@@ -115,6 +118,8 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .popmenu button{border:0;background:none;padding:0 6px;color:#111;font-weight:400;font-size:17px;cursor:pointer}
 .popmenu button u{text-decoration:underline}
 .popact{color:#1a1ad0;font-weight:700;overflow-wrap:anywhere}
+.popnick{color:#1a1ad0;font-weight:700}
+.popbody input{background:#fff;color:#111;border:1px solid #777;width:100%;font:inherit;margin-top:4px}
 .popnote{margin:10px 0 0;font-style:italic;color:#777;overflow-wrap:anywhere}
 .poptb,.popmenu{flex:none}
 .popbody{font-size:18px;margin:4px 4px 0;border:2px solid;border-color:#404040 #fff #fff #404040;background:#fff;color:#111;flex:1;min-height:0;overflow:auto;padding:10px 12px;font-size:14px}
@@ -823,24 +828,37 @@ function statusOf(id, p) {
 const bySn = (a, b) => a[1].sn.toLowerCase().localeCompare(b[1].sn.toLowerCase());
 
 const subOf = p => p.awayOn ? (p.away || 'Away') : (p.mood || (p.song && p.song.title ? '\u266a ' + p.song.title : ''));
+try { S.hid = new Set(JSON.parse(LS.get('am.hid') || '[]')); } catch { S.hid = new Set(); }
+const heartImg = w => h('img', { class: 'env hrt', src: HEART, width: w, height: Math.round(w * 6 / 7), alt: 'friend', style: 'display:inline;vertical-align:-1px;margin-right:4px' });
+const lastDm = id => { for (let i = S.msgs.length - 1; i >= 0; i--) { const m = S.msgs[i]; if (m.to && convOf(m) === id) return m; } return null; };
 function renderBuddies() {
   const box = $('buddies'); box.replaceChildren();
   const others = [...S.profiles].filter(([id]) => id !== S.uid).sort(bySn);
   if (!others.length) { box.append(h('p', { class: 'empty' }, 'Nobody else is here yet. Send your friends the link and the room code. They show up here as they sign on.')); return; }
+  const reqs = others.filter(([id]) => (frOf(id) || {}).st === 'got');
+  if (reqs.length) {
+    box.append(h('h4', { class: 'grp' }, 'Friend requests (' + reqs.length + ')'));
+    for (const [id, p] of reqs) box.append(h('div', { class: 'brow' }, h('button', { class: 'buddy', type: 'button', onclick: () => { selectProfile(id); if (isPhone()) setTab('profile'); } }, avatar(p, 30), h('span', { class: 'grow' }, h('span', { class: 'nm' }, p.sn), h('div', { class: 'sub' }, 'wants to be friends'))),
+      h('button', { class: 'btn sm', type: 'button', onclick: () => friendAct(id, true) }, 'Accept'), h('button', { class: 'btn sm', type: 'button', 'aria-label': 'Decline', onclick: () => friendAct(id, false) }, '×')));
+  }
+  const shown = others.filter(([id]) => isFriend(id) || !S.hid.has(id) || S.unread[id]);
+  const fsort = (x, y) => (isFriend(y[0]) ? 1 : 0) - (isFriend(x[0]) ? 1 : 0);
   const groups = S.presLive
-    ? [['Online', others.filter(([id, p]) => S.online.has(id) && !p.awayOn)], ['Away', others.filter(([id, p]) => S.online.has(id) && p.awayOn)], ['Offline', others.filter(([id]) => !S.online.has(id))]]
-    : [['Everyone', others]];
-  for (const [name, list] of groups) {
+    ? [['Online', shown.filter(([id, p]) => S.online.has(id) && !p.awayOn)], ['Away', shown.filter(([id, p]) => S.online.has(id) && p.awayOn)], ['Offline', shown.filter(([id]) => !S.online.has(id))]]
+    : [['Everyone', shown]];
+  for (const [name, list0] of groups) {
+    const list = [...list0].sort(fsort);
     if (!list.length) continue;
     box.append(h('h4', { class: 'grp' }, name + ' (' + list.length + ')'));
     for (const [id, p] of list) {
-      const st = statusOf(id, p), n = S.unread[id] || 0;
-      const sub = subOf(p);
-      box.append(h('div', { class: 'brow' + (S.selected === id ? ' cur' : '') },
+      const st = statusOf(id, p), n = S.unread[id] || 0, fr = isFriend(id), ld = lastDm(id);
+      const sub = ld ? (ld.uid === S.uid ? 'You: ' : '') + (ld.text || 'sent a file').slice(0, 40) : subOf(p);
+      box.append(h('div', { class: 'brow' + (S.selected === id ? ' cur' : '') + (tabMuted(id) ? ' faint' : '') },
         h('button', { class: 'buddy', type: 'button', onclick: () => { selectProfile(id); if (isPhone()) setTab('profile'); } },
           avatar(p, 30),
-          h('span', { class: 'grow' }, h('span', { class: 'nm' }, h('span', { class: 'dot ' + (S.presLive ? st.cls : (p.awayOn ? 'away' : '')), 'aria-hidden': 'true', title: p.awayOn ? (p.away || 'Away') : null }), p.sn), sub ? h('div', { class: 'sub' }, sub) : null)),
-        h('button', { class: 'btn sm dmb', type: 'button', 'aria-label': 'Message ' + p.sn, onclick: () => openConv(id) }, 'DM', n ? h('span', { class: 'pip' }, n > 9 ? '9+' : n) : null)));
+          h('span', { class: 'grow' }, h('span', { class: 'nm' }, h('span', { class: 'dot ' + (S.presLive ? st.cls : (p.awayOn ? 'away' : '')), 'aria-hidden': 'true', title: p.awayOn ? (p.away || 'Away') : null }), fr ? heartImg(12) : null, p.sn, ld ? h('small', { class: 'when' }, ' ' + ago(ld.ts)) : null), sub ? h('div', { class: 'sub' }, sub) : null)),
+        h('button', { class: 'btn sm dmb', type: 'button', 'aria-label': 'Message ' + p.sn, onclick: () => openConv(id) }, 'DM', n ? h('span', { class: 'pip' }, n > 9 ? '9+' : n) : null),
+        !fr ? h('button', { class: 'bx', type: 'button', 'aria-label': 'Remove ' + p.sn + ' from this list', title: 'Hide from list', onclick: () => { S.hid.add(id); LS.set('am.hid', JSON.stringify([...S.hid])); renderBuddies(); } }, '×') : null));
     }
   }
 }
@@ -894,12 +912,12 @@ function renderConvs() {
   tabs.push([ 'lounge', mk('lounge', 'Lounge') ]);
   for (const c of [...S.channels.values()].sort((a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1)) { const b = mk('c:' + c.id, (c.private ? '\u{1F512}' : '#') + c.name); const pend = c.by === S.uid ? S.bms.filter(x => x.channel === c.id && x.status === 'pending').length : 0; if (pend) b.append(h('span', { class: 'pip' }, pend)); tabs.push(['c:' + c.id, b]); }
   for (const [id, p] of dmPeers()) {
-    const b = mk(id, '@' + p.sn);
+    const b = mk(id, isFriend(id) ? h('span', {}, heartImg(11), '@' + p.sn) : '@' + p.sn);
     b.append(h('span', { class: 'tabx', role: 'button', 'aria-label': 'Close chat with ' + p.sn, onclick: e => { e.stopPropagation(); closeDm(id); } }, '\u00d7'));
     tabs.push([id, b]);
   }
   const pins = lsArr('am.tabpin');
-  tabs.sort((a, b) => (pins.includes(b[0]) ? 1 : 0) - (pins.includes(a[0]) ? 1 : 0));
+  tabs.sort((a, b) => (pins.includes(b[0]) ? 1 : 0) - (pins.includes(a[0]) ? 1 : 0) || ((!isRoom(a[0]) && !isRoom(b[0])) ? (isFriend(b[0]) ? 1 : 0) - (isFriend(a[0]) ? 1 : 0) : 0));
   tabs.forEach(([, b]) => box.append(b));
 }
 
@@ -1219,24 +1237,49 @@ function renderInfo() {
   if (off.length) body.append(h('div', { class: 'sec' }, h('h3', {}, 'Recently around'), off.map(x => row(x, 'last seen ' + ago(x[1].lastSeen)))));
 }
 function noteBox(id) {
-  const cur = (S.notes && S.notes.get(id)) || '';
-  const ta = h('textarea', { rows: '3', maxlength: '500', placeholder: 'Only you can see this', 'aria-label': 'Private note' }); ta.value = cur;
-  const st = h('small', { class: 'muted' }, '');
-  let tm = null;
+  const ta = h('textarea', { rows: '3', maxlength: '500', placeholder: 'Only you can see this', 'aria-label': 'Private note' }); ta.value = (S.notes && S.notes.get(id)) || '';
+  const ni = h('input', { type: 'text', maxlength: '40', placeholder: 'Nickname or a one-liner', 'aria-label': 'Private nickname' }); ni.value = (S.nicks && S.nicks.get(id)) || '';
+  const st = h('small', { class: 'muted' }, ''); let tm = null;
   const save = async () => {
-    const v = ta.value.trim(); if (v === ((S.notes && S.notes.get(id)) || '')) return;
-    const { error } = v ? await sb.from('notes').upsert({ target: id, body: v, updated_at: new Date().toISOString() }, { onConflict: 'owner,target' }) : await sb.from('notes').delete().eq('owner', S.uid).eq('target', id);
-    if (error) { st.textContent = 'Could not save that.'; return; }
-    if (v) S.notes.set(id, v); else S.notes.delete(id);
-    st.textContent = 'Saved'; setTimeout(() => { st.textContent = ''; }, 1500);
+    if (ta.value.trim() === ((S.notes && S.notes.get(id)) || '') && ni.value.trim() === ((S.nicks && S.nicks.get(id)) || '')) return;
+    const ok = await saveNote(id, ta.value, ni.value);
+    st.textContent = ok ? 'Saved' : 'Could not save that.'; if (ok) setTimeout(() => { st.textContent = ''; }, 1500);
   };
-  ta.addEventListener('input', () => { clearTimeout(tm); st.textContent = ''; tm = setTimeout(save, 900); });
-  ta.addEventListener('blur', () => { clearTimeout(tm); save(); });
-  return h('div', { class: 'sec' }, h('h3', {}, 'Private note'), ta, st);
+  for (const el of [ta, ni]) { el.addEventListener('input', () => { clearTimeout(tm); st.textContent = ''; tm = setTimeout(save, 900); }); el.addEventListener('blur', () => { clearTimeout(tm); save(); }); }
+  return h('div', { class: 'sec' }, h('h3', {}, 'Private note'), ni, ta, st);
 }
 async function loadNotes() {
-  const { data, error } = await sb.from('notes').select('target,body').limit(500);
-  if (!error) S.notes = new Map((data || []).map(r => [String(r.target), String(r.body)]));
+  const { data, error } = await sb.from('notes').select('target,body,nick').limit(500);
+  if (!error) { S.notes = new Map((data || []).filter(r => r.body).map(r => [String(r.target), String(r.body)])); S.nicks = new Map((data || []).filter(r => r.nick).map(r => [String(r.target), String(r.nick)])); }
+}
+async function saveNote(id, body, nick) {
+  body = (body || '').trim(); nick = (nick || '').trim().slice(0, 40);
+  const { error } = (body || nick) ? await sb.from('notes').upsert({ target: id, body, nick: nick || null, updated_at: new Date().toISOString() }, { onConflict: 'owner,target' }) : await sb.from('notes').delete().eq('owner', S.uid).eq('target', id);
+  if (error) return false;
+  if (body) S.notes.set(id, body); else S.notes.delete(id);
+  if (!S.nicks) S.nicks = new Map(); if (nick) S.nicks.set(id, nick); else S.nicks.delete(id);
+  return true;
+}
+const frOf = id => (S.fr && S.fr.get(id)) || null, isFriend = id => { const f = frOf(id); return !!f && f.st === 'friend'; };
+async function loadFriends() {
+  const { data, error } = await sb.from('friendships').select('id,requester,addressee,status').limit(500);
+  if (error) return; const m = new Map();
+  for (const r of data || []) { const mine = String(r.requester) === S.uid, o = String(mine ? r.addressee : r.requester); m.set(o, { id: r.id, st: r.status === 'accepted' ? 'friend' : (mine ? 'sent' : 'got') }); }
+  S.fr = m;
+}
+async function friendAct(id, accept) {
+  const f = frOf(id); let error;
+  if (!f) ({ error } = await sb.from('friendships').insert({ addressee: id }));
+  else if (f.st === 'got' && accept !== false) ({ error } = await sb.from('friendships').update({ status: 'accepted' }).eq('id', f.id));
+  else ({ error } = await sb.from('friendships').delete().eq('id', f.id));
+  if (error) return say('That did not go through.');
+  await loadFriends(); const p = profileOf(id); sfx('open');
+  say(!f ? 'Friend request sent to ' + (p ? p.sn : 'them') + '.' : f.st === 'got' && accept !== false ? 'You and ' + (p ? p.sn : 'them') + ' are friends.' : 'Done.');
+  renderBuddies(); renderProfile(); renderConvs();
+}
+function friendBtn(id) {
+  const f = frOf(id), lab = !f ? 'Add friend' : f.st === 'sent' ? 'Request sent (cancel)' : f.st === 'got' ? 'Accept friend request' : 'Friends (remove)';
+  return h('button', { class: 'btn pmsg' + (f && f.st === 'got' ? ' pri' : ''), type: 'button', onclick: () => { if (f && f.st === 'friend' && !confirm('Remove this friend?')) return; friendAct(id); } }, f && f.st === 'friend' ? h('img', { class: 'env', src: HEART, width: 14, height: 12, alt: '', style: 'display:inline;vertical-align:-1px;margin-right:6px' }) : null, lab);
 }
 async function purgeRoom() {
   if (!isAdmin()) return say('Only the admin can do that.');
@@ -1277,6 +1320,7 @@ function renderProfile() {
       p.mood ? h('div', { class: 'pmood' }, p.mood) : null,
       h('div', { class: 'pstars', title: (p.stars || 0) + (p.stars === 1 ? ' star' : ' stars') }, h('img', { src: STAR, alt: '', width: 16, height: 16 }), h('span', {}, String(p.stars || 0)), h('span', { class: 'dn', title: (p.downs || 0) + ' thumbs down' }, '\u{1F44E} ' + (p.downs || 0))))));
   if (!S.editing && isRoom(S.conv)) { const bb = $('profBack'), nm = S.conv === 'lounge' ? 'the lounge' : '#' + ((S.channels.get(S.conv.slice(2)) || {}).name || 'board'); bb.textContent = '\u2190 ' + nm; bb.hidden = false; bb.onclick = () => { S.showInfo = true; renderProfile(); }; }
+  if (!S.editing && id && id !== S.uid) body.append(friendBtn(id));
   if (!S.editing && id && id !== S.uid) body.append(h('button', { class: 'btn pri pmsg', type: 'button', onclick: () => openConv(id) }, 'Message ' + p.sn));
   if (!S.editing && id && id !== S.uid) body.append(modPanel(id, p));
   if (p.bio) body.append(h('div', { class: 'sec' }, h('h3', {}, 'About me'), h('p', {}, p.bio)));
@@ -1307,11 +1351,11 @@ async function popMenu(l, k, kid, box, pops) {
     if (k[0] !== 'u' || kid === S.uid) return popFlash(pop, 'Nothing to edit here.');
     let ta = box.querySelector('.popedit');
     if (ta) { ta.remove(); return; }
-    ta = h('textarea', { class: 'popedit', rows: '3', maxlength: '500', placeholder: 'Your private note', 'aria-label': 'Private note' }); ta.value = (S.notes && S.notes.get(kid)) || '';
-    const save = async () => { const v = ta.value.trim(); if (v === ((S.notes && S.notes.get(kid)) || '')) return;
-      const { error } = v ? await sb.from('notes').upsert({ target: kid, body: v, updated_at: new Date().toISOString() }, { onConflict: 'owner,target' }) : await sb.from('notes').delete().eq('owner', S.uid).eq('target', kid);
-      if (!error) { if (v) S.notes.set(kid, v); else S.notes.delete(kid); popFlash(pop, 'Saved.'); } };
-    ta.addEventListener('blur', save); box.append(ta); ta.focus(); return;
+    const wrap = h('div', { class: 'popedit' }), ni = h('input', { type: 'text', maxlength: '40', placeholder: 'Nickname or one-liner', 'aria-label': 'Private nickname' });
+    ta = h('textarea', { rows: '3', maxlength: '500', placeholder: 'Your private note', 'aria-label': 'Private note' }); ta.value = (S.notes && S.notes.get(kid)) || ''; ni.value = (S.nicks && S.nicks.get(kid)) || '';
+    const save = async () => { if (ta.value.trim() === ((S.notes && S.notes.get(kid)) || '') && ni.value.trim() === ((S.nicks && S.nicks.get(kid)) || '')) return; if (await saveNote(kid, ta.value, ni.value)) popFlash(pop, 'Saved.'); };
+    for (const el of [ta, ni]) el.addEventListener('blur', () => setTimeout(() => { if (!wrap.contains(document.activeElement)) save(); }, 50));
+    wrap.append(ni, ta); box.append(wrap); ni.focus(); return;
   }
   popFlash(pop, l === 'File' ? 'Nothing in File yet.' : 'Nothing to search yet.');
 }
@@ -1339,7 +1383,8 @@ function renderBar(p, id) {
       box = h('div', { class: 'popbody' },
         h('div', { class: 'pophead' }, h('div', { class: 'popav' }, avatar(fp, 64), h('img', { class: 'popheart', src: HEART, alt: '', width: 21, height: 18 })), h('div', { class: 'popinfo' },
           h('div', {}, '\u00ab Name: ', h('b', {}, fp.sn)),
-          h('div', {}, '\u00ab Status: ', h('span', { class: 'dot ' + st.cls }), ' ', fp.awayOn ? 'Away' : (st.text && st.cls ? st.text : (S.presLive ? (S.online.has(kid) ? 'Online' : 'Offline') : ''))))),
+          h('div', {}, '\u00ab Status: ', h('span', { class: 'dot ' + st.cls }), ' ', fp.awayOn ? 'Away' : (st.text && st.cls ? st.text : (S.presLive ? (S.online.has(kid) ? 'Online' : 'Offline') : ''))),
+          S.nicks && S.nicks.get(kid) ? h('div', { class: 'popnick' }, '\u00ab ' + S.nicks.get(kid)) : null)),
         h('hr', {}), h('div', { class: 'popact' }, act || '\u2014'), h('hr', {}),
         note && kid !== S.uid ? h('p', { class: 'popnote' }, note) : null);
       var menu = [['Message', () => { popKey(k); openConv(kid); }], ['Page', () => { popKey(k); selectProfile(kid); }]];
@@ -1432,7 +1477,7 @@ async function sync(live) {
     sb.from('channels').select('*').limit(50),
     sb.from('pins').select('*').limit(50),
     sb.from('board_members').select('*').limit(500),
-    loadEmotes(), loadReacts(), loadNotes()
+    loadEmotes(), loadReacts(), loadNotes(), loadFriends()
   ]);
   if (!bms.error) S.bms = (bms.data || []).map(bmRow);
   if (!chs.error) S.channels = new Map((chs.data || []).map(c => [String(c.id), chanRow(c)]));
@@ -1940,8 +1985,8 @@ function buildEditorStatic() {
 function fillTop() {
   const box = $('eTop'); box.replaceChildren();
   const d = S.draft; if (!d) return;
-  const others = [...S.profiles].filter(([id]) => id !== S.uid).sort(bySn);
-  if (!others.length) { box.append(h('p', { class: 'muted' }, 'Nobody else has signed on yet. Come back to this once your friends are here.')); return; }
+  const others = [...S.profiles].filter(([id]) => id !== S.uid && (isFriend(id) || d.top.includes(id))).sort(bySn);
+  if (!others.length) { box.append(h('p', { class: 'muted' }, 'Add some friends first. Open someone\u2019s page and tap Add friend. Once they accept, you can pick them here.')); return; }
   for (const [id, p] of others) {
     const i = d.top.indexOf(id);
     box.append(h('label', { class: 'tick', for: 'top_' + id },
@@ -2139,12 +2184,12 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && S.
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '1794068061' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '1794068839' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '1794068061') { newBuild = m[1]; $('updBar').hidden = false; }
+    if (m && m[1] !== BUILD && m[1] !== '1794068839') { newBuild = m[1]; $('updBar').hidden = false; }
   } catch {}
 }
 $('updBtn').addEventListener('click', () => { location.replace(location.pathname + '?v=' + encodeURIComponent(newBuild || Date.now())); });
