@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794058674">
+<meta name="build" content="1794059039">
 <link rel="icon" href="data:,">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -160,6 +160,7 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .psn{margin:0;font-size:24px;line-height:1.1;color:var(--ac);overflow-wrap:anywhere}
 .pst{display:flex;gap:7px;align-items:center;margin-top:5px;color:var(--muted);font-style:italic;overflow-wrap:anywhere}
 .sec{margin-top:16px}
+.pbody>.sec:first-child{margin-top:0}
 .sec h3{margin:0 0 7px;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);border-bottom:1px dashed var(--line);padding-bottom:3px}
 .sec p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
 .song{display:flex;gap:9px;align-items:center;border:1px solid var(--line);padding:6px 9px;background:var(--panel)}
@@ -349,7 +350,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
       <div class="mebox">
         <div class="me-row"><span id="meAv"></span><div class="grow"><div id="meSn" class="sn"></div>
           <label class="sr" for="stSel">Status</label>
-          <select id="stSel"><option value="on">Available</option><option value="away">Away</option><option value="dnd">Do not disturb</option></select></div></div>
+          <select id="stSel"><option value="on">Available</option><option value="away">Away</option><option value="dnd">Do not disturb</option><option value="invis">Invisible (lurking)</option></select></div></div>
         <label class="sr" for="awayIn">Away message</label>
         <input id="awayIn" maxlength="80" placeholder="Away message" hidden>
         <label class="sr" for="moodIn">Status</label>
@@ -707,7 +708,7 @@ function renderMe() { setTimeout(checkRole, 0);
   const p = mine(); if (!p) return;
   $('meAv').replaceChildren(avatar(p, 40));
   $('meSn').textContent = p.sn;
-  $('stSel').value = p.awayOn ? 'away' : (S.dnd ? 'dnd' : 'on');
+  $('stSel').value = p.awayOn ? 'away' : (S.invis ? 'invis' : S.dnd ? 'dnd' : 'on');
   const a = $('awayIn'); a.hidden = !p.awayOn;
   if (document.activeElement !== a) a.value = p.away;
   const mo = $('moodIn'); if (document.activeElement !== mo) mo.value = p.mood;
@@ -720,8 +721,8 @@ function renderMe() { setTimeout(checkRole, 0);
 const myState = () => S.dnd ? 'dnd' : (Date.now() - S.lastAct > 120000 ? 'idle' : 'on');
 function trackMe() {
   if (!S.presChan || !S.signedOn) return;
-  const st = myState(); if (S.lastTracked === st) return; S.lastTracked = st;
-  try { S.presChan.track({ t: Date.now(), st }); } catch {}
+  const st = S.invis ? 'invis' : myState(); if (S.lastTracked === st) return; S.lastTracked = st;
+  try { if (S.invis) S.presChan.untrack(); else S.presChan.track({ t: Date.now(), st }); } catch {}
 }
 function statusOf(id, p) {
   if (p.awayOn) return { cls: 'away', text: p.away ? 'Away: ' + p.away : 'Away' };
@@ -1032,7 +1033,7 @@ function renderInfo() {
   $('profTitle').textContent = ch ? '#' + ch.name : 'the lounge';
   const about = ch ? ch.topic : LOUNGE_ABOUT;
   const mineCh = ch && ch.by === S.uid;
-  const aboutSec = h('div', { class: 'sec' }, h('h3', {}, 'About'));
+  const aboutSec = h('div', { class: 'sec' }, h('h3', {}, '\u2737 About'));
   if (S.aboutEdit && mineCh) {
     const ta = h('textarea', { maxlength: '300', rows: '4', 'aria-label': 'About this board' }); ta.value = S.aboutDraft != null ? S.aboutDraft : ch.topic;
     ta.addEventListener('input', () => { S.aboutDraft = ta.value; });
@@ -1045,7 +1046,7 @@ function renderInfo() {
       } }, 'Save')));
   } else {
     aboutSec.append(h('p', {}, about || 'No about or rules yet.'));
-    if (ch) aboutSec.append(h('p', { class: 'muted' }, ('Messages disappear after ' + S.ttlH + ' hours. ' + (ch.keep ? 'This board stays around.' : 'This board deletes itself ' + (ch.expires ? 'on ' + new Date(ch.expires).toLocaleDateString([], { month: 'short', day: 'numeric' }) : 'in a few days') + '.')) + (profileOf(ch.by) ? ' Made by ' + profileOf(ch.by).sn + '.' : '')));
+    if (ch && !ch.keep) aboutSec.append(h('p', { class: 'muted' }, 'This board deletes itself ' + (ch.expires ? 'on ' + new Date(ch.expires).toLocaleDateString([], { month: 'short', day: 'numeric' }) : 'in a few days') + '.'));
     if (mineCh) aboutSec.append(h('button', { class: 'btn sm', type: 'button', onclick: () => { S.aboutEdit = true; renderProfile(); } }, 'Edit about'));
   }
   body.append(aboutSec);
@@ -1526,7 +1527,7 @@ async function modSlash(text) {
 }
 async function setAway() {
   const p = mine(); if (!p) return;
-  const sv = $('stSel').value; S.dnd = sv === 'dnd'; LS.set('am.dnd', S.dnd ? '1' : ''); trackMe();
+  const sv = $('stSel').value; S.dnd = sv === 'dnd'; LS.set('am.dnd', S.dnd ? '1' : ''); S.invis = sv === 'invis'; LS.set('am.invis', S.invis ? '1' : ''); S.lastTracked = ''; trackMe();
   const on = sv === 'away', msg = clamp($('awayIn').value.trim(), 80);
   if (on === p.awayOn && msg === p.away) return;
   const { error } = await sb.from('profiles').update({ away_on: on, away: msg }).eq('id', S.uid);
@@ -1616,7 +1617,7 @@ function subscribe() {
     for (const k of Object.keys(ps)) { const e = ps[k] && ps[k][ps[k].length - 1]; S.pmeta[k] = e || {}; }
     if (!S.presLive) { S.presLive = true; setTimeout(() => { S.presSettled = true; }, 2500); }
     renderBuddies(); renderLog(); renderProfile(); fetchMissing();
-  }).subscribe(async st => { if (st === 'SUBSCRIBED') { try { await S.presChan.track({ t: Date.now(), st: myState() }); } catch {} } });
+  }).subscribe(async st => { if (st === 'SUBSCRIBED') { try { if (S.invis) S.lastTracked = 'invis'; else await S.presChan.track({ t: Date.now(), st: myState() }); } catch {} } });
 }
 
 /* ---------- auth ---------- */
@@ -1649,16 +1650,16 @@ async function afterAuth() {
 }
 async function enterApp() {
   S.awayNote = '';
-  S.tone = LS.get('am.tone') || 'classic'; S.pmeta = {}; S.lastAct = Date.now(); S.lastTracked = ''; S.dnd = LS.get('am.dnd') === '1';
+  S.tone = LS.get('am.tone') || 'classic'; S.pmeta = {}; S.lastAct = Date.now(); S.lastTracked = ''; S.dnd = LS.get('am.dnd') === '1'; S.invis = LS.get('am.invis') === '1';
   S.notes = new Map(); S.emotes = new Map(); S.reacts = new Map(); S.channels = new Map(); S.pins = new Map(); S.bms = []; S.infoTab = 'members'; S.msgs = []; S.msgIds = new Set(); S.sys = []; S.unread = {}; S.opened = new Set(); S.conv = 'lounge'; S.online = new Set(); S.presLive = false; S.presSettled = false;
   const hrs = await sb.rpc('message_ttl_hours');
   if (hrs && typeof hrs.data === 'number' && hrs.data > 0) S.ttlH = hrs.data;
   await sync(false);
   S.theme = mine().theme; LS.set('am.theme', JSON.stringify(S.theme));
   S.signedOn = true; S.selected = S.uid; S.mode = 'login';
-  fire(cleanMedia()); fire(sb.rpc('touch_seen')); fire(checkWarnings());
+  fire(cleanMedia()); if (!S.invis) fire(sb.rpc('touch_seen')); fire(checkWarnings());
   S.showInfo = !isPhone(); S.logUnread = 0; S.modForm = null;
-  S.timers.push(setInterval(() => { if (Date.now() - S.lastAct < 300000 && !document.hidden) fire(sb.rpc('touch_seen')); }, 300000));
+  S.timers.push(setInterval(() => { if (!S.invis && Date.now() - S.lastAct < 300000 && !document.hidden) fire(sb.rpc('touch_seen')); }, 300000));
   subscribe();
   S.timers.push(setInterval(() => fire(cleanMedia()), 15 * 60000));
   S.timers.push(setInterval(() => { pruneMsgs(); renderLog(); renderComposer(); }, 60000));
