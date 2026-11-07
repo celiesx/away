@@ -113,6 +113,8 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .m time{font-size:11px;color:var(--muted)}
 .tx{overflow-wrap:anywhere}
 .tx a{color:var(--ac)}
+.pic{display:block;max-width:100%;max-height:260px;margin-top:4px;border:2px solid var(--line);border-radius:6px;background:var(--bg2,#111);cursor:zoom-in}
+.pic.ld{min-height:60px;min-width:120px}
 .at{color:var(--ac);font-weight:700}
 .act{margin-top:9px;color:var(--muted);font-style:italic;overflow-wrap:anywhere}
 .sys{align-self:center;margin-top:10px;font-size:12px;color:var(--muted)}
@@ -233,6 +235,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
       <form id="compose" class="compose" autocomplete="off">
         <label class="sr" for="msg">Message</label>
         <input id="msg" maxlength="300" autocomplete="off" placeholder="Message (try /me or @name)">
+        <button id="photoBtn" class="btn" type="button" aria-label="Send a photo or GIF">Photo</button><input id="photoIn" type="file" accept="image/jpeg,image/png,image/gif,image/webp" hidden>
         <button id="sendBtn" class="btn pri" type="submit">Send</button>
       </form>
     </section>
@@ -549,24 +552,42 @@ function renderNote() {
 }
 function renderComposer() {
   const can = S.signedOn && !!mine();
-  $('msg').disabled = !can; $('sendBtn').disabled = !can;
+  $('msg').disabled = !can; $('sendBtn').disabled = !can; $('photoBtn').disabled = !can;
 }
 
+const IMG_H = 6;
+const expired = m => m.ts < Date.now() - (m.image ? IMG_H : S.ttlH) * 3600000;
+const urlCache = new Map();
+async function mediaUrl(path) {
+  const c = urlCache.get(path);
+  if (c && c.exp > Date.now()) return c.url;
+  const { data, error } = await sb.storage.from('media').createSignedUrl(path, 3600);
+  if (error || !data) return '';
+  urlCache.set(path, { url: data.signedUrl, exp: Date.now() + 50 * 60000 });
+  return data.signedUrl;
+}
+function picEl(path) {
+  const im = h('img', { class: 'pic ld', alt: 'photo', loading: 'lazy' });
+  const c = urlCache.get(path);
+  const set = u => { if (u) { im.src = u; im.onload = () => { im.classList.remove('ld'); const l = $('log'); if (l.dataset.stick) l.scrollTop = l.scrollHeight; }; im.onclick = () => window.open(u, '_blank', 'noopener'); } else im.alt = 'photo expired'; };
+  if (c && c.exp > Date.now()) set(c.url); else mediaUrl(path).then(set);
+  return im;
+}
 function pruneMsgs() {
-  const cut = Date.now() - S.ttlH * 3600000;
-  if (S.msgs.some(m => m.ts < cut)) { S.msgs = S.msgs.filter(m => m.ts >= cut); S.msgIds = new Set(S.msgs.map(m => m.id)); }
+  if (S.msgs.some(expired)) { S.msgs = S.msgs.filter(m => !expired(m)); S.msgIds = new Set(S.msgs.map(m => m.id)); }
 }
 function renderLog() {
   const log = $('log');
   pruneMsgs();
   const near = log.scrollHeight - log.scrollTop - log.clientHeight < 90;
+  if (near) log.dataset.stick = '1'; else delete log.dataset.stick;
   const peer = S.conv !== 'lounge' ? profileOf(S.conv) : null;
   const list = S.msgs.filter(m => convOf(m) === S.conv);
   const items = [...list.map(m => ({ ts: m.ts, m })), ...(S.conv === 'lounge' ? S.sys.map(s => ({ ts: s.ts, s })) : [])].sort((a, b) => a.ts - b.ts);
   log.replaceChildren();
   $('chatTitle').textContent = peer ? 'dm · ' + peer.sn : 'the lounge' + (S.presLive && S.online.size ? ' · ' + S.online.size + ' here' : '');
   const hrs = S.ttlH === 1 ? 'hour' : 'hours';
-  log.append(h('div', { class: 'sys' }, peer ? 'Only you and ' + peer.sn + ' can see this chat. Messages disappear after ' + S.ttlH + ' ' + hrs + '.' : 'Messages disappear after ' + S.ttlH + ' ' + hrs + '.'));
+  log.append(h('div', { class: 'sys' }, peer ? 'Only you and ' + peer.sn + ' can see this chat. Messages disappear after ' + S.ttlH + ' ' + hrs + ', photos after ' + IMG_H + '.' : 'Messages disappear after ' + S.ttlH + ' ' + hrs + ', photos after ' + IMG_H + '.'));
   if (!items.length) { log.append(h('p', { class: 'empty' }, peer ? 'Say hi to ' + peer.sn + '.' : 'It is quiet in here. Say something. /me does actions, @name pings someone, and links show up as cards.')); return; }
   const bySnMap = new Map([...S.profiles].map(([id, p]) => [p.sn.toLowerCase(), [id, p]]));
   let prev = null;
@@ -574,7 +595,7 @@ function renderLog() {
     if (it.s) { log.append(h('div', { class: 'sys' }, it.s.text)); prev = null; continue; }
     const m = it.m, p = profileOf(m.uid), sn = p ? p.sn : 'unknown', ac = p ? p.theme.ac : '#888888';
     const sty = '--c:' + ac + ';--oc:' + readable(ac);
-    const r = rich(m.text);
+    const r = rich(m.text || '');
     const open = () => { selectProfile(m.uid); if (isPhone()) setTab('profile'); };
     let row;
     if (m.kind === 'me') {
@@ -586,7 +607,7 @@ function renderLog() {
         cont ? h('span') : avatar(p || { sn: '?', theme: { ac } }, 32),
         h('div', { class: 'body' },
           cont ? null : h('div', { class: 'hd' }, h('button', { class: 'chip', type: 'button', style: sty, onclick: open }, sn), h('time', {}, fmtTime(m.ts))),
-          h('div', { class: 'tx' }, r.nodes), r.cards));
+          h('div', { class: 'tx' }, r.nodes, m.image ? picEl(m.image) : null), r.cards));
       prev = m;
     }
     log.append(row);
@@ -657,11 +678,11 @@ function openConv(key) {
 }
 
 /* ---------- messages ---------- */
-const normMsg = r => ({ id: String(r.id), uid: String(r.sender || ''), to: r.recipient ? String(r.recipient) : null, text: clamp(r.body, 300), kind: r.kind === 'me' ? 'me' : 'msg', ts: Date.parse(r.created_at) || Date.now() });
+const normMsg = r => ({ id: String(r.id), uid: String(r.sender || ''), to: r.recipient ? String(r.recipient) : null, text: clamp(r.body, 300), kind: r.kind === 'me' ? 'me' : 'msg', image: r.image ? String(r.image) : '', ts: Date.parse(r.created_at) || Date.now() });
 function addMsg(r, live) {
   const m = normMsg(r);
-  if (!m.text || S.msgIds.has(m.id)) return false;
-  if (m.ts < Date.now() - S.ttlH * 3600000) return false;
+  if ((!m.text && !m.image) || S.msgIds.has(m.id)) return false;
+  if (expired(m)) return false;
   S.msgIds.add(m.id); S.msgs.push(m);
   if (S.msgs.length > 1 && S.msgs[S.msgs.length - 2].ts > m.ts) S.msgs.sort((a, b) => a.ts - b.ts);
   if (live) {
@@ -675,7 +696,7 @@ function addMsg(r, live) {
   }
   return true;
 }
-const MSG_COLS = 'id,sender,recipient,kind,body,created_at';
+const MSG_COLS = 'id,sender,recipient,kind,body,image,created_at';
 async function sync(live) {
   const [pr, ms] = await Promise.all([
     sb.from('profiles').select('*').limit(500),
@@ -713,6 +734,48 @@ async function send(text) {
   renderNote();
 }
 
+function loadImg(file) {
+  return new Promise((res, rej) => {
+    const u = URL.createObjectURL(file), im = new Image();
+    im.onload = () => { URL.revokeObjectURL(u); res(im); };
+    im.onerror = () => { URL.revokeObjectURL(u); rej(new Error('bad image')); };
+    im.src = u;
+  });
+}
+async function sendPhoto(file) {
+  if (!file || !S.signedOn || !mine()) return;
+  const say = t => { S.extra = t; renderNote(); clearExtraSoon(); };
+  if (!/^image\/(jpeg|png|gif|webp)$/.test(file.type)) return say('Only jpg, png, gif or webp pictures.');
+  let blob = file, ext = { 'image/jpeg': 'jpg', 'image/png': 'png', 'image/gif': 'gif', 'image/webp': 'webp' }[file.type];
+  if (file.type !== 'image/gif') {
+    try {
+      const im = await loadImg(file), sc = Math.min(1, 1280 / Math.max(im.width, im.height));
+      const cv = document.createElement('canvas'); cv.width = Math.max(1, Math.round(im.width * sc)); cv.height = Math.max(1, Math.round(im.height * sc));
+      const cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, cv.width, cv.height); cx.drawImage(im, 0, 0, cv.width, cv.height);
+      const b = await new Promise(r => cv.toBlob(r, 'image/jpeg', 0.82));
+      if (b) { blob = b; ext = 'jpg'; }
+    } catch { return say('Could not read that picture.'); }
+  }
+  if (blob.size > 3 * 1024 * 1024) return say('That one is too big. Max is 3 MB.');
+  const path = S.uid + '/' + crypto.randomUUID() + '.' + ext;
+  sfx('out');
+  const up = await sb.storage.from('media').upload(path, blob, { contentType: blob.type, upsert: false });
+  if (up.error) return say('Upload did not go through. Try again.');
+  const cap = clamp($('msg').value.trim(), 300);
+  const { data, error } = await sb.from('messages').insert({ recipient: S.conv === 'lounge' ? null : S.conv, kind: 'msg', body: cap, image: path }).select(MSG_COLS).single();
+  if (error) { fire(sb.storage.from('media').remove([path])); return say('That did not go through. Try again in a moment.'); }
+  $('msg').value = ''; S.extra = '';
+  if (addMsg(data, false)) { renderLog(); renderConvs(); }
+  renderNote();
+}
+async function cleanMedia() {
+  try {
+    const { data } = await sb.rpc('my_expired_media');
+    if (Array.isArray(data) && data.length) await sb.storage.from('media').remove(data);
+    await sb.rpc('purge_expired');
+  } catch {}
+}
+
 async function setAway() {
   const p = mine(); if (!p) return;
   const on = $('stSel').value === 'away', msg = clamp($('awayIn').value.trim(), 80);
@@ -746,7 +809,11 @@ function subscribe() {
     })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, p => {
       if (p.eventType === 'DELETE') { if (p.old && p.old.id) S.profiles.delete(String(p.old.id)); }
-      else if (p.new && p.new.id) S.profiles.set(String(p.new.id), fromRow(p.new));
+      else if (p.new && p.new.id) {
+        const id = String(p.new.id), old = S.profiles.get(id), np = fromRow(p.new);
+        if (old && !('avatar' in p.new)) np.avatar = old.avatar;
+        S.profiles.set(id, np);
+      }
       const me = mine(); if (me && !S.editing) S.theme = me.theme;
       refreshUi();
     })
@@ -800,9 +867,9 @@ async function enterApp() {
   await sync(false);
   S.theme = mine().theme; LS.set('am.theme', JSON.stringify(S.theme));
   S.signedOn = true; S.selected = S.uid; S.mode = 'login';
-  fire(sb.rpc('purge_expired'));
+  fire(cleanMedia());
   subscribe();
-  S.timers.push(setInterval(() => fire(sb.rpc('purge_expired')), 15 * 60000));
+  S.timers.push(setInterval(() => fire(cleanMedia()), 15 * 60000));
   S.timers.push(setInterval(() => { pruneMsgs(); renderLog(); }, 60000));
   S.timers.push(setInterval(() => { if (!S.signedOn || S.editing) return; if (Date.now() - (S.lastSync || 0) >= (S.rt ? 20000 : 5000)) sync(true).then(() => { refreshUi(); return fetchMissing(); }).catch(() => {}); }, 5000));
   sfx('open'); setTab('chat'); renderAll();
@@ -953,6 +1020,8 @@ function pickAvatar(file) {
 /* ---------- wiring ---------- */
 $('soForm').addEventListener('submit', onSignon);
 $('soSwap').addEventListener('click', swapMode);
+$('photoBtn').addEventListener('click', () => $('photoIn').click());
+$('photoIn').addEventListener('change', e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (f) sendPhoto(f); });
 $('compose').addEventListener('submit', e => { e.preventDefault(); const i = $('msg'); const v = i.value; i.value = ''; send(v); i.focus(); });
 $('stSel').addEventListener('change', setAway);
 $('awayIn').addEventListener('change', setAway);
