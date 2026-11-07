@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794070959">
+<meta name="build" content="1794071530">
 <link rel="icon" href="data:,">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -118,6 +118,8 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .popmenu button{border:0;background:none;padding:0 6px;color:#111;font-weight:400;font-size:17px;cursor:pointer}
 .popmenu button u{text-decoration:underline}
 .popact{color:#1a1ad0;font-weight:700;overflow-wrap:anywhere}
+.ptags{margin-top:3px;font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.poptags{color:#777}
 .popnick{color:#1a1ad0;font-weight:700}
 .popbody input{background:#fff;color:#111;border:1px solid #777;width:100%;font:inherit;margin-top:4px}
 .popnote{margin:10px 0 0;font-style:italic;color:#777;overflow-wrap:anywhere}
@@ -1262,7 +1264,7 @@ function renderInfo() {
 }
 function noteBox(id) {
   const ta = h('textarea', { rows: '3', maxlength: '500', placeholder: 'Only you can see this', 'aria-label': 'Private note' }); ta.value = (S.notes && S.notes.get(id)) || '';
-  const ni = h('input', { type: 'text', maxlength: '40', placeholder: 'Nickname or a one-liner', 'aria-label': 'Private nickname' }); ni.value = (S.nicks && S.nicks.get(id)) || '';
+  const ni = h('input', { type: 'text', maxlength: '40', placeholder: 'Private nickname (only you see)', 'aria-label': 'Private nickname' }); ni.value = (S.nicks && S.nicks.get(id)) || '';
   const st = h('small', { class: 'muted' }, ''); let tm = null;
   const save = async () => {
     if (ta.value.trim() === ((S.notes && S.notes.get(id)) || '') && ni.value.trim() === ((S.nicks && S.nicks.get(id)) || '')) return;
@@ -1270,7 +1272,7 @@ function noteBox(id) {
     st.textContent = ok ? 'Saved' : 'Could not save that.'; if (ok) setTimeout(() => { st.textContent = ''; }, 1500);
   };
   for (const el of [ta, ni]) { el.addEventListener('input', () => { clearTimeout(tm); st.textContent = ''; tm = setTimeout(save, 900); }); el.addEventListener('blur', () => { clearTimeout(tm); save(); }); }
-  return h('div', { class: 'sec' }, h('h3', {}, 'Private note'), ni, ta, st);
+  return h('div', { class: 'sec' }, h('h3', {}, 'A line about them'), h('p', { class: 'muted', style: 'margin:0 0 4px' }, 'Everyone sees it on their page. Nobody knows it was you.'), tagInput(id), h('h3', {}, 'Private note'), ni, ta, st);
 }
 async function loadNotes() {
   const { data, error } = await sb.from('notes').select('target,body,nick').limit(500);
@@ -1283,6 +1285,36 @@ async function saveNote(id, body, nick) {
   if (body) S.notes.set(id, body); else S.notes.delete(id);
   if (!S.nicks) S.nicks = new Map(); if (nick) S.nicks.set(id, nick); else S.nicks.delete(id);
   return true;
+}
+async function loadTags() {
+  const [a, b] = await Promise.all([sb.from('tags').select('id,target,body,created_at').order('created_at', { ascending: true }).limit(500), sb.rpc('my_tags')]);
+  if (!a.error) { const m = new Map(); for (const r of a.data || []) { const k = String(r.target); if (!m.has(k)) m.set(k, []); m.get(k).push(String(r.body)); } S.tags = m; }
+  if (!b.error) S.myTags = new Map((b.data || []).map(r => [String(r.target), String(r.body)]));
+}
+const tagLine = (id, max) => { const a = ((S.tags && S.tags.get(id)) || []).slice().reverse(); if (!a.length) return ''; const shown = a.slice(0, max || 3).join(', '); return a.length > (max || 3) ? shown + ' +' + (a.length - (max || 3)) : shown; };
+async function saveTag(id, text) {
+  const t = (text || '').trim().slice(0, 24); if (t === ((S.myTags && S.myTags.get(id)) || '')) return null;
+  const { error } = await sb.rpc('set_tag', { p_target: id, p_body: t });
+  if (error) return /not_friends/.test(error.message || '') ? 'Only friends can do that.' : 'Could not save that.';
+  if (!S.myTags) S.myTags = new Map(); if (t) S.myTags.set(id, t); else S.myTags.delete(id);
+  await loadTags(); renderProfile(); return 'Saved';
+}
+function tagInput(id) {
+  if (!isFriend(id)) return h('p', { class: 'muted' }, 'Once you are friends you can leave a short line about them.');
+  const ti = h('input', { type: 'text', maxlength: '24', placeholder: 'e.g. loud, sweet, night owl', 'aria-label': 'A line about them' }); ti.value = (S.myTags && S.myTags.get(id)) || '';
+  const st = h('small', { class: 'muted' }, '');
+  const go = async () => { const r = await saveTag(id, ti.value); if (r) { st.textContent = r; setTimeout(() => { st.textContent = ''; }, 1500); } };
+  ti.addEventListener('blur', go); ti.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); ti.blur(); } });
+  return h('div', {}, ti, st);
+}
+function staffTagsBox(id) {
+  const box = h('div', { class: 'sec' }, h('h3', {}, 'Lines about them (mods only)'), h('p', { class: 'muted' }, 'Loading...'));
+  sb.rpc('staff_tags', { p_target: id }).then(({ data, error }) => {
+    box.replaceChildren(h('h3', {}, 'Lines about them (mods only)'));
+    if (error || !data || !data.length) { box.append(h('p', { class: 'muted' }, error ? 'Could not load.' : 'None.')); return; }
+    for (const r of data) { const a = profileOf(String(r.author)); box.append(h('div', { class: 'logrow' }, h('b', {}, r.body), ' ', h('small', { class: 'muted' }, 'from ' + (a ? a.sn : 'someone')), ' ', h('button', { class: 'btn sm', type: 'button', onclick: async () => { await sb.rpc('delete_tag', { p_id: r.id }); await loadTags(); renderProfile(); } }, 'Remove'))); }
+  });
+  return box;
 }
 const frOf = id => (S.fr && S.fr.get(id)) || null, isFriend = id => { const f = frOf(id); return !!f && f.st === 'friend'; };
 async function loadFriends() {
@@ -1345,10 +1377,12 @@ function renderProfile() {
     h('div', { class: 'grow' }, h('h2', { class: 'psn' }, away ? h('span', { class: 'dot away' + (tipOn ? ' tip' : ''), 'aria-hidden': tipOn ? null : 'true', role: tipOn ? 'button' : null, tabindex: tipOn ? '0' : null, title: st.text || 'Away', onclick: tipOn ? e => { if (thoughtEl && thoughtEl.dataset.of === st.text) closeThought(); else { thought(e.currentTarget, st.text); thoughtEl.dataset.of = st.text; } } : null }) : null, p.sn || '...'),
       !away && st.text ? h('div', { class: 'pst' }, h('span', { class: 'dot ' + (st.cls || ''), 'aria-hidden': 'true' }), st.text) : null,
       p.mood ? h('div', { class: 'pmood' }, p.mood) : null,
+      !S.editing && tagLine(id, 4) ? h('div', { class: 'ptags' }, tagLine(id, 4)) : null,
       h('div', { class: 'pstars', title: (p.stars || 0) + (p.stars === 1 ? ' star' : ' stars') }, h('img', { src: STAR, alt: '', width: 16, height: 16 }), h('span', {}, String(p.stars || 0)), h('span', { class: 'dn', title: (p.downs || 0) + ' thumbs down' }, '\u{1F44E} ' + (p.downs || 0))))));
   { const bb = $('profBack'), canBack = !S.editing && (S.hist.length || isRoom(S.conv)); bb.hidden = !canBack;
     if (canBack) { bb.textContent = '←'; bb.setAttribute('aria-label', 'Back'); bb.title = 'Back'; bb.onclick = () => { const prev = S.hist.pop(); if (!prev || prev === 'room') { if (isPhone() && S.fromTab && S.fromTab !== 'profile') { setTab(S.fromTab); } else { S.showInfo = true; renderProfile(); } } else { S.selected = prev; renderProfile(); renderBuddies(); } }; } }
   if (!S.editing && id && id !== S.uid) body.append(modPanel(id, p));
+  if (!S.editing && id && id !== S.uid && isStaff()) body.append(staffTagsBox(id));
   { const rc = p.role === 'admin' || p.role === 'mod' ? h('span', { class: 'rolechip' }, p.role) : null;
     if (p.bio || rc) body.append(h('div', { class: 'sec' }, h('h3', {}, 'About me', rc), p.bio ? h('p', {}, p.bio) : null)); }
   if (p.created) body.append(h('div', { class: 'sec' }, h('h3', {}, 'Member since'), h('p', {}, new Date(p.created).toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' }), null)));
@@ -1383,7 +1417,7 @@ async function popMenu(l, k, kid, box, pops) {
     ta = h('textarea', { rows: '3', maxlength: '500', placeholder: 'Your private note', 'aria-label': 'Private note' }); ta.value = (S.notes && S.notes.get(kid)) || ''; ni.value = (S.nicks && S.nicks.get(kid)) || '';
     const save = async () => { if (ta.value.trim() === ((S.notes && S.notes.get(kid)) || '') && ni.value.trim() === ((S.nicks && S.nicks.get(kid)) || '')) return; if (await saveNote(kid, ta.value, ni.value)) popFlash(pop, 'Saved.'); };
     for (const el of [ta, ni]) el.addEventListener('blur', () => setTimeout(() => { if (!wrap.contains(document.activeElement)) save(); }, 50));
-    wrap.append(ni, ta); box.append(wrap); ni.focus(); return;
+    wrap.append(h('div', { class: 'muted' }, 'A line about them (everyone sees it):'), tagInput(kid), ni, ta); box.append(wrap); return;
   }
   popFlash(pop, l === 'File' ? 'Nothing in File yet.' : 'Nothing to search yet.');
 }
@@ -1412,6 +1446,7 @@ function renderBar(p, id) {
         h('div', { class: 'pophead' }, h('div', { class: 'popav' }, avatar(fp, 64), h('img', { class: 'popheart', src: HEART, alt: '', width: 21, height: 18 })), h('div', { class: 'popinfo' },
           h('div', {}, '\u00ab Name: ', h('b', {}, fp.sn)),
           h('div', {}, '\u00ab Status: ', h('span', { class: 'dot ' + st.cls }), ' ', fp.awayOn ? 'Away' : (st.text && st.cls ? st.text : (S.presLive ? (S.online.has(kid) ? 'Online' : 'Offline') : ''))),
+          tagLine(kid, 3) ? h('div', { class: 'poptags' }, '\u00ab ' + tagLine(kid, 3)) : null,
           S.nicks && S.nicks.get(kid) ? h('div', { class: 'popnick' }, '\u00ab ' + S.nicks.get(kid)) : null)),
         h('hr', {}), h('div', { class: 'popact' }, act || '\u2014'), h('hr', {}),
         note && kid !== S.uid ? h('p', { class: 'popnote' }, note) : null);
@@ -1506,7 +1541,7 @@ async function sync(live) {
     sb.from('channels').select('*').limit(50),
     sb.from('pins').select('*').limit(50),
     sb.from('board_members').select('*').limit(500),
-    loadEmotes(), loadReacts(), loadNotes(), loadFriends()
+    loadEmotes(), loadReacts(), loadNotes(), loadFriends(), loadTags()
   ]);
   if (!bms.error) S.bms = (bms.data || []).map(bmRow);
   if (!chs.error) S.channels = new Map((chs.data || []).map(c => [String(c.id), chanRow(c)]));
@@ -2214,12 +2249,12 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && S.
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '1794070959' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '1794071530' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '1794070959') { newBuild = m[1]; $('updBar').hidden = false; }
+    if (m && m[1] !== BUILD && m[1] !== '1794071530') { newBuild = m[1]; $('updBar').hidden = false; }
   } catch {}
 }
 $('updBtn').addEventListener('click', () => { location.replace(location.pathname + '?v=' + encodeURIComponent(newBuild || Date.now())); });
