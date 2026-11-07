@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Away Message</title>
 <link rel="icon" href="data:,">
+<script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac)}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Share+Tech+Mono&family=VT323&display=swap">
 <style>
 
@@ -206,9 +207,10 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 .pinbar.open .pt{white-space:normal;overflow-wrap:anywhere}
 .pinbar .x,.pinb{background:none;border:0;color:var(--muted);font:inherit;cursor:pointer;padding:0 2px}
 .m .body{position:relative}
-.pinb{position:absolute;right:0;top:0;opacity:0;font-size:11px}
-.m:hover .pinb,.pinb:focus-visible{opacity:.8}
-@media (hover:none){.pinb{opacity:.35}}
+.macts{position:absolute;right:0;top:0;display:flex;gap:8px;opacity:0}
+.m:hover .macts,.macts:focus-within{opacity:.85}
+@media (hover:none){.macts{opacity:.4}}
+.pinb{font-size:11px}
 .convs .btn[aria-current=true]{background:var(--ac);color:var(--on-ac);border-color:var(--ac)}
 .f{display:flex;flex-direction:column}
 .fine{font-size:12px;color:var(--muted);margin:3px 0 0}
@@ -467,20 +469,11 @@ function getMeta(href) {
   if (metaCache.has(href)) return metaCache.get(href);
   const p = (async () => {
     let host = ''; try { host = new URL(href).hostname; } catch { return null; }
-    const ctl = new AbortController(); setTimeout(() => ctl.abort(), 5000);
+    if (!/^(open\.spotify\.com|music\.apple\.com)$/.test(host) || !sb) return null;
     try {
-      if (/(^|\.)spotify\.com$/.test(host)) {
-        const r = await fetch('https://open.spotify.com/oembed?url=' + encodeURIComponent(href), { signal: ctl.signal });
-        if (!r.ok) return null; const j = await r.json();
-        return { title: clamp(j.title || '', 100), sub: '', thumb: okThumb(j.thumbnail_url || ''), ms: 0 };
-      }
-      if (host === 'music.apple.com') {
-        const u = new URL(href), id = u.searchParams.get('i') || (u.pathname.match(/\/(\d+)\/?$/) || [])[1];
-        if (!id) return null;
-        const r = await fetch('https://itunes.apple.com/lookup?id=' + encodeURIComponent(id), { signal: ctl.signal });
-        if (!r.ok) return null; const j = await r.json(), t = j.results && j.results[0]; if (!t) return null;
-        return { title: clamp(t.trackName || t.collectionName || '', 100), sub: clamp(t.artistName || '', 80), thumb: okThumb((t.artworkUrl100 || '').replace('100x100', '200x200')), ms: Number(t.trackTimeMillis) || 0 };
-      }
+      const { data, error } = await sb.functions.invoke('link-meta', { body: { url: href } });
+      if (error || !data || !data.title) return null;
+      return { title: clamp(String(data.title), 100), sub: clamp(String(data.sub || ''), 80), thumb: okThumb(String(data.thumb || '')), ms: Number(data.ms) || 0 };
     } catch {}
     return null;
   })();
@@ -692,7 +685,9 @@ function renderLog() {
         h('div', { class: 'body' },
           cont ? null : h('div', { class: 'hd' }, h('button', { class: 'chip', type: 'button', style: sty, onclick: open }, sn), h('time', {}, fmtTime(m.ts))),
           h('div', { class: 'tx' }, r.nodes, m.image ? picEl(m.image) : null), r.cards,
-          isRoom(S.conv) && (m.text || m.image) ? h('button', { class: 'pinb', type: 'button', 'aria-label': 'Pin this message', onclick: () => pinMsg(m) }, 'pin') : null));
+          h('div', { class: 'macts' },
+            isRoom(S.conv) && (m.text || m.image) ? h('button', { class: 'pinb', type: 'button', 'aria-label': 'Pin this message', onclick: () => pinMsg(m) }, 'pin') : null,
+            m.uid === S.uid ? h('button', { class: 'pinb delb', type: 'button', 'aria-label': 'Delete this message', onclick: () => delMsg(m) }, 'delete') : null)));
       prev = m;
     }
     log.append(row);
@@ -865,6 +860,19 @@ function renderPin() {
     p.image && b.classList.contains('open') ? h('div', { class: 'pinpic' }, picEl(p.image)) : null,
     h('button', { class: 'x', type: 'button', 'aria-label': 'Unpin', onclick: unpin }, '\u00d7'));
 }
+async function delMsg(m) {
+  if (!confirm('Delete this message for everyone?')) return;
+  const { error } = await sb.from('messages').delete().eq('id', Number(m.id));
+  if (error) { S.extra = 'Could not delete that.'; renderNote(); clearExtraSoon(); return; }
+  if (m.image) fire(sb.storage.from('media').remove([m.image]));
+  dropMsg(m.id);
+}
+function dropMsg(id) {
+  id = String(id);
+  if (!S.msgIds.has(id)) return;
+  S.msgs = S.msgs.filter(x => x.id !== id); S.msgIds.delete(id);
+  renderLog(); renderConvs(); renderBuddies(); renderTabs();
+}
 async function pinMsg(m) {
   const fail = () => { S.extra = 'Could not pin that.'; renderNote(); clearExtraSoon(); };
   let copy = null;
@@ -977,13 +985,8 @@ async function setAway() {
 }
 async function songTitle(url) {
   const host = new URL(url).hostname.replace(/^www\./, '');
-  try {
-    if (/(^|\.)spotify\.com$/.test(host) || host === 'spotify.link') {
-      const c = new AbortController(); setTimeout(() => c.abort(), 4000);
-      const r = await fetch('https://open.spotify.com/oembed?url=' + encodeURIComponent(url), { signal: c.signal });
-      if (r.ok) { const j = await r.json(); if (j && j.title) return String(j.title); }
-    }
-  } catch {}
+  const m = await getMeta(url);
+  if (m && m.title) return m.sub ? m.sub + ' - ' + m.title : m.title;
   if (/spotify/.test(host)) return 'a song on Spotify';
   if (/apple\.com$/.test(host)) return 'a song on Apple Music';
   if (/youtu/.test(host)) return 'a song on YouTube';
@@ -1008,6 +1011,7 @@ async function setNow() {
 function subscribe() {
   S.rtTried = false;
   S.rtChan = sb.channel('am-db')
+    .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'messages' }, p => { if (p && p.old && p.old.id) dropMsg(p.old.id); })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, p => {
       if (p && p.new && addMsg(p.new, true)) { renderLog(); renderConvs(); renderBuddies(); renderTabs(); fetchMissing(); }
     })
