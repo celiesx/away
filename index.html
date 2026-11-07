@@ -179,11 +179,23 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .fwho span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .pinrow{display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--line)}
 .pinrow .tx{margin-top:2px}
+.linkprev{display:flex;align-items:center;justify-content:center;width:100%;min-height:90px;font-size:26px;text-decoration:none}
+.lname{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;color:var(--ac)}
 .fgrid{display:flex;flex-wrap:wrap;gap:8px}
 .fgrid .pic{max-height:90px}
 .sohelp{margin:8px 0;padding:8px 10px;border:1px solid var(--line);background:var(--panel);font-size:13px}
 .sohelp h3{margin:0 0 4px}
 .sohelp p{margin:5px 0}
+.pstars{display:flex;gap:5px;align-items:center;margin-top:4px;color:var(--muted);cursor:default}
+.rolechip{margin-left:6px;padding:0 6px;border:1px solid var(--ac);color:var(--ac);font-size:11px;text-transform:uppercase}
+.modrow{display:flex;gap:6px;flex-wrap:wrap}
+.starb:hover,.starb:focus-visible{border-color:#4aa3ff;color:#4aa3ff}
+.modform{margin-top:8px}
+.modform textarea,.modform select{width:100%}
+.logbox{max-width:min(94vw,480px)}
+.logrow{padding:5px 0;border-bottom:1px solid var(--line)}
+.warnbar{display:flex;gap:8px;align-items:center;background:#5a1d1d;color:#fff;padding:6px 10px;font-size:12px}
+.warnbar .x{background:none;border:0;color:inherit;cursor:pointer}
 .pmood{margin-top:3px;font-style:italic;overflow-wrap:anywhere}
 .mq{flex:1;min-width:0;overflow:hidden;white-space:nowrap}
 .mq span{display:inline-block;animation:mq 12s linear infinite}
@@ -304,7 +316,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
         <button id="editBtn" class="btn" type="button">Edit my profile</button>
       </div>
       <div id="buddies" class="scroll"></div>
-      <div class="foot"><button id="sndBtn" class="btn sm" type="button">Sound on</button><label class="sr" for="toneSel">Message sound</label><select id="toneSel" class="sm"></select><button id="offBtn" class="btn sm" type="button">Sign off</button></div>
+      <div class="foot"><button id="sndBtn" class="btn sm" type="button">Sound on</button><label class="sr" for="toneSel">Message sound</label><select id="toneSel" class="sm"></select><button id="logBtn" class="btn sm" type="button" hidden>Log</button><button id="offBtn" class="btn sm" type="button">Sign off</button></div>
     </section>
 
     <section id="chatWin" class="win" aria-label="Chat">
@@ -317,6 +329,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
         <input id="chTopic" maxlength="300" placeholder="about / rules (optional)">
         <button class="btn sm pri" type="submit">Make</button><button id="chCancel" class="btn sm" type="button">Cancel</button>
       </form>
+      <div id="warnBar" class="warnbar" hidden></div>
       <div id="pinBar" class="pinbar" hidden></div>
       <div id="note" class="note" role="status" hidden></div>
       <div id="log" class="log" role="log" aria-live="polite" aria-label="Messages"></div>
@@ -474,7 +487,7 @@ function fromRow(r) {
     song: { title: clamp(r.song_title, 60), url: clamp(r.song_url, 300) },
     links: links.slice(0, 3).map(l => ({ label: clamp(l && l.label, 24), url: clamp(l && l.url, 300) })),
     top: (Array.isArray(r.top) ? r.top : []).filter(x => typeof x === 'string').slice(0, 8),
-    theme: cleanTheme(r.theme), avatar: okAvatar(r.avatar), created: r.created_at ? (Date.parse(r.created_at) || 0) : 0, lastSeen: r.last_seen ? (Date.parse(r.last_seen) || 0) : 0
+    theme: cleanTheme(r.theme), avatar: okAvatar(r.avatar), created: r.created_at ? (Date.parse(r.created_at) || 0) : 0, lastSeen: r.last_seen ? (Date.parse(r.last_seen) || 0) : 0, role: r.role === 'admin' || r.role === 'mod' ? r.role : 'member', stars: Math.max(0, Number(r.stars) || 0), mutedUntil: r.muted_until ? (Date.parse(r.muted_until) || 0) : 0
   };
 }
 const toRow = p => ({ sn: p.sn, bio: p.bio, away: p.away, away_on: p.awayOn, mood: p.mood, song_title: p.song.title, song_url: p.song.url, links: p.links, top: p.top, theme: p.theme, avatar: p.avatar });
@@ -488,6 +501,11 @@ const S = {
 };
 try { const t = LS.get('am.theme'); if (t) S.theme = cleanTheme(JSON.parse(t)); } catch {}
 const mine = () => S.profiles.get(S.uid) || null;
+const myRole = () => (mine() || {}).role || 'member';
+const isStaff = () => myRole() === 'mod' || myRole() === 'admin';
+const isAdmin = () => myRole() === 'admin';
+const STAR = 'data:image/png;base64,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';
+const isMuted = () => ((mine() || {}).mutedUntil || 0) > Date.now();
 const profileOf = id => S.profiles.get(id) || null;
 const SN_OK = /^[A-Za-z0-9._-]{2,20}$/;
 
@@ -626,6 +644,7 @@ function renderMe() {
   const n = $('npIn'); if (document.activeElement !== n) n.value = p.song.title;
   $('sndBtn').textContent = S.sound ? 'Sound on' : 'Sound off';
   $('toneSel').value = toneKey();
+  $('logBtn').hidden = !isAdmin(); $('logBtn').textContent = S.logUnread ? 'Log (' + S.logUnread + ')' : 'Log';
 }
 
 const myState = () => S.dnd ? 'dnd' : (Date.now() - S.lastAct > 120000 ? 'idle' : 'on');
@@ -717,8 +736,9 @@ async function loadBms() {
 async function askJoin() { const c = curCh(); if (!c) return; await sb.rpc('request_join', { p_channel: c.id }); await loadBms(); }
 async function answerJoin(ch, member, ok) { await sb.rpc('answer_join', { p_channel: ch, p_member: member, p_ok: ok }); await loadBms(); }
 function renderComposer() {
-  const can = S.signedOn && !!mine() && canRead(curCh());
+  const muted = isMuted(), can = S.signedOn && !!mine() && canRead(curCh()) && !muted;
   $('msg').disabled = !can; $('sendBtn').disabled = !can; $('photoBtn').disabled = !can;
+  $('msg').placeholder = muted ? 'You are in the corner until ' + fmtTime(mine().mutedUntil) + '. Back soon!' : 'Message (try /me or @name)';
 }
 
 const IMG_H = 6;
@@ -857,14 +877,18 @@ function renderInfo() {
   body.append(h('div', { class: 'itabs', role: 'tablist' }, ['members', 'media', 'pins', 'links', 'files'].map(t => h('button', { type: 'button', class: 'btn sm', role: 'tab', 'aria-selected': String(S.infoTab === t), onclick: () => { S.infoTab = t; renderProfile(); } }, t[0].toUpperCase() + t.slice(1)))));
   const roomMsgs = S.msgs.filter(m => convOf(m) === S.conv).slice().reverse();
   const when = m => profileOf(m.uid) ? profileOf(m.uid).sn + ' \u00b7 ' + fmtTime(m.ts) : fmtTime(m.ts);
-  if (S.infoTab === 'links') {
-    const links = [];
-    for (const m of roomMsgs) for (const t of (m.text || '').matchAll(/https?:\/\/[^\s]+/g)) { const u = safeUrl(t[0].replace(/[.,!?)\]]+$/, '')); if (u) links.push({ u, m }); }
-    body.append(h('div', { class: 'sec' }, links.length ? links.slice(0, 40).map(x => h('div', { class: 'lrow2' }, h('a', { href: x.u, target: '_blank', rel: 'noopener noreferrer' }, x.u.replace(/^https?:\/\/(www\.)?/, '')), h('small', { class: 'muted' }, when(x.m)))) : h('p', { class: 'muted' }, 'No links in here right now.')));
-    return;
-  }
   const card = (m, inner, name, size) => { const p = profileOf(m.uid); return h('div', { class: 'fcard' }, h('div', { class: 'fprev' }, inner),
     h('div', { class: 'fmeta' }, h('b', {}, name), size ? h('small', {}, size) : null, h('div', { class: 'fwho' }, avatar(p || { sn: '?', theme: { ac: '#888888' } }, 18), h('span', {}, (p ? p.sn : 'someone') + ' \u00b7 ' + fmtTime(m.ts))))); };
+  if (S.infoTab === 'links') {
+    const links = [];
+    for (const m of roomMsgs) for (const t of (m.text || '').matchAll(/https?:\/\/[^\s]+/g)) { const u = safeUrl(t[0].replace(/[.,!?)\]]+$/, '')); if (u && !links.some(l => l.u === u)) links.push({ u, m }); }
+    body.append(h('div', { class: 'sec' }, links.length ? h('div', { class: 'fgrid2' }, links.slice(0, 30).map(x => {
+      const host = new URL(x.u).hostname.replace(/^www\./, ''), prev = h('a', { class: 'linkprev', href: x.u, target: '_blank', rel: 'noopener noreferrer' }, '\u{1F517}'), nameEl = h('a', { href: x.u, target: '_blank', rel: 'noopener noreferrer', class: 'lname' }, host);
+      const c = card(x.m, prev, '', ''); c.querySelector('.fmeta b').replaceWith(nameEl);
+      if (!/\.(png|jpe?g|gif|webp)$/i.test(new URL(x.u).pathname)) getMeta(x.u).then(mm => { if (!mm || !mm.title) return; nameEl.textContent = mm.title; if (mm.thumb) { const im = h('img', { class: 'pic', src: mm.thumb, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer' }); im.onerror = () => im.remove(); prev.replaceChildren(im); } });
+      return c; })) : h('p', { class: 'muted' }, 'No links in here right now.')));
+    return;
+  }
   if (S.infoTab === 'media') {
     const ms = roomMsgs.filter(m => m.image && !isFile(m));
     body.append(h('div', { class: 'sec' }, ms.length ? h('div', { class: 'fgrid2' }, ms.slice(0, 30).map(m => card(m, picEl(m.image), /\.gif$/.test(m.image) ? 'GIF' : 'Photo', ''))) : h('p', { class: 'muted' }, 'No photos in here right now.')));
@@ -906,9 +930,11 @@ function renderProfile() {
   body.append(h('div', { class: 'phead' }, avatar({ sn: p.sn || '?', avatar: p.avatar, theme: t }, 84),
     h('div', { class: 'grow' }, h('h2', { class: 'psn' }, p.sn || '...'),
       st.text ? h('div', { class: 'pst' }, h('span', { class: 'dot ' + st.cls, 'aria-hidden': 'true' }), st.text) : null,
-      p.mood ? h('div', { class: 'pmood' }, p.mood) : null)));
+      p.mood ? h('div', { class: 'pmood' }, p.mood) : null,
+      h('div', { class: 'pstars', title: (p.stars || 0) + (p.stars === 1 ? ' star' : ' stars') }, h('img', { src: STAR, alt: '', width: 16, height: 16 }), h('span', {}, String(p.stars || 0)), p.role === 'admin' || p.role === 'mod' ? h('span', { class: 'rolechip' }, p.role) : null))));
   if (!S.editing && isRoom(S.conv)) body.append(h('button', { class: 'btn sm', type: 'button', onclick: () => { S.showInfo = true; renderProfile(); } }, '\u2190 ' + (S.conv === 'lounge' ? 'the lounge' : '#' + ((S.channels.get(S.conv.slice(2)) || {}).name || ''))));
   if (!S.editing && id && id !== S.uid) body.append(h('button', { class: 'btn pri pmsg', type: 'button', onclick: () => openConv(id) }, 'Message ' + p.sn));
+  if (!S.editing && id && id !== S.uid) body.append(modPanel(id, p));
   if (p.bio) body.append(h('div', { class: 'sec' }, h('h3', {}, 'About me'), h('p', {}, p.bio)));
   if (p.song && p.song.title) {
     const href = safeUrl(p.song.url);
@@ -1100,6 +1126,7 @@ async function loadPins() {
 const target = () => isRoom(S.conv) ? (S.conv === 'lounge' ? {} : { channel: S.conv.slice(2) }) : { recipient: S.conv };
 async function send(text) {
   text = clamp(text.trim(), 300); if (!text || !S.signedOn || !mine()) return;
+  if (/^\/(report|warn|timeout)\b/i.test(text)) { await modSlash(text); return; }
   let kind = 'msg';
   if (/^\/me\s+/i.test(text)) { kind = 'me'; text = text.replace(/^\/me\s+/i, ''); }
   if (!text) return;
@@ -1175,6 +1202,91 @@ async function cleanMedia() {
   } catch {}
 }
 
+const modErr = e => /already_today/.test(e && e.message || '') ? 'You already used that one today.' : /not_allowed|not_staff|not_admin/.test(e && e.message || '') ? 'You cannot do that to them.' : 'That did not go through.';
+const say = t => { S.extra = t; renderNote(); clearExtraSoon(); };
+async function doStar(id) {
+  const { data, error } = await sb.rpc('give_star', { p_target: id });
+  if (error) return say(modErr(error));
+  const p = profileOf(id); if (p && typeof data === 'number') p.stars = data;
+  say('Star sent to ' + (p ? p.sn : 'them') + '.'); renderProfile(); sfx('open');
+}
+async function doReport(id, kind, comment) {
+  const { error } = await sb.rpc('file_report', { p_target: id, p_kind: kind, p_comment: clamp(comment, 200) });
+  if (error) return say(modErr(error));
+  S.modForm = null; say(kind === 'down' ? 'Sent. Only the admin sees it.' : 'Report sent. Only the admin sees it.'); renderProfile();
+}
+async function doWarn(id, note) {
+  const { error } = await sb.rpc('mod_warn', { p_target: id, p_note: clamp(note, 200) });
+  if (error) return say(modErr(error));
+  S.modForm = null; say('Warning sent.'); renderProfile();
+}
+async function doTimeout(id, mins) {
+  const { error } = await sb.rpc('mod_timeout', { p_target: id, p_minutes: mins });
+  if (error) return say(modErr(error));
+  S.modForm = null; say(mins > 0 ? 'Sent to the corner for ' + mins + ' min.' : 'Timeout cleared.'); renderProfile();
+}
+async function doRole(id, role) {
+  const { error } = await sb.rpc('set_role', { p_target: id, p_role: role });
+  if (error) return say(modErr(error));
+  const p = profileOf(id); if (p) p.role = role; say(role === 'mod' ? 'They are a mod now.' : 'They are a regular member now.'); renderProfile();
+}
+function modPanel(id, p) {
+  const f = S.modForm && S.modForm.target === id ? S.modForm : null;
+  const btn = (label, fn, cls) => h('button', { class: 'btn sm' + (cls ? ' ' + cls : ''), type: 'button', onclick: fn }, label);
+  const open = kind => () => { S.modForm = { kind, target: id }; renderProfile(); };
+  const row = h('div', { class: 'modrow' },
+    h('button', { class: 'btn sm starb', type: 'button', title: 'Give a star (one a day)', onclick: () => doStar(id) }, h('img', { src: STAR, alt: '', width: 16, height: 16 }), ' Star'),
+    btn('\u{1F44E}', open('down')), btn('Report', open('report')));
+  row.children[1].setAttribute('aria-label', 'Thumbs down'); row.children[1].title = 'Thumbs down (only the admin sees it)';
+  if (isStaff() && p.role !== 'admin' && !(p.role === 'mod' && !isAdmin())) row.append(btn('Warn', open('warn')), btn('Corner', open('timeout')));
+  if (isAdmin()) row.append(btn(p.role === 'mod' ? 'Remove mod' : 'Make mod', () => doRole(id, p.role === 'mod' ? 'member' : 'mod')));
+  const wrap = h('div', { class: 'sec' }, row);
+  if (f) {
+    const lab = { down: 'Why the thumbs down? (optional)', report: 'What happened?', warn: 'Warning message', timeout: 'Minutes in the corner' }[f.kind];
+    const inp = f.kind === 'timeout' ? h('select', { 'aria-label': lab }, [5, 15, 30, 60, 0].map(n => h('option', { value: String(n) }, n ? n + ' min' : 'clear it'))) : h('textarea', { rows: '3', maxlength: '200', 'aria-label': lab, placeholder: lab });
+    wrap.append(h('div', { class: 'modform' }, inp, h('div', { class: 'ovbtn' }, btn('Cancel', () => { S.modForm = null; renderProfile(); }),
+      btn('Send', () => { const v = inp.value; if (f.kind === 'timeout') doTimeout(id, Number(v)); else if (f.kind === 'warn') doWarn(id, v); else doReport(id, f.kind, v); }, 'pri'))));
+  }
+  return wrap;
+}
+async function showLog() {
+  const [rp, ev] = await Promise.all([sb.from('reports').select('*').order('created_at', { ascending: false }).limit(60), sb.from('events').select('*').order('created_at', { ascending: false }).limit(60)]);
+  S.logUnread = 0; renderMe();
+  const nm = i => { const p = profileOf(i ? String(i) : ''); return p ? p.sn : 'someone'; };
+  const items = [...(rp.data || []).map(r => ({ ts: Date.parse(r.created_at), text: (r.kind === 'down' ? '\u{1F44E} ' : '\u{1F6A9} report: ') + nm(r.reporter) + ' about ' + nm(r.target) + (r.comment ? ' \u2014 ' + r.comment : '') })),
+    ...(ev.data || []).map(r => ({ ts: Date.parse(r.created_at), text: ({ board: 'new board by ' + nm(r.actor) + ': ' + r.note, warn: nm(r.actor) + ' warned ' + nm(r.target) + (r.note ? ': ' + r.note : ''), timeout: nm(r.actor) + ' put ' + nm(r.target) + ' in the corner (' + r.note + ')', role: nm(r.actor) + ' set ' + nm(r.target) + ' to ' + r.note })[r.kind] || r.kind }))].sort((a, b) => b.ts - a.ts);
+  const prev = document.activeElement;
+  const done = () => { ov.remove(); if (prev && prev.focus) prev.focus(); };
+  const ov = h('div', { class: 'ovl', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Admin log' }, h('div', { class: 'ovbox logbox' }, h('h3', {}, 'Admin log'),
+    items.length ? items.map(i => h('div', { class: 'logrow' }, h('small', { class: 'muted' }, new Date(i.ts).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })), h('div', {}, i.text))) : h('p', { class: 'muted' }, 'Nothing yet.'),
+    h('div', { class: 'ovbtn' }, h('button', { class: 'btn pri', type: 'button', onclick: done }, 'Close'))));
+  ov.addEventListener('keydown', e => { if (e.key === 'Escape') done(); });
+  document.body.append(ov); ov.querySelector('button').focus();
+}
+async function checkWarnings() {
+  const seen = Number(LS.get('am.warnseen') || 0);
+  const { data } = await sb.from('warnings').select('*').eq('target', S.uid).order('created_at', { ascending: false }).limit(1);
+  const w = data && data[0]; if (!w || Date.parse(w.created_at) <= seen || Date.now() - Date.parse(w.created_at) > 3 * 86400000) return;
+  showWarn(w);
+}
+function showWarn(w) {
+  const b = $('warnBar'), by = profileOf(w.by ? String(w.by) : '');
+  b.replaceChildren(h('span', { class: 'grow' }, '\u26A0 Warning' + (by ? ' from ' + by.sn : '') + (w.note ? ': ' + w.note : '. Please be nice.')),
+    h('button', { class: 'x', type: 'button', 'aria-label': 'Dismiss warning', onclick: () => { LS.set('am.warnseen', String(Date.parse(w.created_at) || Date.now())); b.hidden = true; } }, '\u00d7'));
+  b.hidden = false; sfx('close');
+}
+async function modSlash(text) {
+  const m = text.match(/^\/(report|warn|timeout)\s+@?([\w.-]{2,20})\s*(.*)$/i);
+  if (!m) { say('Try /report @name what happened'); return true; }
+  const hit = [...S.profiles].find(([, p]) => p.sn.toLowerCase() === m[2].toLowerCase());
+  if (!hit) { say('I cannot find ' + m[2] + '.'); return true; }
+  const cmd = m[1].toLowerCase();
+  if (cmd === 'report') await doReport(hit[0], 'report', m[3]);
+  else if (!isStaff()) say('Only mods can do that.');
+  else if (cmd === 'warn') await doWarn(hit[0], m[3]);
+  else await doTimeout(hit[0], parseInt(m[3], 10) || 5);
+  return true;
+}
 async function setAway() {
   const p = mine(); if (!p) return;
   const sv = $('stSel').value; S.dnd = sv === 'dnd'; LS.set('am.dnd', S.dnd ? '1' : ''); trackMe();
@@ -1229,6 +1341,9 @@ function subscribe() {
       if (p.eventType === 'DELETE') { if (p.old && p.old.id) dropChannel(String(p.old.id)); return; }
       if (p.new && p.new.id) { S.channels.set(String(p.new.id), chanRow(p.new)); renderConvs(); renderProfile(); }
     })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'warnings' }, p => { if (p && p.new && String(p.new.target) === S.uid) showWarn(p.new); })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reports' }, () => { if (isAdmin()) { S.logUnread = (S.logUnread || 0) + 1; sfx('in'); renderMe(); } })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'events' }, () => { if (isAdmin()) { S.logUnread = (S.logUnread || 0) + 1; renderMe(); } })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'board_members' }, () => { loadBms(); })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'pins' }, () => { loadPins(); })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, p => {
@@ -1294,12 +1409,12 @@ async function enterApp() {
   await sync(false);
   S.theme = mine().theme; LS.set('am.theme', JSON.stringify(S.theme));
   S.signedOn = true; S.selected = S.uid; S.mode = 'login';
-  fire(cleanMedia()); fire(sb.rpc('touch_seen'));
-  S.showInfo = !isPhone();
+  fire(cleanMedia()); fire(sb.rpc('touch_seen')); fire(checkWarnings());
+  S.showInfo = !isPhone(); S.logUnread = 0; S.modForm = null;
   S.timers.push(setInterval(() => { if (Date.now() - S.lastAct < 300000 && !document.hidden) fire(sb.rpc('touch_seen')); }, 300000));
   subscribe();
   S.timers.push(setInterval(() => fire(cleanMedia()), 15 * 60000));
-  S.timers.push(setInterval(() => { pruneMsgs(); renderLog(); }, 60000));
+  S.timers.push(setInterval(() => { pruneMsgs(); renderLog(); renderComposer(); }, 60000));
   S.timers.push(setInterval(() => { if (!S.signedOn || S.editing) return; if (Date.now() - (S.lastSync || 0) >= (S.rt ? 20000 : 5000)) sync(true).then(() => { refreshUi(); return fetchMissing(); }).catch(() => {}); }, 5000));
   sfx('open'); setTab('chat'); renderAll();
   if (!$('msg').disabled && !isPhone()) $('msg').focus();
@@ -1469,6 +1584,7 @@ $('editBtn').addEventListener('click', openEditor);
 $('offBtn').addEventListener('click', signOff);
 (() => { const sel = $('toneSel'); for (const [k, t] of Object.entries(TONES)) sel.append(h('option', { value: k }, t.name)); sel.value = toneKey();
   sel.addEventListener('change', () => { S.tone = sel.value; LS.set('am.tone', S.tone); sfx('in', true); }); })();
+$('logBtn').addEventListener('click', showLog);
 $('sndBtn').addEventListener('click', () => { S.sound = !S.sound; LS.set('am.sound', S.sound ? 'on' : 'off'); renderMe(); if (S.sound) sfx('in'); });
 $('eClose').addEventListener('click', closeEditor);
 $('eCancel').addEventListener('click', closeEditor);
