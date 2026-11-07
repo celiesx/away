@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794081591">
+<meta name="build" content="1794081945">
 <link rel="icon" href="data:,">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -306,6 +306,14 @@ body.hand{--font:'Patrick Hand','Comic Neue',cursive;--fs:16px}
 .plwin .caltitle{color:#fff}.plwin .trk{background:transparent}.plrow input[type=checkbox]{-webkit-appearance:none;appearance:none;border:1.5px solid #7D7F88;border-radius:50%;background:#fff}.plrow input[type=checkbox]:checked{background:#AECDAE;box-shadow:inset 0 0 0 3px #fff}
 .plwin .calhead{background:#7D7F88}.plwin .cbtn{background:#EDD4D0}
 .plwin .trk .dt.on{background:#A9685F;border-color:#A9685F}.plwin .trk .tg b.td{background:#E1A8AF;color:#4a2f2c}.plwin .trk .th,.plwin .trk .addh{color:#7E5D40}.plwin .trk input{font-family:'Patrick Hand',var(--font);font-weight:400}
+.calbox.pvwin{width:min(99vw,1340px);height:min(98vh,1000px)}
+.pvbody{background:#cfd2da;padding:8px;display:flex;justify-content:center;align-items:flex-start}
+.pvstage{position:relative;flex:none;background:#fff;box-shadow:0 2px 10px #0004}
+.pvcv{display:block}
+.pvlayer{position:absolute;inset:0;cursor:text}
+.pvlink{position:absolute;display:block;cursor:pointer}.pvlink:hover{background:#3a54a822}
+.pvn{position:absolute;min-width:60px;padding:0;margin:0;background:transparent;border:0;border-radius:0;resize:none;overflow:hidden;color:#1d2a5c;font-family:var(--hand);font-weight:700;line-height:1.15}
+.pvn:focus{outline:1px dashed #3a54a8;background:#ffffffaa}
 .npwin{width:min(94vw,520px);display:flex;flex-direction:column;background:#d4d0c8;color:#111;border:2px solid #404040;box-shadow:4px 4px 0 #0007;font-family:VT323,'Courier New',monospace}
 .npwin .nptb{display:flex;align-items:center;justify-content:space-between;padding:2px 3px 2px 8px;background:#3a54a8;color:#fff;font-size:19px}
 .npwin .nptb button{padding:0 7px;font-size:16px;color:#111;background:#d4d0c8;border:2px solid;border-color:#fff #404040 #404040 #fff;border-radius:0;cursor:pointer}
@@ -608,7 +616,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
         <details class="esec"><summary>Social</summary>
           <label class="chk"><input type="checkbox" id="eHand"> Handwriting font everywhere</label>
           <label for="eDm">Who can message me</label><select id="eDm"><option value="all">Everyone</option><option value="friends">Friends only</option></select>
-          <div id="eFontBox" hidden><label for="eFont">Handwriting font for the planner (admin only)</label><input id="eFont" type="file" accept=".otf,.ttf,.woff,.woff2"><small id="eFontNote" class="muted"></small></div>
+          <div id="eFontBox" hidden><label for="eFont">Handwriting font for the planner (admin only)</label><input id="eFont" type="file" accept=".otf,.ttf,.woff,.woff2"><small id="eFontNote" class="muted"></small><label for="ePdf">Planner PDF (admin only)</label><input id="ePdf" type="file" accept="application/pdf,.pdf"><small id="ePdfNote" class="muted"></small></div>
           <p class="muted" style="margin:8px 0 0">Friends are people who accepted your request. Mods can always reach you.</p>
         </details>
         <details class="esec"><summary>Favorites</summary>
@@ -2507,7 +2515,7 @@ function plFlush() {
   const todos = PL.todos.filter(x => x.t.trim() && !(x.d && x.d < wk)).slice(0, 14).map(x => ({ t: clamp(x.t, 60), d: x.d || '' }));
   fire(sb.from('planner').upsert({ owner: S.uid, data: { habits: PL.habits, marks, mood, days, todos, pri: PL.pri.map(x => clamp(x, 50)), prid: PL.prid.map(Boolean), notes: clamp(PL.notes, 200), hl: clamp(PL.hl, 200) }, updated_at: new Date().toISOString() }));
 }
-async function openPlanner() {
+async function openPlannerBasic() {
   if (plEl) return;
   plEl = h('div', { class: 'ovl calov', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Planner' }, h('div', { class: 'calbox plwin' }));
   plEl.addEventListener('keydown', e => { if (e.key === 'Escape') closePlanner(); });
@@ -2546,6 +2554,73 @@ function drawPlanner() {
   const hl = h('textarea', { maxlength: '200', rows: '2', 'aria-label': 'Highlights' }); hl.value = PL.hl; hl.addEventListener('input', () => { PL.hl = hl.value; plSave(); });
   const rev = h('div', { class: 'pbox' }, h('div', { class: 'pbh' }, 'Weekly review · highlights'), hl);
   box.replaceChildren(head, h('div', { class: 'calbody plbody' }, h('div', { class: 'plmain' }, h('div', { class: 'plleft' }, dgrid, h('div', { class: 'plbot' }, trkBox(PL, drawPlanner), h('div', {}, rev, mood))), h('div', { class: 'plright' }, pri, todo))));
+}
+/* ---------- planner pdf viewer ---------- */
+let pvEl = null, pv = null, pvTimer = null;
+const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+function loadPdfJs() {
+  if (window.pdfjsLib) return Promise.resolve();
+  return new Promise((ok, no) => { const s = document.createElement('script'); s.src = PDFJS + 'pdf.min.js'; s.onload = () => { window.pdfjsLib.GlobalWorkerOptions.workerSrc = PDFJS + 'pdf.worker.min.js'; ok(); }; s.onerror = no; document.head.append(s); });
+}
+async function openPlanner() {
+  if (plEl || pvEl) return;
+  let blob = null;
+  try { const r = await sb.storage.from('site-assets').download('planner.pdf'); if (!r.error && r.data) blob = r.data; } catch { /* no pdf uploaded */ }
+  if (blob) { try { await loadPdfJs(); return await openPdfPlanner(blob); } catch { if (pvEl) { pvEl.remove(); pvEl = null; pv = null; } } }
+  return openPlannerBasic();
+}
+function pvSave() { clearTimeout(pvTimer); pvTimer = setTimeout(pvFlush, 800); }
+function pvFlush() { if (!pv) return; fire(sb.from('pdfnotes').upsert({ owner: S.uid, data: pv.notes, updated_at: new Date().toISOString() })); }
+async function pvDest(d) {
+  try { if (typeof d === 'string') d = await pv.doc.getDestination(d); if (!Array.isArray(d)) return 0; const r = d[0]; return typeof r === 'object' ? (await pv.doc.getPageIndex(r)) + 1 : r + 1; } catch { return 0; }
+}
+async function openPdfPlanner(blob) {
+  const buf = await blob.arrayBuffer(), doc = await window.pdfjsLib.getDocument({ data: buf }).promise;
+  const r = await sb.from('pdfnotes').select('data').eq('owner', S.uid).maybeSingle();
+  pv = { doc, page: Math.min(4, doc.numPages), notes: r.data && r.data.data && typeof r.data.data === 'object' ? r.data.data : {}, tok: 0 };
+  pvEl = h('div', { class: 'ovl calov', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Planner' }, h('div', { class: 'calbox pvwin' }));
+  pvEl.addEventListener('keydown', e => { if (e.key === 'Escape' && !/TEXTAREA/.test(e.target.tagName)) closePv(); });
+  pvEl.addEventListener('pointerdown', e => { if (e.target === pvEl) closePv(); });
+  document.body.append(pvEl); await pvRender();
+}
+function closePv() { if (!pvEl) return; clearTimeout(pvTimer); pvFlush(); pvEl.remove(); pvEl = null; pv = null; }
+function pvGo(n) { if (!pv || n < 1 || n > pv.doc.numPages) return; pv.page = n; pvRender(); }
+async function pvRender() {
+  if (!pv || !pvEl) return;
+  const my = ++pv.tok, box = pvEl.firstChild, pg = await pv.doc.getPage(pv.page);
+  if (!pv || my !== pv.tok) return;
+  const base = pg.getViewport({ scale: 1 }), avail = Math.max(320, Math.min(box.clientWidth - 16, 1300)), sc = avail / base.width, dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const css = pg.getViewport({ scale: sc }), cv = pg.getViewport({ scale: sc * dpr });
+  const canvas = h('canvas', { class: 'pvcv' }); canvas.width = Math.floor(cv.width); canvas.height = Math.floor(cv.height); canvas.style.width = css.width + 'px'; canvas.style.height = css.height + 'px';
+  const layer = h('div', { class: 'pvlayer' }), stage = h('div', { class: 'pvstage', style: 'width:' + css.width + 'px;height:' + css.height + 'px' }, canvas, layer);
+  const head = h('div', { class: 'calhead' }, h('button', { class: 'cbtn', type: 'button', onclick: () => pvGo(3) }, 'Index'), h('button', { class: 'cbtn', type: 'button', onclick: () => pvGo(4) }, 'This week'),
+    h('b', { class: 'caltitle' }, 'Planner · ' + pv.page + ' / ' + pv.doc.numPages), h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Previous page', onclick: () => pvGo(pv.page - 1) }, '‹'), h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Next page', onclick: () => pvGo(pv.page + 1) }, '›'), h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Close planner', onclick: closePv }, '×'));
+  box.replaceChildren(head, h('div', { class: 'calbody pvbody' }, stage));
+  const fs = Math.max(11, 17 * sc);
+  const addNote = n => {
+    const ta = h('textarea', { class: 'pvn', rows: '1', maxlength: '300', 'aria-label': 'Note', style: 'left:' + n.x * 100 + '%;top:' + n.y * 100 + '%;width:' + Math.max(8, Math.min(40, (1 - n.x) * 100 - 1)) + '%;font-size:' + fs + 'px' }); ta.value = n.t;
+    const fit = () => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; };
+    ta.addEventListener('input', () => { n.t = ta.value; fit(); pvSave(); });
+    ta.addEventListener('blur', () => { if (!n.t.trim()) { const l = pv && pv.notes[pv.page]; if (l) { pv.notes[pv.page] = l.filter(x => x !== n); pvSave(); } ta.remove(); } });
+    layer.append(ta); fit(); return ta;
+  };
+  for (const n of pv.notes[pv.page] || []) addNote(n);
+  layer.addEventListener('click', e => {
+    if (e.target !== layer) return;
+    const list = pv.notes[pv.page] || (pv.notes[pv.page] = []); if (list.length >= 40) return;
+    const r = layer.getBoundingClientRect(), n = { x: Math.round((e.clientX - r.left) / r.width * 1000) / 1000, y: Math.round((e.clientY - r.top) / r.height * 1000) / 1000, t: '' };
+    list.push(n); addNote(n).focus();
+  });
+  pg.render({ canvasContext: canvas.getContext('2d'), viewport: cv }).promise.catch(() => {});
+  try {
+    const ans = await pg.getAnnotations({ intent: 'display' });
+    for (const a of ans) {
+      if (a.subtype !== 'Link' || !a.rect || a.url) continue;
+      const to = await pvDest(a.dest); if (!to || !pv || my !== pv.tok) continue;
+      const [x1, y1, x2, y2] = css.convertToViewportRectangle(a.rect);
+      layer.append(h('a', { class: 'pvlink', href: '#', 'aria-label': 'Go to page ' + to, style: 'left:' + Math.min(x1, x2) + 'px;top:' + Math.min(y1, y2) + 'px;width:' + Math.abs(x2 - x1) + 'px;height:' + Math.abs(y2 - y1) + 'px', onclick: e => { e.preventDefault(); pvGo(to); } }));
+    }
+  } catch { /* links are optional */ }
 }
 /* ---------- notepad ---------- */
 let npEl = null, npTimer = null;
@@ -2594,6 +2669,13 @@ $('offBtn').addEventListener('click', signOff);
 $('logBtn').addEventListener('click', showLog);
 $('calBtn').addEventListener('click', openCalendar);
 $('npBtn').addEventListener('click', openNotepad);
+$('ePdf').addEventListener('change', async e => {
+  const f = e.target.files[0], note = $('ePdfNote'); if (!f) return;
+  if (f.size > 2000000) { note.textContent = 'That file is too big.'; return; }
+  note.textContent = 'Uploading...';
+  const { error } = await sb.storage.from('site-assets').upload('planner.pdf', f, { upsert: true, contentType: 'application/pdf' });
+  note.textContent = error ? 'That did not go through.' : 'Done. The Planner button opens it now.';
+});
 $('eFont').addEventListener('change', async e => {
   const f = e.target.files[0], note = $('eFontNote'); if (!f) return;
   if (f.size > 2000000) { note.textContent = 'That file is too big.'; return; }
@@ -2631,12 +2713,12 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && S.
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '1794081591' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '1794081945' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '1794081591') { newBuild = m[1]; $('updBar').hidden = false; }
+    if (m && m[1] !== BUILD && m[1] !== '1794081945') { newBuild = m[1]; $('updBar').hidden = false; }
   } catch {}
 }
 $('updBtn').addEventListener('click', () => { location.replace(location.pathname + '?v=' + encodeURIComponent(newBuild || Date.now())); });
