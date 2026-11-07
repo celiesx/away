@@ -98,6 +98,8 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .dot{width:9px;height:9px;border-radius:50%;flex:none;background:var(--muted)}
 .dot.on{background:var(--ok)}
 .dot.away{background:transparent;border:2px solid var(--warn)}
+.dot.idle{background:var(--warn)}
+.dot.dnd{background:#e0405a}
 .empty{margin:0;padding:14px;color:var(--muted)}
 .foot{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--line)}
 .av{--s:28px;width:var(--s);height:var(--s);flex:none;display:grid;place-items:center;background:var(--c,var(--ac));color:var(--oc,var(--on-ac));
@@ -216,7 +218,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
       <div class="mebox">
         <div class="me-row"><span id="meAv"></span><div class="grow"><div id="meSn" class="sn"></div>
           <label class="sr" for="stSel">Status</label>
-          <select id="stSel"><option value="on">Available</option><option value="away">Away</option></select></div></div>
+          <select id="stSel"><option value="on">Available</option><option value="away">Away</option><option value="dnd">Do not disturb</option></select></div></div>
         <label class="sr" for="awayIn">Away message</label>
         <input id="awayIn" maxlength="80" placeholder="Away message" hidden>
         <label class="sr" for="npIn">Now playing</label>
@@ -412,7 +414,7 @@ function avatar(p, size) {
 /* ---------- sound ---------- */
 let actx = null;
 function sfx(n) {
-  if (!S.sound) return;
+  if (!S.sound || S.dnd) return;
   try {
     actx = actx || new (window.AudioContext || window.webkitAudioContext)();
     if (actx.state === 'suspended') actx.resume();
@@ -494,16 +496,28 @@ function renderMe() {
   const p = mine(); if (!p) return;
   $('meAv').replaceChildren(avatar(p, 40));
   $('meSn').textContent = p.sn;
-  $('stSel').value = p.awayOn ? 'away' : 'on';
+  $('stSel').value = p.awayOn ? 'away' : (S.dnd ? 'dnd' : 'on');
   const a = $('awayIn'); a.hidden = !p.awayOn;
   if (document.activeElement !== a) a.value = p.away;
   const n = $('npIn'); if (document.activeElement !== n) n.value = p.song.title;
   $('sndBtn').textContent = S.sound ? 'Sound on' : 'Sound off';
 }
 
+const myState = () => S.dnd ? 'dnd' : (Date.now() - S.lastAct > 120000 ? 'idle' : 'on');
+function trackMe() {
+  if (!S.presChan || !S.signedOn) return;
+  const st = myState(); if (S.lastTracked === st) return; S.lastTracked = st;
+  try { S.presChan.track({ t: Date.now(), st }); } catch {}
+}
 function statusOf(id, p) {
   if (p.awayOn) return { cls: 'away', text: p.away ? 'Away: ' + p.away : 'Away' };
-  if (S.presLive) return S.online.has(id) ? { cls: 'on', text: 'Online' } : { cls: '', text: 'Offline' };
+  if (S.presLive) {
+    if (!S.online.has(id)) return { cls: '', text: 'Offline' };
+    const pm = S.pmeta[id] || {};
+    if (pm.st === 'dnd') return { cls: 'dnd', text: 'Do not disturb' };
+    if (pm.st === 'idle') return { cls: 'idle', text: 'Idle' };
+    return { cls: 'on', text: 'Online' };
+  }
   return { cls: '', text: '' };
 }
 const bySn = (a, b) => a[1].sn.toLowerCase().localeCompare(b[1].sn.toLowerCase());
@@ -778,19 +792,34 @@ async function cleanMedia() {
 
 async function setAway() {
   const p = mine(); if (!p) return;
-  const on = $('stSel').value === 'away', msg = clamp($('awayIn').value.trim(), 80);
+  const sv = $('stSel').value; S.dnd = sv === 'dnd'; LS.set('am.dnd', S.dnd ? '1' : ''); trackMe();
+  const on = sv === 'away', msg = clamp($('awayIn').value.trim(), 80);
   if (on === p.awayOn && msg === p.away) return;
   const { error } = await sb.from('profiles').update({ away_on: on, away: msg }).eq('id', S.uid);
   if (error) { S.extra = 'Could not save your status.'; renderNote(); clearExtraSoon(); renderMe(); return; }
   p.awayOn = on; p.away = msg; renderMe(); renderBuddies(); renderProfile(); renderLog();
   if (on && !msg) $('awayIn').focus();
 }
+async function songTitle(url) {
+  const host = new URL(url).hostname.replace(/^www\./, '');
+  try {
+    if (/(^|\.)spotify\.com$/.test(host) || host === 'spotify.link') {
+      const c = new AbortController(); setTimeout(() => c.abort(), 4000);
+      const r = await fetch('https://open.spotify.com/oembed?url=' + encodeURIComponent(url), { signal: c.signal });
+      if (r.ok) { const j = await r.json(); if (j && j.title) return String(j.title); }
+    }
+  } catch {}
+  if (/spotify/.test(host)) return 'a song on Spotify';
+  if (/apple\.com$/.test(host)) return 'a song on Apple Music';
+  if (/youtu/.test(host)) return 'a song on YouTube';
+  return host;
+}
 async function setNow() {
   const p = mine(); if (!p) return;
   let t = $('npIn').value.trim(), url = '';
   const m = t.match(/https?:\/\/\S+/);
   if (m) { const u = safeUrl(m[0]); if (u) url = u; t = t.replace(m[0], '').trim().replace(/[-–—:]\s*$/, '').trim(); }
-  if (!t && url) t = new URL(url).hostname.replace(/^www\./, '');
+  if (!t && url) t = await songTitle(url);
   t = clamp(t, 60);
   if (!t) url = '';
   if (!m && t === p.song.title) { renderMe(); return; }
@@ -827,9 +856,11 @@ function subscribe() {
       if (S.sys.length > 40) S.sys.splice(0, S.sys.length - 40);
     }
     S.online = now;
+    const ps = S.presChan.presenceState(); S.pmeta = {};
+    for (const k of Object.keys(ps)) { const e = ps[k] && ps[k][ps[k].length - 1]; S.pmeta[k] = e || {}; }
     if (!S.presLive) { S.presLive = true; setTimeout(() => { S.presSettled = true; }, 2500); }
     renderBuddies(); renderLog(); renderProfile(); fetchMissing();
-  }).subscribe(async st => { if (st === 'SUBSCRIBED') { try { await S.presChan.track({ t: Date.now() }); } catch {} } });
+  }).subscribe(async st => { if (st === 'SUBSCRIBED') { try { await S.presChan.track({ t: Date.now(), st: myState() }); } catch {} } });
 }
 
 /* ---------- auth ---------- */
@@ -861,6 +892,7 @@ async function afterAuth() {
   return true;
 }
 async function enterApp() {
+  S.pmeta = {}; S.lastAct = Date.now(); S.lastTracked = ''; S.dnd = LS.get('am.dnd') === '1';
   S.msgs = []; S.msgIds = new Set(); S.sys = []; S.unread = {}; S.opened = new Set(); S.conv = 'lounge'; S.online = new Set(); S.presLive = false; S.presSettled = false;
   const hrs = await sb.rpc('message_ttl_hours');
   if (hrs && typeof hrs.data === 'number' && hrs.data > 0) S.ttlH = hrs.data;
@@ -926,6 +958,9 @@ function resetApp() {
   Object.assign(S, { signedOn: false, session: null, uid: null, profiles: new Map(), msgs: [], msgIds: new Set(), sys: [], online: new Set(), presLive: false, rt: false, unread: {}, opened: new Set(), conv: 'lounge', editing: false, draft: null, mode: 'login', selected: null, extra: '' });
   document.body.classList.remove('editing'); renderAll();
 }
+['pointerdown', 'keydown', 'mousemove', 'touchstart', 'scroll'].forEach(ev => addEventListener(ev, () => { const was = S.lastAct; S.lastAct = Date.now(); if (Date.now() - was > 120000) trackMe(); }, { passive: true }));
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { S.lastAct = Date.now(); S.lastTracked = ''; trackMe(); } });
+setInterval(trackMe, 15000);
 async function signOff() { sfx('close'); try { await sb.auth.signOut(); } catch {} resetApp(); }
 
 /* ---------- editor ---------- */
