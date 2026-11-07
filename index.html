@@ -136,6 +136,7 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .sphover small{color:var(--muted)}
 .glyph{width:30px;height:30px;flex:none;display:grid;place-items:center;background:var(--ac);color:var(--on-ac);font-weight:800}
 .ctext{display:flex;flex-direction:column;min-width:0}
+.ctext b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ctext small{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .compose{display:flex;gap:8px;padding:8px;border-top:2px solid var(--line)}
 
@@ -464,16 +465,16 @@ function sfx(n) {
 /* ---------- rich text ---------- */
 const TOK = /(https?:\/\/[^\s]+)|(@[\w.-]{2,20})/g;
 const metaCache = new Map();
-const okThumb = u => { try { const x = new URL(u); return x.protocol === 'https:' && /(^|\.)(scdn\.co|mzstatic\.com)$/.test(x.hostname) ? x.href : ''; } catch { return ''; } };
+const okThumb = u => { try { const x = new URL(u); return x.protocol === 'https:' ? x.href.slice(0, 500) : ''; } catch { return ''; } };
 function getMeta(href) {
   if (metaCache.has(href)) return metaCache.get(href);
   const p = (async () => {
     let host = ''; try { host = new URL(href).hostname; } catch { return null; }
-    if (!/^(open\.spotify\.com|music\.apple\.com)$/.test(host) || !sb) return null;
+    if (!sb || !/^https:/.test(href)) return null;
     try {
       const { data, error } = await sb.functions.invoke('link-meta', { body: { url: href } });
       if (error || !data || !data.title) return null;
-      return { title: clamp(String(data.title), 100), sub: clamp(String(data.sub || ''), 80), thumb: okThumb(String(data.thumb || '')), ms: Number(data.ms) || 0 };
+      return { title: clamp(String(data.title), 100), site: clamp(String(data.site || ''), 40), desc: clamp(String(data.desc || ''), 200), sub: clamp(String(data.sub || ''), 80), thumb: okThumb(String(data.thumb || '')), ms: Number(data.ms) || 0 };
     } catch {}
     return null;
   })();
@@ -488,10 +489,11 @@ function linkCard(href) {
   else if (/\.(png|jpe?g|gif|webp)$/i.test(u.pathname)) { kind = 'Image'; g = '▣'; }
   const glyph = h('span', { class: 'glyph', 'aria-hidden': 'true' }, g), b = h('b', {}, kind), sm = h('small', {}, (host + u.pathname).slice(0, 60));
   const card = h('a', { class: 'card', href, target: '_blank', rel: 'noopener noreferrer' }, glyph, h('span', { class: 'ctext' }, b, sm));
-  if (g === '♪' && /spotify|apple/.test(host)) getMeta(href).then(m => {
+  if (kind !== 'Image') getMeta(href).then(m => {
     if (!m || !m.title) return;
-    b.textContent = m.title; sm.textContent = [m.sub, kind, fmtDur(m.ms)].filter(Boolean).join(' · ');
-    if (m.thumb) { const im = h('img', { class: 'cart', src: m.thumb, alt: '' }); glyph.replaceWith(im); }
+    b.textContent = m.title;
+    sm.textContent = m.site || m.desc ? [m.site, clamp(m.desc, 90)].filter(Boolean).join(' · ') : [m.sub, kind, fmtDur(m.ms)].filter(Boolean).join(' · ');
+    if (m.thumb) { const im = h('img', { class: 'cart', src: m.thumb, alt: '', loading: 'lazy', referrerpolicy: 'no-referrer' }); im.onerror = () => im.replaceWith(glyph); glyph.replaceWith(im); }
   });
   return card;
 }
@@ -745,7 +747,7 @@ function songBox(song, href) {
   const show = async () => {
     if (pop) return;
     const m = await getMeta(href); if (!m || !m.title || pop) return;
-    pop = h('div', { class: 'sphover', role: 'tooltip' }, m.thumb ? h('img', { src: m.thumb, alt: '' }) : null,
+    pop = h('div', { class: 'sphover', role: 'tooltip' }, m.thumb ? h('img', { src: m.thumb, alt: '', referrerpolicy: 'no-referrer' }) : null,
       h('div', {}, h('b', {}, m.title), h('small', {}, [m.sub, fmtDur(m.ms)].filter(Boolean).join(' · '))));
     box.append(pop);
   };
