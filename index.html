@@ -187,6 +187,7 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .sohelp h3{margin:0 0 4px}
 .sohelp p{margin:5px 0}
 .pstars{display:flex;gap:5px;align-items:center;margin-top:4px;color:var(--muted);cursor:default}
+.pstars .dn{margin-left:8px}
 .rolechip{margin-left:6px;padding:0 6px;border:1px solid var(--ac);color:var(--ac);font-size:11px;text-transform:uppercase}
 .modrow{display:flex;gap:6px;flex-wrap:wrap}
 .starb:hover,.starb:focus-visible{border-color:#4aa3ff;color:#4aa3ff}
@@ -491,7 +492,7 @@ function fromRow(r) {
     song: { title: clamp(r.song_title, 60), url: clamp(r.song_url, 300) },
     links: links.slice(0, 3).map(l => ({ label: clamp(l && l.label, 24), url: clamp(l && l.url, 300) })),
     top: (Array.isArray(r.top) ? r.top : []).filter(x => typeof x === 'string').slice(0, 8),
-    theme: cleanTheme(r.theme), avatar: okAvatar(r.avatar), created: r.created_at ? (Date.parse(r.created_at) || 0) : 0, lastSeen: r.last_seen ? (Date.parse(r.last_seen) || 0) : 0, role: r.role === 'admin' || r.role === 'mod' ? r.role : 'member', stars: Math.max(0, Number(r.stars) || 0), mutedUntil: r.muted_until ? (Date.parse(r.muted_until) || 0) : 0
+    theme: cleanTheme(r.theme), avatar: okAvatar(r.avatar), created: r.created_at ? (Date.parse(r.created_at) || 0) : 0, lastSeen: r.last_seen ? (Date.parse(r.last_seen) || 0) : 0, role: r.role === 'admin' || r.role === 'mod' ? r.role : 'member', stars: Math.max(0, Number(r.stars) || 0), downs: Math.max(0, Number(r.downs) || 0), mutedUntil: r.muted_until ? (Date.parse(r.muted_until) || 0) : 0
   };
 }
 const toRow = p => ({ sn: p.sn, bio: p.bio, away: p.away, away_on: p.awayOn, mood: p.mood, song_title: p.song.title, song_url: p.song.url, links: p.links, top: p.top, theme: p.theme, avatar: p.avatar });
@@ -648,7 +649,7 @@ function renderMe() {
   const n = $('npIn'); if (document.activeElement !== n) n.value = p.song.title;
   $('sndBtn').textContent = S.sound ? 'Sound on' : 'Sound off';
   $('toneSel').value = toneKey();
-  $('logBtn').hidden = !isAdmin(); $('logBtn').textContent = S.logUnread ? 'Log (' + S.logUnread + ')' : 'Log';
+  $('logBtn').hidden = !isStaff(); $('logBtn').textContent = S.logUnread ? 'Log (' + S.logUnread + ')' : 'Log';
 }
 
 const myState = () => S.dnd ? 'dnd' : (Date.now() - S.lastAct > 120000 ? 'idle' : 'on');
@@ -787,7 +788,7 @@ function openMenu(x, y, m) {
   const items = [];
   if (isRoom(S.conv) && (m.text || (m.image && !isFile(m)))) items.push(['Pin', () => pinMsg(m)]);
   if (m.text) items.push(['Copy text', () => { try { navigator.clipboard.writeText(m.text); } catch {} }]);
-  if (m.uid === S.uid) items.push(['Delete', () => delMsg(m)]);
+  if (m.uid === S.uid || (isStaff() && isRoom(S.conv))) items.push(['Delete', () => delMsg(m)]);
   if (!items.length) return;
   menuEl = h('div', { class: 'msgmenu', role: 'menu' }, items.map(([l, f]) => h('button', { type: 'button', role: 'menuitem', onclick: () => { closeMenu(); f(); } }, l)));
   document.body.append(menuEl);
@@ -961,7 +962,7 @@ function renderProfile() {
     h('div', { class: 'grow' }, h('h2', { class: 'psn' }, p.sn || '...'),
       st.text ? h('div', { class: 'pst' }, h('span', { class: 'dot ' + st.cls, 'aria-hidden': 'true' }), st.text) : null,
       p.mood ? h('div', { class: 'pmood' }, p.mood) : null,
-      h('div', { class: 'pstars', title: (p.stars || 0) + (p.stars === 1 ? ' star' : ' stars') }, h('img', { src: STAR, alt: '', width: 16, height: 16 }), h('span', {}, String(p.stars || 0)), p.role === 'admin' || p.role === 'mod' ? h('span', { class: 'rolechip' }, p.role) : null))));
+      h('div', { class: 'pstars', title: (p.stars || 0) + (p.stars === 1 ? ' star' : ' stars') }, h('img', { src: STAR, alt: '', width: 16, height: 16 }), h('span', {}, String(p.stars || 0)), h('span', { class: 'dn', title: (p.downs || 0) + ' thumbs down' }, '\u{1F44E} ' + (p.downs || 0)), p.role === 'admin' || p.role === 'mod' ? h('span', { class: 'rolechip' }, p.role) : null))));
   if (!S.editing && isRoom(S.conv)) body.append(h('button', { class: 'btn sm', type: 'button', onclick: () => { S.showInfo = true; renderProfile(); } }, '\u2190 ' + (S.conv === 'lounge' ? 'the lounge' : '#' + ((S.channels.get(S.conv.slice(2)) || {}).name || ''))));
   if (!S.editing && id && id !== S.uid) body.append(h('button', { class: 'btn pri pmsg', type: 'button', onclick: () => openConv(id) }, 'Message ' + p.sn));
   if (!S.editing && id && id !== S.uid) body.append(modPanel(id, p));
@@ -1116,10 +1117,10 @@ function renderPin() {
     h('button', { class: 'x', type: 'button', 'aria-label': 'Unpin', onclick: () => unpin(p.id) }, '\u00d7'));
 }
 async function delMsg(m) {
-  if (!confirm('Delete this message for everyone?')) return;
+  if (!confirm(m.uid === S.uid ? 'Delete this message for everyone?' : 'Delete this message from ' + ((profileOf(m.uid) || {}).sn || 'them') + '? The mods and admin will see that you did.')) return;
   const { error } = await sb.from('messages').delete().eq('id', Number(m.id));
   if (error) { S.extra = 'Could not delete that.'; renderNote(); clearExtraSoon(); return; }
-  if (m.image) fire(sb.storage.from('media').remove([m.image]));
+  if (m.image && m.uid === S.uid) fire(sb.storage.from('media').remove([m.image]));
   dropMsg(m.id);
 }
 function dropMsg(id) {
@@ -1243,7 +1244,7 @@ async function doStar(id) {
 async function doReport(id, kind, comment) {
   const { error } = await sb.rpc('file_report', { p_target: id, p_kind: kind, p_comment: clamp(comment, 200) });
   if (error) return say(modErr(error));
-  S.modForm = null; say(kind === 'down' ? 'Sent. Only the admin sees it.' : 'Report sent. Only the admin sees it.'); renderProfile();
+  S.modForm = null; if (kind === 'down') { const p = profileOf(id); if (p) p.downs = (p.downs || 0) + 1; } say(kind === 'down' ? 'Thumbs down sent.' : 'Report sent. Only mods and the admin see it.'); renderProfile();
 }
 async function doWarn(id, note) {
   const { error } = await sb.rpc('mod_warn', { p_target: id, p_note: clamp(note, 200) });
@@ -1266,7 +1267,8 @@ function modPanel(id, p) {
   const open = kind => () => { S.modForm = { kind, target: id }; renderProfile(); };
   const row = h('div', { class: 'modrow' },
     h('button', { class: 'btn sm starb', type: 'button', title: 'Give a star (one a day)', onclick: () => doStar(id) }, h('img', { src: STAR, alt: '', width: 16, height: 16 }), ' Star'),
-    btn('Report', open('report')));
+    btn('\u{1F44E}', open('down')), btn('Report', open('report')));
+  row.children[1].setAttribute('aria-label', 'Thumbs down'); row.children[1].title = 'Thumbs down, one a day';
   if (isStaff() && p.role !== 'admin' && !(p.role === 'mod' && !isAdmin())) row.append(btn('Warn', open('warn')), btn('Corner', open('timeout')));
   if (isAdmin()) row.append(btn(p.role === 'mod' ? 'Remove mod' : 'Make mod', () => doRole(id, p.role === 'mod' ? 'member' : 'mod')));
   const wrap = h('div', { class: 'sec' }, row);
@@ -1285,10 +1287,10 @@ async function showLog() {
   const wc = {}, warnNo = new Map();
   for (const r of [...(ev.data || [])].reverse()) if (r.kind === 'warn') { wc[r.target] = (wc[r.target] || 0) + 1; warnNo.set(r.id, wc[r.target]); }
   const items = [...(rp.data || []).map(r => ({ ts: Date.parse(r.created_at), text: (r.kind === 'down' ? '\u{1F44E} ' : '\u{1F6A9} report: ') + nm(r.reporter) + ' about ' + nm(r.target) + (r.comment ? ' \u2014 ' + r.comment : '') })),
-    ...(ev.data || []).map(r => ({ ts: Date.parse(r.created_at), text: ({ board: 'new board by ' + nm(r.actor) + ': ' + r.note, warn: nm(r.actor) + ' warned ' + nm(r.target) + ' (warning ' + (warnNo.get(r.id) || 1) + ')' + (r.note ? ': ' + r.note : ''), timeout: nm(r.actor) + ' put ' + nm(r.target) + ' in the corner (' + r.note + ')', role: nm(r.actor) + ' set ' + nm(r.target) + ' to ' + r.note })[r.kind] || r.kind }))].sort((a, b) => b.ts - a.ts);
+    ...(ev.data || []).map(r => ({ ts: Date.parse(r.created_at), text: ({ board: 'new board by ' + nm(r.actor) + ': ' + r.note, warn: nm(r.actor) + ' warned ' + nm(r.target) + ' (warning ' + (warnNo.get(r.id) || 1) + ')' + (r.note ? ': ' + r.note : ''), timeout: nm(r.actor) + ' put ' + nm(r.target) + ' in the corner (' + r.note + ')', role: nm(r.actor) + ' set ' + nm(r.target) + ' to ' + r.note, msgdel: nm(r.actor) + ' deleted a message by ' + nm(r.target) + ': ' + r.note })[r.kind] || r.kind }))].sort((a, b) => b.ts - a.ts);
   const prev = document.activeElement;
   const done = () => { ov.remove(); if (prev && prev.focus) prev.focus(); };
-  const ov = h('div', { class: 'ovl', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Admin log' }, h('div', { class: 'ovbox logbox' }, h('h3', {}, 'Admin log'), h('p', { class: 'muted' }, 'You decide what happens. A simple rule to try: 3 warnings, then 15 minutes in the corner. Nothing here is automatic.'),
+  const ov = h('div', { class: 'ovl', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Admin log' }, h('div', { class: 'ovbox logbox' }, h('h3', {}, 'Mod log'), h('p', { class: 'muted' }, 'Mods and the admin both see this, so check it before you warn or send someone to the corner. A simple rule to try: 3 warnings, then 15 minutes in the corner. Nothing here is automatic.'),
     items.length ? items.map(i => h('div', { class: 'logrow' }, h('small', { class: 'muted' }, new Date(i.ts).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })), h('div', {}, i.text))) : h('p', { class: 'muted' }, 'Nothing yet.'),
     h('div', { class: 'ovbtn' }, h('button', { class: 'btn pri', type: 'button', onclick: done }, 'Close'))));
   ov.addEventListener('keydown', e => { if (e.key === 'Escape') done(); });
@@ -1373,8 +1375,8 @@ function subscribe() {
       if (p.new && p.new.id) { S.channels.set(String(p.new.id), chanRow(p.new)); renderConvs(); renderProfile(); }
     })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'warnings' }, p => { if (p && p.new && String(p.new.target) === S.uid) showWarn(p.new); })
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reports' }, () => { if (isAdmin()) { S.logUnread = (S.logUnread || 0) + 1; sfx('in'); renderMe(); } })
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'events' }, () => { if (isAdmin()) { S.logUnread = (S.logUnread || 0) + 1; renderMe(); } })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reports' }, () => { if (isStaff()) { S.logUnread = (S.logUnread || 0) + 1; sfx('in'); renderMe(); } })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'events' }, () => { if (isStaff()) { S.logUnread = (S.logUnread || 0) + 1; renderMe(); } })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'board_members' }, () => { loadBms(); })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'pins' }, () => { loadPins(); })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, p => {
