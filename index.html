@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794083053">
+<meta name="build" content="1794083247">
 <link rel="icon" href="data:,">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -316,6 +316,10 @@ body.hand{--font:'Patrick Hand','Comic Neue',cursive;--fs:16px}
 .pvcovers{flex:none;display:flex;gap:8px;padding:6px 10px;overflow-x:auto;background:#ebe8e1;border-bottom:1px solid #1a1a1a}
 .pvthumb{flex:none;height:78px;width:auto;border:2px solid transparent;cursor:pointer;background:#fff}.pvthumb.on{border-color:#1a1a1a}
 .pvform{flex:none;display:flex;gap:8px;align-items:center;padding:6px 10px;background:#ebe8e1;border-bottom:1px solid #1a1a1a}
+.pvhead .cbtn.on{background:#1a1a1a;color:#f4f2ee}
+.pvtick{position:absolute;padding:0;margin:0;background:transparent;border:0;color:#1d2a5c;font-family:var(--hand);font-weight:700;line-height:1;cursor:pointer}
+.pvtick:hover{opacity:.5}
+.pvlayer.tk{cursor:crosshair}
 .pvform .cbtn{background:#1a1a1a;color:#f4f2ee;border:0;border-radius:2px}
 .pvbody{background:#f4f2ee;padding:8px;display:flex;justify-content:center;align-items:center;overflow:auto}
 .pvstage{position:relative;flex:none;background:#fff;box-shadow:0 2px 10px #0004}
@@ -2613,6 +2617,7 @@ async function pvRender() {
   sel.addEventListener('change', () => { const c = pv.notes._pages.find(x => x.id === sel.value); if (c) pvGoCustom(c); });
   const head = h('div', { class: 'calhead pvhead' }, pv.cdoc ? h('button', { class: 'cbtn', type: 'button', onclick: () => { pv.page = 1; pv.key = '1'; pv.covers = true; pv.form = false; pv.del = false; pvRender(); } }, 'Cover') : null, h('button', { class: 'cbtn', type: 'button', onclick: () => pvGo(3) }, 'Index'), h('button', { class: 'cbtn', type: 'button', onclick: () => pvGo(4) }, 'This week'), sel,
     h('button', { class: 'cbtn', type: 'button', onclick: () => { pv.form = !pv.form; pvRender(); } }, '+ New page'),
+    h('button', { class: 'cbtn' + (pv.tick ? ' on' : ''), type: 'button', 'aria-pressed': String(!!pv.tick), title: 'Tap to turn on, then tap a box to tick it', onclick: () => { pv.tick = !pv.tick; pvRender(); } }, '\u2713 Tick'),
     h('b', { class: 'caltitle' }, custom ? custom.label : 'Page ' + pv.page + ' of ' + pv.doc.numPages),
     custom ? h('button', { class: 'cbtn', type: 'button', onclick: () => { if (!pv.del) { pv.del = true; pvRender(); return; } pv.notes._pages = pv.notes._pages.filter(x => x !== custom); delete pv.notes[pv.key]; pvSave(); pvGo(4); } }, pv.del ? 'Really delete?' : 'Delete page') : null,
     h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Previous page', onclick: () => pvGo(pv.page - 1) }, '‹'), h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Next page', onclick: () => pvGo(pv.page + 1) }, '›'), h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Close planner', onclick: closePv }, '×'));
@@ -2621,7 +2626,7 @@ async function pvRender() {
     const sn = sunOf(new Date()), tp = h('select', { 'aria-label': 'Page type' }, PV_TPL.map(([n, t]) => h('option', { value: String(n) }, t))), lb = h('input', { type: 'text', maxlength: '24', value: 'Week of ' + MON[sn.getMonth()].slice(0, 3) + ' ' + sn.getDate(), 'aria-label': 'Page name' });
     const go = () => { const t = lb.value.trim(); if (!t || pv.notes._pages.length >= 30) return; const c = { id: Date.now().toString(36), tpl: +tp.value, label: clamp(t, 24) }; pv.notes._pages.push(c); pvSave(); pvGoCustom(c); };
     lb.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); go(); } });
-    form = h('div', { class: 'pvform' }, tp, lb, h('button', { class: 'cbtn', type: 'button', onclick: go }, 'Add'));
+    form = h('div', { class: 'pvform' }, h('small', {}, '1. Pick a layout'), tp, h('small', {}, '2. Name it'), lb, h('button', { class: 'cbtn', type: 'button', onclick: go }, '3. Add'), h('small', {}, 'It shows up in My pages.'));
   }
   let cstrip = null;
   if (pv.covers && pv.cdoc) {
@@ -2637,7 +2642,7 @@ async function pvRender() {
   const base = pg.getViewport({ scale: 1 }), availW = Math.max(320, box.clientWidth - 16), availH = Math.max(240, body.clientHeight - 16), sc = Math.min(availW / base.width, availH / base.height), dpr = Math.min(window.devicePixelRatio || 1, 2);
   const css = pg.getViewport({ scale: sc }), cv = pg.getViewport({ scale: sc * dpr });
   const canvas = h('canvas', { class: 'pvcv' }); canvas.width = Math.floor(cv.width); canvas.height = Math.floor(cv.height); canvas.style.width = css.width + 'px'; canvas.style.height = css.height + 'px';
-  const layer = h('div', { class: 'pvlayer' }), stage = h('div', { class: 'pvstage', style: 'width:' + css.width + 'px;height:' + css.height + 'px' }, canvas, layer);
+  const layer = h('div', { class: 'pvlayer' + (pv.tick ? ' tk' : '') }), stage = h('div', { class: 'pvstage', style: 'width:' + css.width + 'px;height:' + css.height + 'px' }, canvas, layer);
   body.append(stage);
   const fs = Math.max(11, 17 * sc);
   const addNote = n => {
@@ -2654,11 +2659,16 @@ async function pvRender() {
     grip.addEventListener('pointerup', end); grip.addEventListener('pointercancel', end);
     layer.append(wrap); fit(); return ta;
   };
-  for (const n of pv.notes[pv.key] || []) addNote(n);
+  const addTick = n => {
+    const t = h('button', { class: 'pvtick', type: 'button', 'aria-label': 'Check mark, tap to remove', title: 'Tap to remove', style: 'left:' + n.x * 100 + '%;top:' + n.y * 100 + '%;font-size:' + (fs * 1.5) + 'px', onclick: e => { e.stopPropagation(); const l = pv.notes[pv.key]; if (l) pv.notes[pv.key] = l.filter(x => x !== n); pvSave(); t.remove(); } }, '\u2713');
+    layer.append(t);
+  };
+  for (const n of pv.notes[pv.key] || []) (n.k ? addTick : addNote)(n);
   layer.addEventListener('click', e => {
     if (e.target !== layer) return;
     const list = pv.notes[pv.key] || (pv.notes[pv.key] = []); if (list.length >= 40) return;
     const r = layer.getBoundingClientRect(), n = { x: Math.round((e.clientX - r.left) / r.width * 1000) / 1000, y: Math.round((e.clientY - r.top) / r.height * 1000) / 1000, t: '' };
+    if (pv.tick) { n.k = 1; n.t = '\u2713'; n.x = Math.max(0, n.x - 0.008); n.y = Math.max(0, n.y - 0.018); list.push(n); pvSave(); addTick(n); return; }
     list.push(n); addNote(n).focus();
   });
   pg.render({ canvasContext: canvas.getContext('2d'), viewport: cv }).promise.catch(() => {});
@@ -2770,12 +2780,12 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && S.
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '1794083053' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '1794083247' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '1794083053') { newBuild = m[1]; $('updBar').hidden = false; }
+    if (m && m[1] !== BUILD && m[1] !== '1794083247') { newBuild = m[1]; $('updBar').hidden = false; }
   } catch {}
 }
 $('updBtn').addEventListener('click', () => { location.replace(location.pathname + '?v=' + encodeURIComponent(newBuild || Date.now())); });
