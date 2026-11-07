@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794065643">
+<meta name="build" content="1794065932">
 <link rel="icon" href="data:,">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -96,6 +96,21 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .dot.tip{cursor:pointer}
 .psn .dot{display:inline-block;vertical-align:middle;margin-right:6px}
 .psn .dot.away{width:20px;height:20px;margin-left:-2px}
+#profWin{position:relative}
+.start{flex:none!important;font-weight:800;color:var(--ac);padding:3px 9px!important}
+.start.off{opacity:.8}
+.pops{position:absolute;inset:0 0 auto 0;z-index:5;pointer-events:none}
+.pop{position:absolute;width:min(86%,330px);max-height:min(60vh,420px);display:flex;flex-direction:column;pointer-events:auto;background:var(--panel);color:var(--fg);border:2px solid var(--ac);box-shadow:3px 3px 0 #0006}
+.poptb{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:3px 4px 3px 9px;background:var(--ac);color:var(--oc,#fff);font-weight:800}
+.poptb button{padding:0 7px;line-height:1.2;font-size:16px;font-weight:800;cursor:pointer}
+.popmenu{display:flex;gap:2px;padding:3px 6px;background:var(--panel2);border-bottom:1px solid var(--line)}
+.popmenu button{border:0;background:none;padding:2px 8px;text-decoration:underline;cursor:pointer}
+.popbody{overflow:auto;padding:10px 12px;font-size:14px}
+.pophead{display:flex;gap:12px;align-items:flex-start}
+.popinfo{display:flex;flex-direction:column;gap:3px;min-width:0;overflow-wrap:anywhere}
+.popbody hr{border:0;border-top:1px dashed var(--line);margin:10px 0}
+.popbio{margin:0;overflow-wrap:anywhere}
+.popbody textarea{width:100%;margin-top:4px;font-size:14px}
 .taskbar{display:flex;gap:4px;padding:5px;overflow-x:auto;background:var(--panel2);border-top:2px solid var(--line)}
 .taskbar button{display:flex;gap:6px;align-items:center;flex:0 1 auto;min-width:0;max-width:34%;padding:3px 8px 3px 4px;font-size:13px;font-weight:700;border:1px solid var(--line);background:var(--panel);cursor:pointer}
 .taskbar button.cur{background:var(--bg);border-style:inset}
@@ -478,6 +493,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
     <section id="profWin" class="win theme" aria-label="Profile">
       <div class="tb"><span id="profTitle">profile</span><button id="profBack" class="tbx" type="button" hidden></button><button id="profX" class="tbx" type="button" aria-label="Close profile">&times;</button></div>
       <div id="profBody" class="pbody"></div>
+      <div id="profPops" class="pops"></div>
       <div id="profBar" class="taskbar" hidden></div>
     </section>
   </div>
@@ -1228,7 +1244,7 @@ function thought(el, msg) {
 }
 document.addEventListener('pointerdown', e => { if (thoughtEl && !e.target.closest('.dot.tip')) closeThought(); });
 function renderProfile() {
-  const body = $('profBody'), win = $('profWin'); $('profBack').hidden = true; $('profBar').hidden = true;
+  const body = $('profBody'), win = $('profWin'); $('profBack').hidden = true; $('profBar').hidden = true; if (!$('profPops').contains(document.activeElement)) $('profPops').replaceChildren();
   if (!S.editing && S.showInfo && isRoom(S.conv)) return renderInfo();
   const p = S.editing ? S.draft : profileOf(S.selected);
   body.replaceChildren();
@@ -1265,11 +1281,46 @@ function renderProfile() {
   if (!S.editing && id && id !== S.uid) body.append(noteBox(id));
   renderBar(p, id);
 }
+S.pops = []; try { S.barOpen = LS.get('am.bar') !== '0'; } catch { S.barOpen = true; }
+function popKey(k) { const a = S.pops, i = a.indexOf(k); if (i >= 0) a.splice(i, 1); else { a.push(k); if (a.length > 3) a.shift(); } renderProfile(); }
 function renderBar(p, id) {
-  const bar = $('profBar'); bar.replaceChildren();
-  const top = S.editing ? [] : (p.top || []).map(x => [x, profileOf(x)]).filter(x => x[1]);
-  bar.hidden = !top.length; if (!top.length) return;
-  bar.append(...top.map(([fid, fp]) => h('button', { type: 'button', class: fid === id ? 'cur' : '', onclick: () => selectProfile(fid) }, avatar(fp, 20), h('span', { class: 'nm' }, fp.sn))));
+  const bar = $('profBar'), pops = $('profPops'), keep = pops.contains(document.activeElement); if (!keep) pops.replaceChildren();
+  const fr = S.editing ? [] : (p.top || []).filter(x => profileOf(x));
+  const boards = S.editing ? [] : [...S.channels.values()].filter(c => c.by === id && !c.private).slice(0, 3);
+  bar.replaceChildren();
+  if (!fr.length && !boards.length) { bar.hidden = true; return; }
+  bar.hidden = false;
+  bar.append(h('button', { type: 'button', class: 'start' + (S.barOpen ? '' : ' off'), 'aria-pressed': String(S.barOpen), title: S.barOpen ? 'Hide friends' : 'Show friends', onclick: () => { S.barOpen = !S.barOpen; LS.set('am.bar', S.barOpen ? '1' : '0'); renderProfile(); } }, '♥', S.barOpen ? null : h('span', {}, ' friends')));
+  if (S.barOpen) {
+    bar.append(...fr.map(fid => { const fp = profileOf(fid), k = 'u:' + fid; return h('button', { type: 'button', class: S.pops.includes(k) ? 'cur' : '', onclick: () => popKey(k) }, avatar(fp, 20), h('span', { class: 'nm' }, fp.sn)); }));
+    bar.append(...boards.map(c => { const k = 'c:' + c.id; return h('button', { type: 'button', class: S.pops.includes(k) ? 'cur' : '', onclick: () => popKey(k) }, h('span', { 'aria-hidden': 'true' }, '#'), h('span', { class: 'nm' }, c.name)); }));
+  }
+  if (!S.barOpen || keep) return;
+  const live = S.pops.filter(k => (k[0] === 'u' ? profileOf(k.slice(2)) : S.channels.get(k.slice(2))));
+  live.forEach((k, n) => {
+    const kid = k.slice(2); let box;
+    if (k[0] === 'u') {
+      const fp = profileOf(kid), st = statusOf(kid, fp);
+      const doing = fp.awayOn ? (fp.away || 'Away') : (fp.mood || (fp.song && fp.song.title ? '♪ ' + fp.song.title : ''));
+      box = h('div', { class: 'popbody' },
+        h('div', { class: 'pophead' }, avatar(fp, 64), h('div', { class: 'popinfo' },
+          h('div', {}, '« Name: ', h('b', {}, fp.sn)),
+          h('div', {}, '« Status: ', h('span', { class: 'dot ' + st.cls }), ' ', fp.awayOn ? 'Away' : (st.text && st.cls ? st.text : (S.presLive ? (S.online.has(kid) ? 'Online' : 'Offline') : ''))),
+          doing ? h('div', {}, '« Now: ', doing) : null,
+          !S.online.has(kid) && fp.lastSeen ? h('div', {}, '« Last seen ', ago(fp.lastSeen)) : null)),
+        h('hr', {}), fp.bio ? h('p', { class: 'popbio' }, fp.bio) : h('p', { class: 'muted' }, 'No about me yet.'),
+        kid !== S.uid ? [h('hr', {}), h('div', { class: 'muted' }, 'Your note'), noteBox(kid)] : null);
+      var menu = [['Message', () => { popKey(k); openConv(kid); }], ['Page', () => { popKey(k); selectProfile(kid); }]];
+      var title = fp.sn;
+    } else {
+      const c = S.channels.get(kid);
+      box = h('div', { class: 'popbody' }, h('div', { class: 'pophead' }, h('div', { class: 'popinfo' }, h('div', {}, '« Board: ', h('b', {}, '#' + c.name)), h('div', {}, '« Made by: ', (profileOf(c.by) || { sn: 'someone' }).sn))), h('hr', {}), c.topic ? h('p', { class: 'popbio' }, c.topic) : h('p', { class: 'muted' }, 'No about yet.'));
+      menu = [['Open', () => { popKey(k); openConv('c:' + kid); if (isPhone()) setTab('chat'); }]]; title = '#' + c.name;
+    }
+    pops.append(h('div', { class: 'pop', style: 'left:' + (14 + n * 14) + 'px;top:' + (14 + n * 22) + 'px' },
+      h('div', { class: 'poptb' }, h('span', {}, title), h('button', { type: 'button', 'aria-label': 'Close', onclick: () => popKey(k) }, '×')),
+      h('div', { class: 'popmenu' }, menu.map(([l, f]) => h('button', { type: 'button', onclick: f }, l))), box));
+  });
 }
 
 function songBox(song, href) {
@@ -2054,12 +2105,12 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && S.
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '1794065643' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '1794065932' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '1794065643') { newBuild = m[1]; $('updBar').hidden = false; }
+    if (m && m[1] !== BUILD && m[1] !== '1794065932') { newBuild = m[1]; $('updBar').hidden = false; }
   } catch {}
 }
 $('updBtn').addEventListener('click', () => { location.replace(location.pathname + '?v=' + encodeURIComponent(newBuild || Date.now())); });
