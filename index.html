@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="20261107151556">
+<meta name="build" content="20261107152241">
 <link rel="icon" href="data:,">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -194,7 +194,7 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .auto{margin:3px 0 0 42px;font-size:12px;color:var(--muted);border-left:3px solid var(--c);padding-left:8px}
 .card{display:flex;align-items:center;gap:10px;margin-top:5px;padding:7px 10px;border:1px solid var(--line);background:var(--panel2);color:var(--fg)!important;text-decoration:none;max-width:min(100%,380px);border-radius:var(--rs)}
 .card:hover{border-color:var(--ac)}
-@media(max-width:900px){#calBtn,#plBtn{display:none}}
+@media(max-width:900px){#calBtn,#plBtn,#ntBtn{display:none}}
 body{--hand:'Hand','Comic Neue',var(--font)}
 .calov{z-index:60;padding:8px}
 .calbox{position:relative;width:min(98vw,720px);height:min(97vh,1000px);display:flex;flex-direction:column;overflow:hidden;background:#fff;color:#2a2f45;border:1.5px solid #3a54a8;border-radius:6px;box-shadow:4px 4px 0 #0007;font-family:var(--font);font-size:14px}
@@ -648,7 +648,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
         <button id="editBtn" class="btn" type="button">Edit my profile</button>
       </div>
       <div id="buddies" class="scroll"></div>
-      <div class="foot"><button id="sndBtn" class="btn sm" type="button">Sound on</button><label class="sr" for="toneSel">Message sound</label><select id="toneSel" class="sm"></select><label class="sr" for="autoSel">Auto sign-off</label><select id="autoSel" class="sm" title="Sign off automatically after being away"><option value="0">Stay signed in</option><option value="10">Sign off after 10 min</option><option value="30">Sign off after 30 min</option><option value="60">Sign off after 1 hour</option></select><button id="plBtn" class="btn sm" type="button">Planner</button><button id="npBtn" class="btn sm" type="button">Notepad</button><button id="logBtn" class="btn sm" type="button" hidden>Log</button><button id="offBtn" class="btn sm" type="button">Sign off</button></div>
+      <div class="foot"><button id="sndBtn" class="btn sm" type="button">Sound on</button><label class="sr" for="toneSel">Message sound</label><select id="toneSel" class="sm"></select><label class="sr" for="autoSel">Auto sign-off</label><select id="autoSel" class="sm" title="Sign off automatically after being away"><option value="0">Stay signed in</option><option value="10">Sign off after 10 min</option><option value="30">Sign off after 30 min</option><option value="60">Sign off after 1 hour</option></select><button id="plBtn" class="btn sm" type="button">Planner</button><button id="ntBtn" class="btn sm" type="button" title="Show a desktop notification when someone DMs or @mentions you and this tab is in the background">Alerts off</button><button id="npBtn" class="btn sm" type="button">Notepad</button><button id="logBtn" class="btn sm" type="button" hidden>Log</button><button id="offBtn" class="btn sm" type="button">Sign off</button></div>
     </section>
 
     <section id="chatWin" class="win" aria-label="Chat">
@@ -745,7 +745,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=20261107151556"></script>
+<script src="config.js?v=20261107152241"></script>
 <script>
 (() => {
 'use strict';
@@ -1718,6 +1718,20 @@ function openConv(key) {
 
 /* ---------- messages ---------- */
 const normMsg = r => ({ id: String(r.id), uid: String(r.sender || ''), to: r.recipient ? String(r.recipient) : null, text: clamp(r.body, 300), kind: r.kind === 'me' ? 'me' : 'msg', ch: r.channel ? String(r.channel) : null, image: r.image ? String(r.image) : '', fname: r.file_name ? String(r.file_name) : '', once: !!r.once, ts: Date.parse(r.created_at) || Date.now() });
+function pingTab(m, c) {
+  S.pings = (S.pings || 0) + 1; setBadge();
+  try {
+    if (!isPhone() && LS.get('am.notif') === '1' && window.Notification && Notification.permission === 'granted' && document.hidden) {
+      const p = profileOf(m.uid), n = new Notification((p ? p.sn : 'Someone') + (isRoom(c) ? ' mentioned you' : ''), { body: clamp(m.text || 'sent a picture', 100), tag: 'am-' + c });
+      n.onclick = () => { window.focus(); try { openConv(c); } catch { /* ok */ } n.close(); };
+    }
+  } catch { /* alerts are optional */ }
+}
+function setBadge() {
+  const n = S.pings || 0; document.title = (n ? '(' + n + ') ' : '') + BASE_TITLE;
+  const ic = document.querySelector('link[rel="icon"]'); if (ic) ic.href = n ? 'data:image/svg+xml,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><circle cx="16" cy="16" r="11" fill="#e0405a"/></svg>') : 'data:,';
+}
+const BASE_TITLE = document.title;
 function addMsg(r, live) {
   const m = normMsg(r);
   if ((!m.text && !m.image) || S.msgIds.has(m.id)) return false;
@@ -1727,9 +1741,11 @@ function addMsg(r, live) {
   if (live) {
     const c = convOf(m);
     if (m.uid !== S.uid) {
-      if (!tabMuted(c)) sfx('in');
+      const me = mine(), ping = !isRoom(c) || (!!me && !!m.text && new RegExp('(^|\\W)@' + me.sn.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?!\\w)', 'i').test(m.text));
+      if (ping && !tabMuted(c)) sfx('in');
       const viewing = c === S.conv && (S.tab === 'chat' || !isPhone()) && !document.hidden;
       if (!viewing) S.unread[c] = (S.unread[c] || 0) + 1;
+      if (ping && (document.hidden || !viewing) && !tabMuted(c)) pingTab(m, c);
       else if (c === S.conv && !nearBottom()) S.newBelow = true;
       if (!isRoom(c)) { S.opened.add(c); if (S.closedDms.delete(c)) LS.set('am.closed', JSON.stringify([...S.closedDms])); }
     }
@@ -2977,6 +2993,9 @@ $('eHandFont').addEventListener('change', async e => {
 try { if (LS.get('am.hand') === '1') document.body.classList.add('hand'); $('eHand').checked = LS.get('am.hand') === '1'; } catch {}
 $('eHand').addEventListener('change', () => { LS.set('am.hand', $('eHand').checked ? '1' : '0'); document.body.classList.toggle('hand', $('eHand').checked); });
 $('plBtn').addEventListener('click', openPlanner);
+function renderNt() { const b = $('ntBtn'); if (!b) return; const ok = window.Notification && Notification.permission === 'granted' && LS.get('am.notif') === '1'; b.textContent = ok ? 'Alerts on' : 'Alerts off'; b.hidden = !window.Notification; }
+$('ntBtn').addEventListener('click', async () => { if (!window.Notification) return; if (LS.get('am.notif') === '1') { LS.set('am.notif', '0'); renderNt(); return; } let perm = Notification.permission; if (perm === 'default') { try { perm = await Notification.requestPermission(); } catch { perm = 'denied'; } } if (perm === 'granted') { LS.set('am.notif', '1'); try { new Notification('Alerts are on', { body: 'You will see DMs and @mentions here when this tab is in the background.' }); } catch { /* ok */ } } else { S.extra = 'Your browser blocked alerts. Allow notifications for this site in its settings.'; renderNote(); clearExtraSoon(); } renderNt(); });
+renderNt();
 $('sndBtn').addEventListener('click', () => { S.sound = !S.sound; LS.set('am.sound', S.sound ? 'on' : 'off'); renderMe(); if (S.sound) sfx('in'); });
 $('eClose').addEventListener('click', closeEditor);
 $('eCancel').addEventListener('click', closeEditor);
@@ -2999,7 +3018,8 @@ $('eTop').addEventListener('change', e => {
   fillTop(); renderProfile();
 });
 document.querySelectorAll('#tabs [data-go]').forEach(b => b.addEventListener('click', () => { if (b.dataset.go === 'profile' && !S.editing && S.signedOn) { S.selected = S.uid; S.showInfo = false; renderProfile(); renderBuddies(); } setTab(b.dataset.go); }));
-document.addEventListener('visibilitychange', () => { if (!document.hidden && S.signedOn && S.tab === 'chat') { S.unread[S.conv] = 0; renderTabs(); renderConvs(); } });
+document.addEventListener('visibilitychange', () => { if (!document.hidden) { S.pings = 0; setBadge(); } if (!document.hidden && S.signedOn && S.tab === 'chat') { S.unread[S.conv] = 0; renderTabs(); renderConvs(); } });
+window.addEventListener('focus', () => { if (S.pings) { S.pings = 0; setBadge(); } });
 
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
