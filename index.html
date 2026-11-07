@@ -28,7 +28,8 @@
   --wall:color-mix(in srgb,var(--ac) 9%,var(--bg));
 }
 *{box-sizing:border-box}
-html,body{height:100%}
+html,body{height:100%;overscroll-behavior:none}
+@supports (height:100dvh){html,body{height:100dvh}}
 #bootMsg{display:flex;align-items:center;justify-content:center;height:60vh;color:var(--muted)}
 #bootMsg[hidden]{display:none}
 body{margin:0;background-color:var(--wall);color:var(--fg);font:var(--fs)/1.45 var(--font);
@@ -760,7 +761,7 @@ const ago = ts => {
   const hr = Math.round(m / 60); if (hr < 24) return hr + ' hr ago';
   const d = Math.round(hr / 24); return d + (d === 1 ? ' day ago' : ' days ago');
 };
-const LOUNGE_ABOUT = 'The lounge is for everyone. Be kind and no spamming.';
+const LOUNGE_ABOUT = 'Basic rules for everywhere on this site: be kind, no spamming, and no sharing other people\u2019s stuff without asking. These apply in every room too.';
 function renderInfo() {
   const body = $('profBody'), win = $('profWin');
   body.replaceChildren(); applyTheme(win, S.theme); body.dataset.pat = S.theme.pat;
