@@ -168,6 +168,17 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .itabs [aria-selected=true]{background:var(--ac);color:var(--on-ac);border-color:var(--ac)}
 .lrow2{display:flex;gap:8px;align-items:baseline;margin:4px 0;min-width:0}
 .lrow2 a{color:var(--ac);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.fgrid2{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px}
+.fcard{border:1px solid var(--line);background:var(--panel);border-radius:var(--rs);overflow:hidden;min-width:0}
+.fprev{background:var(--panel2);display:flex;align-items:center;justify-content:center;min-height:90px;max-height:140px;overflow:hidden}
+.fprev .pic{margin:0;border:0;border-radius:0;max-height:140px;width:100%;object-fit:cover}
+.fmeta{padding:7px 9px;min-width:0}
+.fmeta b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fmeta small{color:var(--muted)}
+.fwho{display:flex;gap:6px;align-items:center;margin-top:5px;font-size:11px;color:var(--muted);min-width:0}
+.fwho span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pinrow{display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-bottom:1px solid var(--line)}
+.pinrow .tx{margin-top:2px}
 .fgrid{display:flex;flex-wrap:wrap;gap:8px}
 .fgrid .pic{max-height:90px}
 .sohelp{margin:8px 0;padding:8px 10px;border:1px solid var(--line);background:var(--panel);font-size:13px}
@@ -293,7 +304,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
         <button id="editBtn" class="btn" type="button">Edit my profile</button>
       </div>
       <div id="buddies" class="scroll"></div>
-      <div class="foot"><button id="sndBtn" class="btn sm" type="button">Sound on</button><button id="offBtn" class="btn sm" type="button">Sign off</button></div>
+      <div class="foot"><button id="sndBtn" class="btn sm" type="button">Sound on</button><label class="sr" for="toneSel">Message sound</label><select id="toneSel" class="sm"></select><button id="offBtn" class="btn sm" type="button">Sign off</button></div>
     </section>
 
     <section id="chatWin" class="win" aria-label="Chat">
@@ -489,18 +500,28 @@ function avatar(p, size) {
 
 /* ---------- sound ---------- */
 let actx = null;
-function sfx(n) {
-  if (!S.sound || S.dnd) return;
+const TONES = {
+  classic: { name: 'Classic', seq: [[880, 0], [660, .14]], type: 'triangle', g: .07, len: .16 },
+  raindrop: { name: 'Raindrop', seq: [[1568, 0], [1175, .09]], type: 'sine', g: .09, len: .22 },
+  bubble: { name: 'Bubble', seq: [[420, 0], [640, .06], [900, .12]], type: 'sine', g: .09, len: .12 },
+  chime: { name: 'Chime', seq: [[1319, 0], [1047, .12], [1568, .24]], type: 'sine', g: .07, len: .4 },
+  ding: { name: 'Ding', seq: [[1760, 0]], type: 'sine', g: .08, len: .5 },
+  pop: { name: 'Pop', seq: [[330, 0], [220, .04]], type: 'square', g: .03, len: .08 }
+};
+const toneKey = () => TONES[S.tone] ? S.tone : 'classic';
+function sfx(n, force) {
+  if ((!S.sound || S.dnd) && !force) return;
   try {
     actx = actx || new (window.AudioContext || window.webkitAudioContext)();
     if (actx.state === 'suspended') actx.resume();
-    const seq = { open: [[523, 0], [659, .09], [784, .18]], close: [[784, 0], [659, .09], [523, .18]], 'in': [[880, 0], [660, .14]], out: [[740, 0]] }[n];
-    const g = n === 'out' ? .025 : .07;
+    const T = TONES[toneKey()];
+    const seq = n === 'in' ? T.seq : { open: [[523, 0], [659, .09], [784, .18]], close: [[784, 0], [659, .09], [523, .18]], out: [[740, 0]] }[n];
+    const g = n === 'out' ? .025 : n === 'in' ? T.g : .07, type = n === 'out' ? 'square' : n === 'in' ? T.type : 'triangle', len = n === 'in' ? T.len : .16;
     for (const [f, t] of seq) {
       const o = actx.createOscillator(), v = actx.createGain(), t0 = actx.currentTime + t;
-      o.type = n === 'out' ? 'square' : 'triangle'; o.frequency.value = f;
-      v.gain.setValueAtTime(0, t0); v.gain.linearRampToValueAtTime(g, t0 + .01); v.gain.exponentialRampToValueAtTime(.0001, t0 + .16);
-      o.connect(v); v.connect(actx.destination); o.start(t0); o.stop(t0 + .18);
+      o.type = type; o.frequency.value = f;
+      v.gain.setValueAtTime(0, t0); v.gain.linearRampToValueAtTime(g, t0 + .01); v.gain.exponentialRampToValueAtTime(.0001, t0 + len);
+      o.connect(v); v.connect(actx.destination); o.start(t0); o.stop(t0 + len + .02);
     }
   } catch {}
 }
@@ -604,6 +625,7 @@ function renderMe() {
   const mo = $('moodIn'); if (document.activeElement !== mo) mo.value = p.mood;
   const n = $('npIn'); if (document.activeElement !== n) n.value = p.song.title;
   $('sndBtn').textContent = S.sound ? 'Sound on' : 'Sound off';
+  $('toneSel').value = toneKey();
 }
 
 const myState = () => S.dnd ? 'dnd' : (Date.now() - S.lastAct > 120000 ? 'idle' : 'on');
@@ -832,7 +854,7 @@ function renderInfo() {
     if (pend.length) body.append(h('div', { class: 'sec' }, h('h3', {}, 'Wants to join'), pend.map(b => { const p = profileOf(b.member); return h('div', { class: 'lrow2' }, h('b', {}, p ? p.sn : 'someone'), h('span', { class: 'grow' }),
       h('button', { class: 'btn sm pri', type: 'button', onclick: () => answerJoin(id, b.member, true) }, 'Yes'), h('button', { class: 'btn sm', type: 'button', onclick: () => answerJoin(id, b.member, false) }, 'No')); })));
   }
-  body.append(h('div', { class: 'itabs', role: 'tablist' }, ['members', 'links', 'files'].map(t => h('button', { type: 'button', class: 'btn sm', role: 'tab', 'aria-selected': String(S.infoTab === t), onclick: () => { S.infoTab = t; renderProfile(); } }, t[0].toUpperCase() + t.slice(1)))));
+  body.append(h('div', { class: 'itabs', role: 'tablist' }, ['members', 'media', 'pins', 'links', 'files'].map(t => h('button', { type: 'button', class: 'btn sm', role: 'tab', 'aria-selected': String(S.infoTab === t), onclick: () => { S.infoTab = t; renderProfile(); } }, t[0].toUpperCase() + t.slice(1)))));
   const roomMsgs = S.msgs.filter(m => convOf(m) === S.conv).slice().reverse();
   const when = m => profileOf(m.uid) ? profileOf(m.uid).sn + ' \u00b7 ' + fmtTime(m.ts) : fmtTime(m.ts);
   if (S.infoTab === 'links') {
@@ -841,9 +863,24 @@ function renderInfo() {
     body.append(h('div', { class: 'sec' }, links.length ? links.slice(0, 40).map(x => h('div', { class: 'lrow2' }, h('a', { href: x.u, target: '_blank', rel: 'noopener noreferrer' }, x.u.replace(/^https?:\/\/(www\.)?/, '')), h('small', { class: 'muted' }, when(x.m)))) : h('p', { class: 'muted' }, 'No links in here right now.')));
     return;
   }
+  const card = (m, inner, name, size) => { const p = profileOf(m.uid); return h('div', { class: 'fcard' }, h('div', { class: 'fprev' }, inner),
+    h('div', { class: 'fmeta' }, h('b', {}, name), size ? h('small', {}, size) : null, h('div', { class: 'fwho' }, avatar(p || { sn: '?', theme: { ac: '#888888' } }, 18), h('span', {}, (p ? p.sn : 'someone') + ' \u00b7 ' + fmtTime(m.ts))))); };
+  if (S.infoTab === 'media') {
+    const ms = roomMsgs.filter(m => m.image && !isFile(m));
+    body.append(h('div', { class: 'sec' }, ms.length ? h('div', { class: 'fgrid2' }, ms.slice(0, 30).map(m => card(m, picEl(m.image), /\.gif$/.test(m.image) ? 'GIF' : 'Photo', ''))) : h('p', { class: 'muted' }, 'No photos in here right now.')));
+    return;
+  }
   if (S.infoTab === 'files') {
-    const fs = roomMsgs.filter(m => m.image);
-    body.append(h('div', { class: 'sec' }, fs.length ? h('div', { class: 'fgrid' }, fs.slice(0, 30).map(m => isFile(m) ? fileEl(m) : picEl(m.image))) : h('p', { class: 'muted' }, 'No photos or files in here right now.')));
+    const fs = roomMsgs.filter(isFile);
+    body.append(h('div', { class: 'sec' }, fs.length ? h('div', { class: 'fgrid2' }, fs.slice(0, 30).map(m => card(m, h('div', { class: 'bigdoc' }, fileEl(m)), m.fname || 'file.pdf', m.once ? 'view once' : ''))) : h('p', { class: 'muted' }, 'No files in here right now.')));
+    return;
+  }
+  if (S.infoTab === 'pins') {
+    const list = S.pins.get(pinKey(S.conv)) || [];
+    body.append(h('div', { class: 'sec' }, list.length ? list.map(p => { const a = profileOf(p.author); return h('div', { class: 'pinrow' },
+      avatar(a || { sn: '?', theme: { ac: '#888888' } }, 28),
+      h('div', { class: 'grow' }, h('div', {}, h('b', {}, a ? a.sn : 'someone'), ' ', h('small', { class: 'muted' }, ago(p.ts))), p.text ? h('div', { class: 'tx' }, p.text) : null, p.image ? picEl(p.image) : null),
+      h('button', { class: 'x', type: 'button', 'aria-label': 'Unpin', onclick: () => unpin(p.id) }, '\u00d7')); }) : h('p', { class: 'muted' }, 'Nothing pinned yet. Hover a message and tap pin.')));
     return;
   }
   let all = [...S.profiles].sort(bySn);
@@ -950,7 +987,12 @@ function addMsg(r, live) {
   return true;
 }
 const chanRow = c => ({ id: String(c.id), name: clamp(c.name, 20), keep: !!c.keep, private: !!c.private, expires: c.expires_at ? (Date.parse(c.expires_at) || 0) : 0, topic: clamp(c.topic || '', 300), by: String(c.created_by || '') });
-const pinRow = p => ({ id: String(p.id), ch: p.channel ? String(p.channel) : null, text: clamp(p.body, 300), image: p.image ? String(p.image) : '', author: p.author ? String(p.author) : '', by: p.pinned_by ? String(p.pinned_by) : '' });
+const pinRow = p => ({ id: String(p.id), ch: p.channel ? String(p.channel) : null, text: clamp(p.body, 300), image: p.image ? String(p.image) : '', ts: Date.parse(p.created_at) || 0, author: p.author ? String(p.author) : '', by: p.pinned_by ? String(p.pinned_by) : '' });
+function groupPins(rows) {
+  const m = new Map();
+  for (const r of (rows || []).map(pinRow).sort((a, b) => b.ts - a.ts)) { const k = r.ch || 'lounge'; if (!m.has(k)) m.set(k, []); m.get(k).push(r); }
+  return m;
+}
 const MSG_COLS = 'id,sender,recipient,channel,kind,body,image,file_name,once,created_at';
 async function sync(live) {
   const [pr, ms, chs, pns, bms] = await Promise.all([
@@ -962,7 +1004,7 @@ async function sync(live) {
   ]);
   if (!bms.error) S.bms = (bms.data || []).map(bmRow);
   if (!chs.error) S.channels = new Map((chs.data || []).map(c => [String(c.id), chanRow(c)]));
-  if (!pns.error) S.pins = new Map((pns.data || []).map(p => [p.channel ? String(p.channel) : 'lounge', pinRow(p)]));
+  if (!pns.error) S.pins = groupPins(pns.data);
   if (pr.error) throw pr.error;
   if (ms.error) throw ms.error;
   const map = new Map(); (pr.data || []).forEach(r => map.set(String(r.id), fromRow(r)));
@@ -1009,13 +1051,13 @@ function dropChannel(id) {
   refreshUi();
 }
 function renderPin() {
-  const b = $('pinBar'), p = isRoom(S.conv) ? S.pins.get(pinKey(S.conv)) : null;
+  const b = $('pinBar'), list = isRoom(S.conv) ? (S.pins.get(pinKey(S.conv)) || []) : [], p = list[0];
   b.hidden = !p; b.replaceChildren(); if (!p) return;
   const a = profileOf(p.author);
   b.append(h('span', { 'aria-hidden': 'true' }, '\u{1F4CC}'),
-    h('button', { class: 'pt', type: 'button', 'aria-expanded': String(b.classList.contains('open')), onclick: () => { b.classList.toggle('open'); renderPin(); } }, (a ? a.sn + ': ' : '') + (p.text || (p.image ? '(photo)' : ''))),
+    h('button', { class: 'pt', type: 'button', 'aria-expanded': String(b.classList.contains('open')), onclick: () => { b.classList.toggle('open'); renderPin(); } }, (a ? a.sn + ': ' : '') + (p.text || (p.image ? '(photo)' : '')) + (list.length > 1 ? '  (+' + (list.length - 1) + ' more in the panel)' : '')),
     p.image && b.classList.contains('open') ? h('div', { class: 'pinpic' }, picEl(p.image)) : null,
-    h('button', { class: 'x', type: 'button', 'aria-label': 'Unpin', onclick: unpin }, '\u00d7'));
+    h('button', { class: 'x', type: 'button', 'aria-label': 'Unpin', onclick: () => unpin(p.id) }, '\u00d7'));
 }
 async function delMsg(m) {
   if (!confirm('Delete this message for everyone?')) return;
@@ -1038,24 +1080,22 @@ async function pinMsg(m) {
     const c = await sb.storage.from('media').copy(m.image, copy);
     if (c.error) return fail();
   }
-  const old = S.pins.get(pinKey(S.conv));
-  const { error } = await sb.rpc('set_pin', { p_msg: Number(m.id), p_image: copy });
+  const { data, error } = await sb.rpc('set_pin', { p_msg: Number(m.id), p_image: copy });
   if (error) { if (copy) fire(sb.storage.from('media').remove([copy])); return fail(); }
-  if (old && old.image) fire(sb.storage.from('media').remove([old.image]));
+  if (Array.isArray(data) && data.length) fire(sb.storage.from('media').remove(data));
   await loadPins();
 }
-async function unpin() {
-  const k = pinKey(S.conv), old = S.pins.get(k);
-  const { error } = await sb.rpc('clear_pin', { p_channel: k === 'lounge' ? null : k });
+async function unpin(id) {
+  const { data, error } = await sb.rpc('unpin', { p_pin: id });
   if (error) return;
-  if (old && old.image) fire(sb.storage.from('media').remove([old.image]));
-  S.pins.delete(k); renderPin();
+  if (data) fire(sb.storage.from('media').remove([data]));
+  await loadPins();
 }
 async function loadPins() {
   const { data, error } = await sb.from('pins').select('*').limit(50);
   if (error) return;
-  S.pins = new Map((data || []).map(p => [p.channel ? String(p.channel) : 'lounge', pinRow(p)]));
-  renderPin();
+  S.pins = groupPins(data);
+  renderPin(); if (S.showInfo && S.infoTab === 'pins') renderProfile();
 }
 const target = () => isRoom(S.conv) ? (S.conv === 'lounge' ? {} : { channel: S.conv.slice(2) }) : { recipient: S.conv };
 async function send(text) {
@@ -1247,7 +1287,7 @@ async function afterAuth() {
   return true;
 }
 async function enterApp() {
-  S.pmeta = {}; S.lastAct = Date.now(); S.lastTracked = ''; S.dnd = LS.get('am.dnd') === '1';
+  S.tone = LS.get('am.tone') || 'classic'; S.pmeta = {}; S.lastAct = Date.now(); S.lastTracked = ''; S.dnd = LS.get('am.dnd') === '1';
   S.channels = new Map(); S.pins = new Map(); S.bms = []; S.infoTab = 'members'; S.msgs = []; S.msgIds = new Set(); S.sys = []; S.unread = {}; S.opened = new Set(); S.conv = 'lounge'; S.online = new Set(); S.presLive = false; S.presSettled = false;
   const hrs = await sb.rpc('message_ttl_hours');
   if (hrs && typeof hrs.data === 'number' && hrs.data > 0) S.ttlH = hrs.data;
@@ -1427,6 +1467,8 @@ $('npIn').addEventListener('change', setNow);
 $('moodIn').addEventListener('change', setMood);
 $('editBtn').addEventListener('click', openEditor);
 $('offBtn').addEventListener('click', signOff);
+(() => { const sel = $('toneSel'); for (const [k, t] of Object.entries(TONES)) sel.append(h('option', { value: k }, t.name)); sel.value = toneKey();
+  sel.addEventListener('change', () => { S.tone = sel.value; LS.set('am.tone', S.tone); sfx('in', true); }); })();
 $('sndBtn').addEventListener('click', () => { S.sound = !S.sound; LS.set('am.sound', S.sound ? 'on' : 'off'); renderMe(); if (S.sound) sfx('in'); });
 $('eClose').addEventListener('click', closeEditor);
 $('eCancel').addEventListener('click', closeEditor);
