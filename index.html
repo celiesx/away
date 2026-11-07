@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="20261107143546">
+<meta name="build" content="20261107144925">
 <link rel="icon" href="data:,">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -630,7 +630,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
       <div class="mebox">
         <div class="me-row"><span id="meAv"></span><div class="grow"><div id="meSn" class="sn"></div>
           <label class="sr" for="stSel">Status</label>
-          <select id="stSel"><option value="on">Available</option><option value="away">Away</option><option value="dnd">Do not disturb</option><option value="invis">Invisible</option></select></div></div>
+          <select id="stSel"><option value="on">Available</option><option value="away">Away</option><option value="dnd">Do not disturb</option><option value="invis">Appear offline</option></select></div></div>
         <label class="sr" for="awayIn">Away message</label>
         <input id="awayIn" maxlength="80" placeholder="Away message" hidden>
         <label class="sr" for="moodIn">Status</label>
@@ -675,7 +675,6 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
           <label for="eBio">About me</label><textarea id="eBio" rows="4" maxlength="400"></textarea>
         </details>
         <details class="esec"><summary>Social</summary>
-          <label class="chk"><input type="checkbox" id="eHand"> Handwriting font everywhere</label>
           <label for="eDm">Who can message me</label><select id="eDm"><option value="all">Everyone</option><option value="friends">Friends only</option></select>
           <div id="eFontBox" hidden><label for="eHandFont">Handwriting font for the planner (admin only)</label><input id="eHandFont" type="file" accept=".otf,.ttf,.woff,.woff2"><small id="eFontNote" class="muted"></small><label for="ePdf">Planner PDF (admin only)</label><input id="ePdf" type="file" accept="application/pdf,.pdf"><small id="ePdfNote" class="muted"></small><label for="eCov">Planner covers PDF (admin only)</label><input id="eCov" type="file" accept="application/pdf,.pdf"><small id="eCovNote" class="muted"></small><label for="eStk">Planner stickers: pick both stickers files (admin only)</label><input id="eStk" type="file" multiple accept=".webp,.json"><small id="eStkNote" class="muted"></small></div>
           <p class="muted" style="margin:8px 0 0">Friends are people who accepted your request. Mods can always reach you.</p>
@@ -698,6 +697,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
             <div><label for="eFg">Text</label><input id="eFg" type="color"></div>
           </div>
           <label for="eFont">Font</label><select id="eFont"></select>
+          <label class="chk"><input type="checkbox" id="eHand"> Handwriting font everywhere (only on this device)</label>
           <label for="ePat">Wallpaper</label><select id="ePat"></select>
           <p id="eHint" class="warn" hidden></p>
         </details>
@@ -2694,25 +2694,32 @@ async function pvThumb(key, page, cover) {
     if (pvEl) for (const im of pvEl.querySelectorAll('img[data-tk="' + key + '"]')) im.src = pv.thumbs[key];
   } catch { /* thumbnails are optional */ }
 }
+const PV_NAMES = Object.fromEntries(PV_GROUPS.flatMap(([, l]) => l));
+function pvAddPage(tpl, label) { if (pv.notes._pages.length >= 40) return; const same = pv.notes._pages.filter(x => x.label === label || x.label.startsWith(label + ' ')).length, c = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 4), tpl, d: dstr(sunOf(new Date())), label: clamp(same ? label + ' ' + (same + 1) : label, 24) }; pv.notes._pages.push(c); pvSave(); pvGoCustom(c); }
 function pvSide(custom) {
   const side = h('div', { class: 'pvside' }), cover = pv.cdoc ? Math.min(pv.notes._cover || 1, pv.cdoc.numPages) : 0;
   const NM = { 1: 'Cover', 3: 'Index', 4: 'This week', 5: 'Templates' };
   const item = (page, label, on, onclick, extra) => { const tk = page === 1 && cover ? 'c' + cover : String(page), im = h('img', { class: 'pvth', alt: '', 'data-tk': tk, src: pv.thumbs[tk] || '' }); pvThumb(tk, page === 1 && cover ? cover : page, page === 1 && !!cover);
     return h('div', { class: 'pvit' + (on ? ' on' : '') }, h('button', { type: 'button', class: 'pvitb', 'aria-label': label, onclick }, im, h('span', {}, label)), extra || null); };
-  const addPage = (tpl, label) => { if (pv.notes._pages.length >= 30) return; const same = pv.notes._pages.filter(x => x.label === label || x.label.startsWith(label + ' ')).length, c = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 4), tpl, d: dstr(sunOf(new Date())), label: clamp(same ? label + ' ' + (same + 1) : label, 24) }; pv.notes._pages.push(c); pvSave(); pvGoCustom(c); };
+  const addPage = pvAddPage;
   side.append(h('div', { class: 'pvsh' }, 'My pages'));
   side.append(item(1, 'Cover', pv.key === '1', pv.cdoc ? () => { pv.page = 1; pv.key = '1'; pv.covers = true; pv.form = false; pv.del = false; pvRender(); } : () => pvGo(1)));
   let dragId = null;
-  const menu = (e, c) => { e.preventDefault(); document.querySelector('.pvctx')?.remove(); const m = h('div', { class: 'pvctx' }, h('b', {}, c.label),
+  const menu = (e, c) => { e.preventDefault(); document.querySelector('.pvctx')?.remove();
+    const wk = pv.notes._pages.filter(x => x.d === c.d && !!x.arch === !!c.arch), setArch = (list, v) => { for (const x of list) { if (v) x.arch = 1; else delete x.arch; } pvSave(); pvRender(); };
+    const m = h('div', { class: 'pvctx' }, h('b', {}, c.label),
     h('button', { type: 'button', onclick: () => { m.remove(); pv.renId = c.id; pvRender(); } }, 'Rename'),
-    h('button', { type: 'button', onclick: () => { m.remove(); if (c.arch) delete c.arch; else c.arch = 1; pvSave(); pvRender(); } }, c.arch ? 'Move back to My pages' : 'Archive'),
+    h('button', { type: 'button', onclick: () => { m.remove(); pv.dateId = c.id; pvRender(); } }, 'Change week...'),
+    c.arch ? h('button', { type: 'button', onclick: () => { m.remove(); setArch([c], false); } }, 'Move back to My pages') : h('button', { type: 'button', onclick: () => { m.remove(); setArch([c], true); } }, 'Archive this page'),
+    wk.length > 1 ? h('button', { type: 'button', onclick: () => { m.remove(); setArch(wk, !c.arch); } }, (c.arch ? 'Move back the whole week' : 'Archive the whole week') + ' (' + wk.length + ')') : null,
     h('button', { type: 'button', onclick: () => { m.remove(); pv.delKey = c.id; pvRender(); } }, 'Delete'));
-    m.style.left = Math.min(e.clientX, innerWidth - 190) + 'px'; m.style.top = Math.min(e.clientY, innerHeight - 140) + 'px'; document.body.append(m); setTimeout(() => document.addEventListener('pointerdown', ev => { if (!m.contains(ev.target)) m.remove(); }, { once: true }), 0); };
+    m.style.left = Math.min(e.clientX, innerWidth - 220) + 'px'; m.style.top = Math.min(e.clientY, innerHeight - 200) + 'px'; document.body.append(m); setTimeout(() => document.addEventListener('pointerdown', ev => { if (!m.contains(ev.target)) m.remove(); }, { once: true }), 0); };
   const myItem = c => {
     const it = item(c.tpl, c.label, pv.key === 'u' + c.id, () => pvGoCustom(c),
       h('button', { type: 'button', class: 'pvdel', 'aria-label': 'Delete ' + c.label, title: 'Delete this page', onclick: () => { if (pv.delKey !== c.id) { pv.delKey = c.id; pvRender(); return; } pv.delKey = null; pv.notes._pages = pv.notes._pages.filter(x => x !== c); delete pv.notes['u' + c.id]; pvSave(); if (pv.key === 'u' + c.id) pvGo(4); else pvRender(); } }, pv.delKey === c.id ? 'Delete?' : '×'));
     it.title = 'Right-click for rename / archive'; it.addEventListener('contextmenu', e => menu(e, c));
     if (pv.renId === c.id) { const sp = it.querySelector('.pvitb span'), inp = h('input', { type: 'text', class: 'pvren', maxlength: '24', value: c.label, 'aria-label': 'Page name' }); sp.replaceWith(inp); let fin = false; const done = () => { if (fin) return; fin = true; c.label = clamp(inp.value.trim() || c.label, 24); pv.renId = null; pvSave(); pvRender(); }; inp.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); done(); } }); inp.addEventListener('blur', done); inp.addEventListener('click', e => e.stopPropagation()); setTimeout(() => { inp.focus(); inp.select(); }, 0); }
+    if (pv.dateId === c.id) { const sp = it.querySelector('.pvitb span'), inp = h('input', { type: 'date', class: 'pvren', value: c.d || '', 'aria-label': 'Week of' }); sp.replaceWith(inp); let fin = false; const done = () => { if (fin) return; fin = true; if (inp.value) c.d = inp.value; pv.dateId = null; pvSave(); pvRender(); }; inp.addEventListener('change', done); inp.addEventListener('blur', done); inp.addEventListener('keydown', e => e.stopPropagation()); inp.addEventListener('click', e => e.stopPropagation()); setTimeout(() => inp.focus(), 0); }
     return it;
   };
   const live = pv.notes._pages.filter(c => !c.arch), arch = pv.notes._pages.filter(c => c.arch);
@@ -2733,10 +2740,12 @@ function pvSide(custom) {
   };
   const tplOn = pv.tplOpen !== false, allOn = !!pv.allOpen, arOn = !!pv.arOpen;
   side.append(drop('tplOpen', 'Templates', tplOn));
-  if (tplOn) for (const [g, list] of PV_GROUPS) { side.append(h('small', { class: 'pvgh' }, g)); for (const [n, t] of list) side.append(row(n, t, t)); }
+  if (tplOn) side.append(item(5, 'Templates page', pv.key === '5', () => pvGo(5)));
   side.append(drop('allOpen', 'All pages and covers', allOn));
   if (allOn) {
-    for (let n = 2; n <= pv.doc.numPages; n++) { const t = (PV_TPL.find(x => x[0] === n) || [])[1], nm = NM[n] || t || 'Page ' + n; side.append(row(n, NM[n] ? n + ' · ' + NM[n] : String(n), nm)); }
+    for (const [g, list] of PV_GROUPS) { side.append(h('small', { class: 'pvgh' }, g)); for (const [n, t] of list) side.append(row(n, t, t)); }
+    side.append(h('small', { class: 'pvgh' }, 'Other pages'));
+    for (const [n, t] of [[2, 'Title page'], [3, 'Index'], [4, 'This week'], [30, 'Archive page']]) side.append(row(n, t, t));
     if (pv.cdoc) { side.append(h('small', { class: 'pvgh' }, 'Covers (tap to use one)'));
       for (let i = 1; i <= pv.cdoc.numPages; i++) { const tk = 'c' + i, im = h('img', { class: 'pvth', alt: '', 'data-tk': tk, src: pv.thumbs[tk] || '' }); pvThumb(tk, i, true);
         side.append(h('div', { class: 'pvit' + (cover === i ? ' on' : '') }, h('button', { type: 'button', class: 'pvitb', 'aria-label': 'Use cover ' + i, onclick: () => { pv.notes._cover = i; pv.page = 1; pv.key = '1'; pvSave(); pvRender(); } }, im, h('span', {}, 'Cover ' + i)))); } }
@@ -2756,6 +2765,7 @@ async function pvRender() {
   const custom = pv.key[0] === 'u' ? pv.notes._pages.find(c => 'u' + c.id === pv.key) : null;
   const head = h('div', { class: 'calhead pvhead' },  STK ? h('button', { class: 'cbtn' + (pv.tray ? ' on' : ''), type: 'button', onclick: () => { pv.tray = !pv.tray; pvRender(); } }, 'Stickers') : null, h('button', { class: 'cbtn' + (!pv.tick ? ' on' : ''), type: 'button', 'aria-pressed': String(!pv.tick), title: 'Tap the page to type', onclick: () => { pv.tick = false; pvRender(); } }, 'Text'), h('button', { class: 'cbtn' + (pv.tick ? ' on' : ''), type: 'button', 'aria-pressed': String(!!pv.tick), title: 'Tap a box to tick it', onclick: () => { pv.tick = true; pvRender(); } }, '\u2713 Tick'),
     h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Smaller text', title: 'Smaller text', onclick: () => { pv.notes._fs = Math.max(0.6, Math.round(((pv.notes._fs || 1) - 0.15) * 100) / 100); pvSave(); pvRender(); } }, 'A\u2212'), h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Bigger text', title: 'Bigger text', onclick: () => { pv.notes._fs = Math.min(2, Math.round(((pv.notes._fs || 1) + 0.15) * 100) / 100); pvSave(); pvRender(); } }, 'A+'),
+    (!custom && pv.key[0] !== 'u' && pv.page > 1 && pv.page < pv.doc.numPages) ? h('button', { class: 'cbtn', type: 'button', title: 'Copy this page into My pages', onclick: () => { const t = (PV_GROUPS.flatMap(g => g[1]).find(x => x[0] === pv.page) || [])[1] || ({ 2: 'Title page', 3: 'Index', 4: 'This week' })[pv.page] || 'Page ' + pv.page; pvAddPage(pv.page, t); } }, '+ Add to My pages') : null,
     h('b', { class: 'caltitle' }, custom ? custom.label : 'Page ' + pv.page + ' of ' + pv.doc.numPages),
     h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Previous page', onclick: () => pvGo(pv.page - 1) }, '‹'), h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Next page', onclick: () => pvGo(pv.page + 1) }, '›'), h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Close planner', onclick: closePv }, '×'));
   const form = null;
@@ -2968,12 +2978,12 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && S.
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '20261107143546' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '20261107144925' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '20261107143546') { newBuild = m[1]; $('updBar').hidden = false; }
+    if (m && m[1] !== BUILD && m[1] !== '20261107144925') { newBuild = m[1]; $('updBar').hidden = false; }
   } catch {}
 }
 $('updBtn').addEventListener('click', () => { location.replace(location.pathname + '?v=' + encodeURIComponent(newBuild || Date.now())); });
