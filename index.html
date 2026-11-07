@@ -163,6 +163,13 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .sec p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
 .song{display:flex;gap:9px;align-items:center;border:1px solid var(--line);padding:6px 9px;background:var(--panel)}
 .song a{color:var(--ac)}
+.lockbox{margin:30px auto;text-align:center}
+.itabs{display:flex;gap:6px;margin:10px 0 4px}
+.itabs [aria-selected=true]{background:var(--ac);color:var(--on-ac);border-color:var(--ac)}
+.lrow2{display:flex;gap:8px;align-items:baseline;margin:4px 0;min-width:0}
+.lrow2 a{color:var(--ac);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.fgrid{display:flex;flex-wrap:wrap;gap:8px}
+.fgrid .pic{max-height:90px}
 .sohelp{margin:8px 0;padding:8px 10px;border:1px solid var(--line);background:var(--panel);font-size:13px}
 .sohelp h3{margin:0 0 4px}
 .sohelp p{margin:5px 0}
@@ -291,10 +298,11 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 
     <section id="chatWin" class="win" aria-label="Chat">
       <div class="tb"><span id="chatTitle">the lounge</span><button id="infoBtn" class="tbx" type="button" aria-label="About this room and who is here">i</button></div>
-      <div class="convbar"><div id="convs" class="convs" aria-label="Conversations"></div><button id="newCh" class="btn sm plus" type="button" aria-label="Make a channel">+</button></div>
+      <div class="convbar"><div id="convs" class="convs" aria-label="Conversations"></div><button id="newCh" class="btn sm plus" type="button" aria-label="Make a board">+</button></div>
       <form id="chForm" class="chform" autocomplete="off" hidden>
-        <label class="sr" for="chName">Channel name</label><input id="chName" maxlength="20" spellcheck="false" placeholder="channel name">
-        <label class="sr" for="chKeep">Messages</label><select id="chKeep"><option value="keep">stays around</option><option value="temp">temporary (gone in 3 days)</option></select>
+        <label class="sr" for="chName">Board name</label><input id="chName" maxlength="20" spellcheck="false" placeholder="board name">
+        <label class="sr" for="chPriv">Who can join</label><select id="chPriv"><option value="open">open to everyone</option><option value="private">private (ask to join)</option></select>
+        <label class="sr" for="chKeep">Lasts</label><select id="chKeep"><option value="keep">stays around</option><option value="temp">temporary (gone in 3 days)</option></select>
         <input id="chTopic" maxlength="300" placeholder="about / rules (optional)">
         <button class="btn sm pri" type="submit">Make</button><button id="chCancel" class="btn sm" type="button">Cancel</button>
       </form>
@@ -654,9 +662,9 @@ function renderConvs() {
   const box = $('convs'); box.replaceChildren();
   const mk = (key, label) => { const n = S.unread[key] || 0; return h('button', { type: 'button', class: 'btn sm', 'aria-current': S.conv === key ? 'true' : 'false', onclick: () => openConv(key) }, label, n && S.conv !== key ? h('span', { class: 'pip' }, n > 9 ? '9+' : n) : null); };
   box.append(mk('lounge', 'Lounge'));
-  for (const c of [...S.channels.values()].sort((a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1)) box.append(mk('c:' + c.id, '#' + c.name));
+  for (const c of [...S.channels.values()].sort((a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1)) { const b = mk('c:' + c.id, (c.private ? '\u{1F512}' : '#') + c.name); const pend = c.by === S.uid ? S.bms.filter(x => x.channel === c.id && x.status === 'pending').length : 0; if (pend) b.append(h('span', { class: 'pip' }, pend)); box.append(b); }
   const cur = S.conv.startsWith('c:') ? S.channels.get(S.conv.slice(2)) : null;
-  if (cur && cur.by === S.uid) box.append(h('button', { type: 'button', class: 'btn sm', 'aria-label': 'Delete this channel', onclick: delChannel }, 'Delete #' + cur.name));
+  if (cur && cur.by === S.uid) box.append(h('button', { type: 'button', class: 'btn sm', 'aria-label': 'Delete this board', onclick: delChannel }, 'Delete #' + cur.name));
   for (const [id, p] of dmPeers()) {
     const b = mk(id, '@' + p.sn);
     b.append(h('span', { class: 'tabx', role: 'button', 'aria-label': 'Close chat with ' + p.sn, onclick: e => { e.stopPropagation(); closeDm(id); } }, '\u00d7'));
@@ -672,8 +680,22 @@ function renderNote() {
   else if (!S.rt && S.signedOn && S.rtTried) t = 'Live updates are not connecting. New messages will show up every few seconds.';
   n.hidden = !t; n.textContent = t;
 }
+const bmRow = r => ({ channel: String(r.channel), member: String(r.member), status: r.status === 'approved' ? 'approved' : 'pending' });
+const myBm = id => (S.bms.find(b => b.channel === id && b.member === S.uid) || {}).status || '';
+const canRead = ch => !ch || !ch.private || ch.by === S.uid || myBm(ch.id) === 'approved';
+const curCh = () => S.conv.startsWith('c:') ? (S.channels.get(S.conv.slice(2)) || null) : null;
+async function loadBms() {
+  const { data, error } = await sb.from('board_members').select('*').limit(500);
+  if (error) return;
+  const had = new Set(S.bms.filter(b => b.member === S.uid && b.status === 'approved').map(b => b.channel));
+  S.bms = (data || []).map(bmRow);
+  if (S.bms.some(b => b.member === S.uid && b.status === 'approved' && !had.has(b.channel))) { try { await sync(false); await loadPins(); } catch {} }
+  renderConvs(); renderLog(); renderProfile(); renderComposer();
+}
+async function askJoin() { const c = curCh(); if (!c) return; await sb.rpc('request_join', { p_channel: c.id }); await loadBms(); }
+async function answerJoin(ch, member, ok) { await sb.rpc('answer_join', { p_channel: ch, p_member: member, p_ok: ok }); await loadBms(); }
 function renderComposer() {
-  const can = S.signedOn && !!mine();
+  const can = S.signedOn && !!mine() && canRead(curCh());
   $('msg').disabled = !can; $('sendBtn').disabled = !can; $('photoBtn').disabled = !can;
 }
 
@@ -724,6 +746,12 @@ function renderLog() {
   log.replaceChildren();
   const chn = S.conv.startsWith('c:') ? S.channels.get(S.conv.slice(2)) : null;
   $('chatTitle').textContent = peer ? 'dm · ' + peer.sn : chn ? '#' + chn.name : 'the lounge' + (S.presLive && S.online.size ? ' · ' + S.online.size + ' here' : '');
+  if (chn && !canRead(chn)) {
+    const cr = profileOf(chn.by);
+    log.append(h('div', { class: 'lockbox' }, h('p', {}, '\u{1F512} This board is private.'),
+      myBm(chn.id) === 'pending' ? h('p', { class: 'muted' }, 'Waiting on ' + (cr ? cr.sn : 'the creator') + ' to say yes...') : h('button', { class: 'btn pri', type: 'button', onclick: askJoin }, 'Ask to join')));
+    return;
+  }
   const hrs = S.ttlH === 1 ? 'hour' : 'hours';
   log.append(h('div', { class: 'sys' }, peer ? 'Only you and ' + peer.sn + ' can see this chat. Messages disappear after ' + S.ttlH + ' ' + hrs + ', photos and files after ' + IMG_H + '.' : 'Messages disappear after ' + S.ttlH + ' ' + hrs + ', photos and files after ' + IMG_H + '.'));
   if (!items.length) { log.append(h('p', { class: 'empty' }, peer ? 'Say hi to ' + peer.sn + '.' : 'It is quiet in here. Say something. /me does actions, @name pings someone, and links show up as cards.')); return; }
@@ -783,7 +811,7 @@ function renderInfo() {
   const mineCh = ch && ch.by === S.uid;
   const aboutSec = h('div', { class: 'sec' }, h('h3', {}, 'About'));
   if (S.aboutEdit && mineCh) {
-    const ta = h('textarea', { maxlength: '300', rows: '4', 'aria-label': 'About this channel' }); ta.value = S.aboutDraft != null ? S.aboutDraft : ch.topic;
+    const ta = h('textarea', { maxlength: '300', rows: '4', 'aria-label': 'About this board' }); ta.value = S.aboutDraft != null ? S.aboutDraft : ch.topic;
     ta.addEventListener('input', () => { S.aboutDraft = ta.value; });
     aboutSec.append(ta, h('div', { class: 'ovbtn' },
       h('button', { class: 'btn sm', type: 'button', onclick: () => { S.aboutEdit = false; S.aboutDraft = null; renderProfile(); } }, 'Cancel'),
@@ -794,11 +822,32 @@ function renderInfo() {
       } }, 'Save')));
   } else {
     aboutSec.append(h('p', {}, about || 'No about or rules yet.'));
-    if (ch) aboutSec.append(h('p', { class: 'muted' }, ('Messages disappear after ' + S.ttlH + ' hours. ' + (ch.keep ? 'This channel stays around.' : 'This channel deletes itself ' + (ch.expires ? 'on ' + new Date(ch.expires).toLocaleDateString([], { month: 'short', day: 'numeric' }) : 'in a few days') + '.')) + (profileOf(ch.by) ? ' Made by ' + profileOf(ch.by).sn + '.' : '')));
+    if (ch) aboutSec.append(h('p', { class: 'muted' }, ('Messages disappear after ' + S.ttlH + ' hours. ' + (ch.keep ? 'This board stays around.' : 'This board deletes itself ' + (ch.expires ? 'on ' + new Date(ch.expires).toLocaleDateString([], { month: 'short', day: 'numeric' }) : 'in a few days') + '.')) + (profileOf(ch.by) ? ' Made by ' + profileOf(ch.by).sn + '.' : '')));
     if (mineCh) aboutSec.append(h('button', { class: 'btn sm', type: 'button', onclick: () => { S.aboutEdit = true; renderProfile(); } }, 'Edit about'));
   }
   body.append(aboutSec);
-  const all = [...S.profiles].sort(bySn);
+  if (ch && ch.private && !canRead(ch)) { body.append(h('p', { class: 'muted' }, '\u{1F512} Private board. Ask to join to see who is in it.')); return; }
+  if (mineCh && ch.private) {
+    const pend = S.bms.filter(b => b.channel === id && b.status === 'pending');
+    if (pend.length) body.append(h('div', { class: 'sec' }, h('h3', {}, 'Wants to join'), pend.map(b => { const p = profileOf(b.member); return h('div', { class: 'lrow2' }, h('b', {}, p ? p.sn : 'someone'), h('span', { class: 'grow' }),
+      h('button', { class: 'btn sm pri', type: 'button', onclick: () => answerJoin(id, b.member, true) }, 'Yes'), h('button', { class: 'btn sm', type: 'button', onclick: () => answerJoin(id, b.member, false) }, 'No')); })));
+  }
+  body.append(h('div', { class: 'itabs', role: 'tablist' }, ['members', 'links', 'files'].map(t => h('button', { type: 'button', class: 'btn sm', role: 'tab', 'aria-selected': String(S.infoTab === t), onclick: () => { S.infoTab = t; renderProfile(); } }, t[0].toUpperCase() + t.slice(1)))));
+  const roomMsgs = S.msgs.filter(m => convOf(m) === S.conv).slice().reverse();
+  const when = m => profileOf(m.uid) ? profileOf(m.uid).sn + ' \u00b7 ' + fmtTime(m.ts) : fmtTime(m.ts);
+  if (S.infoTab === 'links') {
+    const links = [];
+    for (const m of roomMsgs) for (const t of (m.text || '').matchAll(/https?:\/\/[^\s]+/g)) { const u = safeUrl(t[0].replace(/[.,!?)\]]+$/, '')); if (u) links.push({ u, m }); }
+    body.append(h('div', { class: 'sec' }, links.length ? links.slice(0, 40).map(x => h('div', { class: 'lrow2' }, h('a', { href: x.u, target: '_blank', rel: 'noopener noreferrer' }, x.u.replace(/^https?:\/\/(www\.)?/, '')), h('small', { class: 'muted' }, when(x.m)))) : h('p', { class: 'muted' }, 'No links in here right now.')));
+    return;
+  }
+  if (S.infoTab === 'files') {
+    const fs = roomMsgs.filter(m => m.image);
+    body.append(h('div', { class: 'sec' }, fs.length ? h('div', { class: 'fgrid' }, fs.slice(0, 30).map(m => isFile(m) ? fileEl(m) : picEl(m.image))) : h('p', { class: 'muted' }, 'No photos or files in here right now.')));
+    return;
+  }
+  let all = [...S.profiles].sort(bySn);
+  if (ch && ch.private) { const ok = new Set([ch.by, ...S.bms.filter(b => b.channel === id && b.status === 'approved').map(b => b.member)]); all = all.filter(([i]) => ok.has(i)); }
   const isOn = id2 => S.presLive ? S.online.has(id2) : false;
   const on = all.filter(([i]) => isOn(i)), off = all.filter(([i]) => !isOn(i)).sort((a, b) => (b[1].lastSeen || 0) - (a[1].lastSeen || 0)).slice(0, 12);
   const row = ([i, p], sub) => { const st = statusOf(i, p); return h('button', { class: 'buddy', type: 'button', onclick: () => { selectProfile(i); if (isPhone()) setTab('profile'); } },
@@ -873,10 +922,10 @@ function openConv(key) {
   if (S.editing) return;
   if (!isRoom(key) && !S.profiles.has(key)) key = 'lounge';
   if (key.startsWith('c:') && !S.channels.has(key.slice(2))) key = 'lounge';
-  S.showInfo = isRoom(key) && !isPhone(); S.aboutEdit = false;
+  S.showInfo = isRoom(key) && !isPhone(); S.aboutEdit = false; S.infoTab = 'members';
   S.conv = key; if (!isRoom(key)) { S.opened.add(key); if (S.closedDms.delete(key)) LS.set('am.closed', JSON.stringify([...S.closedDms])); }
   S.unread[key] = 0;
-  setTab('chat'); renderConvs(); renderLog(); renderNote(); renderBuddies(); renderProfile(); renderTabs();
+  setTab('chat'); renderConvs(); renderLog(); renderNote(); renderBuddies(); renderProfile(); renderComposer(); renderTabs();
   const l = $('log'); l.scrollTop = l.scrollHeight;
   if (!$('msg').disabled && !isPhone()) $('msg').focus();
 }
@@ -900,16 +949,18 @@ function addMsg(r, live) {
   }
   return true;
 }
-const chanRow = c => ({ id: String(c.id), name: clamp(c.name, 20), keep: !!c.keep, expires: c.expires_at ? (Date.parse(c.expires_at) || 0) : 0, topic: clamp(c.topic || '', 300), by: String(c.created_by || '') });
+const chanRow = c => ({ id: String(c.id), name: clamp(c.name, 20), keep: !!c.keep, private: !!c.private, expires: c.expires_at ? (Date.parse(c.expires_at) || 0) : 0, topic: clamp(c.topic || '', 300), by: String(c.created_by || '') });
 const pinRow = p => ({ id: String(p.id), ch: p.channel ? String(p.channel) : null, text: clamp(p.body, 300), image: p.image ? String(p.image) : '', author: p.author ? String(p.author) : '', by: p.pinned_by ? String(p.pinned_by) : '' });
 const MSG_COLS = 'id,sender,recipient,channel,kind,body,image,file_name,once,created_at';
 async function sync(live) {
-  const [pr, ms, chs, pns] = await Promise.all([
+  const [pr, ms, chs, pns, bms] = await Promise.all([
     sb.from('profiles').select('*').limit(500),
     sb.from('messages').select(MSG_COLS).order('created_at', { ascending: false }).limit(400),
     sb.from('channels').select('*').limit(50),
-    sb.from('pins').select('*').limit(50)
+    sb.from('pins').select('*').limit(50),
+    sb.from('board_members').select('*').limit(500)
   ]);
+  if (!bms.error) S.bms = (bms.data || []).map(bmRow);
   if (!chs.error) S.channels = new Map((chs.data || []).map(c => [String(c.id), chanRow(c)]));
   if (!pns.error) S.pins = new Map((pns.data || []).map(p => [p.channel ? String(p.channel) : 'lounge', pinRow(p)]));
   if (pr.error) throw pr.error;
@@ -936,9 +987,9 @@ async function makeChannel(e) {
   e.preventDefault();
   const name = $('chName').value.trim().replace(/^#/, '').replace(/\s+/g, '-');
   const say = t => { S.extra = t; renderNote(); clearExtraSoon(); };
-  if (!/^[A-Za-z0-9._-]{2,20}$/.test(name)) return say('Channel names are 2 to 20 letters, numbers, dots, dashes.');
-  const { data, error } = await sb.from('channels').insert({ name, keep: $('chKeep').value === 'keep', topic: $('chTopic').value.trim().slice(0, 300) }).select('*').single();
-  if (error) return say(error.code === '23505' ? 'That channel name is taken.' : 'Could not make the channel. There may be too many already.');
+  if (!/^[A-Za-z0-9._-]{2,20}$/.test(name)) return say('Board names are 2 to 20 letters, numbers, dots, dashes.');
+  const { data, error } = await sb.from('channels').insert({ name, keep: $('chKeep').value === 'keep', topic: $('chTopic').value.trim().slice(0, 300), private: $('chPriv').value === 'private' }).select('*').single();
+  if (error) return say(error.code === '23505' ? 'That board name is taken.' : 'Could not make the board. There may be too many already.');
   S.channels.set(String(data.id), chanRow(data));
   $('chName').value = ''; $('chTopic').value = ''; $('chForm').hidden = true;
   openConv('c:' + data.id);
@@ -948,7 +999,7 @@ async function delChannel() {
   if (!c || c.by !== S.uid) return;
   if (!confirm('Delete #' + c.name + ' and everything in it?')) return;
   const { error } = await sb.from('channels').delete().eq('id', id);
-  if (error) { S.extra = 'Could not delete that channel.'; renderNote(); clearExtraSoon(); return; }
+  if (error) { S.extra = 'Could not delete that board.'; renderNote(); clearExtraSoon(); return; }
   dropChannel(id);
 }
 function dropChannel(id) {
@@ -1138,6 +1189,7 @@ function subscribe() {
       if (p.eventType === 'DELETE') { if (p.old && p.old.id) dropChannel(String(p.old.id)); return; }
       if (p.new && p.new.id) { S.channels.set(String(p.new.id), chanRow(p.new)); renderConvs(); renderProfile(); }
     })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'board_members' }, () => { loadBms(); })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'pins' }, () => { loadPins(); })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, p => {
       if (p.eventType === 'DELETE') { if (p.old && p.old.id) S.profiles.delete(String(p.old.id)); }
@@ -1196,7 +1248,7 @@ async function afterAuth() {
 }
 async function enterApp() {
   S.pmeta = {}; S.lastAct = Date.now(); S.lastTracked = ''; S.dnd = LS.get('am.dnd') === '1';
-  S.channels = new Map(); S.pins = new Map(); S.msgs = []; S.msgIds = new Set(); S.sys = []; S.unread = {}; S.opened = new Set(); S.conv = 'lounge'; S.online = new Set(); S.presLive = false; S.presSettled = false;
+  S.channels = new Map(); S.pins = new Map(); S.bms = []; S.infoTab = 'members'; S.msgs = []; S.msgIds = new Set(); S.sys = []; S.unread = {}; S.opened = new Set(); S.conv = 'lounge'; S.online = new Set(); S.presLive = false; S.presSettled = false;
   const hrs = await sb.rpc('message_ttl_hours');
   if (hrs && typeof hrs.data === 'number' && hrs.data > 0) S.ttlH = hrs.data;
   await sync(false);
