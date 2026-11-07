@@ -185,6 +185,17 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 .pip{position:absolute;right:-5px;top:-7px;min-width:16px;padding:0 4px;background:var(--ac);color:var(--on-ac);font-size:10px;line-height:16px;text-align:center;border-radius:8px;font-weight:800}
 .convs{display:flex;gap:8px;padding:8px 10px;border-bottom:1px solid var(--line);overflow-x:auto;flex:none}
 .convs .btn{flex:none;white-space:nowrap;position:relative}
+.convs .plus{padding:2px 9px;font-weight:800}
+.chform{display:flex;gap:6px;padding:6px 10px;border-bottom:1px solid var(--line);flex-wrap:wrap;align-items:center}
+.chform input{flex:1 1 110px;min-width:0}
+.pinbar{display:flex;gap:8px;align-items:flex-start;padding:5px 10px;font-size:12px;background:var(--ac-soft);border-bottom:1px solid var(--line)}
+.pinbar .pt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer;text-align:left;background:none;border:0;color:inherit;font:inherit;padding:0}
+.pinbar.open .pt{white-space:normal;overflow-wrap:anywhere}
+.pinbar .x,.pinb{background:none;border:0;color:var(--muted);font:inherit;cursor:pointer;padding:0 2px}
+.m .body{position:relative}
+.pinb{position:absolute;right:0;top:0;opacity:0;font-size:11px}
+.m:hover .pinb,.pinb:focus-visible{opacity:.8}
+@media (hover:none){.pinb{opacity:.35}}
 .convs .btn[aria-current=true]{background:var(--ac);color:var(--on-ac);border-color:var(--ac)}
 .f{display:flex;flex-direction:column}
 .fine{font-size:12px;color:var(--muted);margin:3px 0 0}
@@ -232,6 +243,12 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
     <section id="chatWin" class="win" aria-label="Chat">
       <div class="tb"><span id="chatTitle">the lounge</span><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span></div>
       <div id="convs" class="convs" aria-label="Conversations"></div>
+      <form id="chForm" class="chform" autocomplete="off" hidden>
+        <label class="sr" for="chName">Channel name</label><input id="chName" maxlength="20" spellcheck="false" placeholder="channel name">
+        <label class="sr" for="chKeep">Messages</label><select id="chKeep"><option value="temp">temporary</option><option value="keep">keep messages</option></select>
+        <button class="btn sm pri" type="submit">Make</button><button id="chCancel" class="btn sm" type="button">Cancel</button>
+      </form>
+      <div id="pinBar" class="pinbar" hidden></div>
       <div id="note" class="note" role="status" hidden></div>
       <div id="log" class="log" role="log" aria-live="polite" aria-label="Messages"></div>
       <form id="compose" class="compose" autocomplete="off">
@@ -463,7 +480,10 @@ function rich(text) {
 const fmtTime = ts => new Date(ts).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 const isPhone = () => window.matchMedia('(max-width:900px)').matches;
 const totalUnread = () => Object.values(S.unread).reduce((a, b) => a + b, 0);
-const convOf = m => m.to ? (m.uid === S.uid ? m.to : m.uid) : 'lounge';
+const isRoom = k => k === 'lounge' || String(k).startsWith('c:');
+const convOf = m => m.ch ? 'c:' + m.ch : (m.to ? (m.uid === S.uid ? m.to : m.uid) : 'lounge');
+const pinKey = k => k === 'lounge' ? 'lounge' : String(k).slice(2);
+const keepCh = id => !!(id && S.channels.get(id) && S.channels.get(id).keep);
 const clearExtraSoon = () => setTimeout(() => { S.extra = ''; renderNote(); }, 6000);
 
 function setTab(t) {
@@ -553,12 +573,16 @@ function renderConvs() {
   const box = $('convs'); box.replaceChildren();
   const mk = (key, label) => { const n = S.unread[key] || 0; return h('button', { type: 'button', class: 'btn sm', 'aria-current': S.conv === key ? 'true' : 'false', onclick: () => openConv(key) }, label, n && S.conv !== key ? h('span', { class: 'pip' }, n > 9 ? '9+' : n) : null); };
   box.append(mk('lounge', 'Lounge'));
+  for (const c of [...S.channels.values()].sort((a, b) => a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1)) box.append(mk('c:' + c.id, '#' + c.name));
+  box.append(h('button', { type: 'button', class: 'btn sm plus', 'aria-label': 'Make a channel', onclick: () => { const f = $('chForm'); f.hidden = !f.hidden; if (!f.hidden) $('chName').focus(); } }, '+'));
+  const cur = S.conv.startsWith('c:') ? S.channels.get(S.conv.slice(2)) : null;
+  if (cur && cur.by === S.uid) box.append(h('button', { type: 'button', class: 'btn sm', 'aria-label': 'Delete this channel', onclick: delChannel }, 'Delete #' + cur.name));
   for (const [id, p] of dmPeers()) box.append(mk(id, '@' + p.sn));
 }
 
 function renderNote() {
   const n = $('note'); let t = '';
-  const peer = S.conv !== 'lounge' ? profileOf(S.conv) : null;
+  const peer = !isRoom(S.conv) ? profileOf(S.conv) : null;
   if (S.extra) t = S.extra;
   else if (peer && peer.awayOn) t = peer.sn + ' is away: ' + (peer.away || 'be back later');
   else if (!S.rt && S.signedOn && S.rtTried) t = 'Live updates are not connecting. New messages will show up every few seconds.';
@@ -570,7 +594,7 @@ function renderComposer() {
 }
 
 const IMG_H = 6;
-const expired = m => m.ts < Date.now() - (m.image ? IMG_H : S.ttlH) * 3600000;
+const expired = m => !m.image && keepCh(m.ch) ? false : m.ts < Date.now() - (m.image ? IMG_H : S.ttlH) * 3600000;
 const urlCache = new Map();
 async function mediaUrl(path) {
   const c = urlCache.get(path);
@@ -592,16 +616,18 @@ function pruneMsgs() {
 }
 function renderLog() {
   const log = $('log');
+  renderPin();
   pruneMsgs();
   const near = log.scrollHeight - log.scrollTop - log.clientHeight < 90;
   if (near) log.dataset.stick = '1'; else delete log.dataset.stick;
-  const peer = S.conv !== 'lounge' ? profileOf(S.conv) : null;
+  const peer = !isRoom(S.conv) ? profileOf(S.conv) : null;
   const list = S.msgs.filter(m => convOf(m) === S.conv);
   const items = [...list.map(m => ({ ts: m.ts, m })), ...(S.conv === 'lounge' ? S.sys.map(s => ({ ts: s.ts, s })) : [])].sort((a, b) => a.ts - b.ts);
   log.replaceChildren();
-  $('chatTitle').textContent = peer ? 'dm · ' + peer.sn : 'the lounge' + (S.presLive && S.online.size ? ' · ' + S.online.size + ' here' : '');
+  const chn = S.conv.startsWith('c:') ? S.channels.get(S.conv.slice(2)) : null;
+  $('chatTitle').textContent = peer ? 'dm · ' + peer.sn : chn ? '#' + chn.name : 'the lounge' + (S.presLive && S.online.size ? ' · ' + S.online.size + ' here' : '');
   const hrs = S.ttlH === 1 ? 'hour' : 'hours';
-  log.append(h('div', { class: 'sys' }, peer ? 'Only you and ' + peer.sn + ' can see this chat. Messages disappear after ' + S.ttlH + ' ' + hrs + ', photos after ' + IMG_H + '.' : 'Messages disappear after ' + S.ttlH + ' ' + hrs + ', photos after ' + IMG_H + '.'));
+  log.append(h('div', { class: 'sys' }, peer ? 'Only you and ' + peer.sn + ' can see this chat. Messages disappear after ' + S.ttlH + ' ' + hrs + ', photos after ' + IMG_H + '.' : (chn && chn.keep ? 'This channel keeps messages. Photos disappear after ' + IMG_H + ' hours.' : 'Messages disappear after ' + S.ttlH + ' ' + hrs + ', photos after ' + IMG_H + '.')));
   if (!items.length) { log.append(h('p', { class: 'empty' }, peer ? 'Say hi to ' + peer.sn + '.' : 'It is quiet in here. Say something. /me does actions, @name pings someone, and links show up as cards.')); return; }
   const bySnMap = new Map([...S.profiles].map(([id, p]) => [p.sn.toLowerCase(), [id, p]]));
   let prev = null;
@@ -621,11 +647,12 @@ function renderLog() {
         cont ? h('span') : avatar(p || { sn: '?', theme: { ac } }, 32),
         h('div', { class: 'body' },
           cont ? null : h('div', { class: 'hd' }, h('button', { class: 'chip', type: 'button', style: sty, onclick: open }, sn), h('time', {}, fmtTime(m.ts))),
-          h('div', { class: 'tx' }, r.nodes, m.image ? picEl(m.image) : null), r.cards));
+          h('div', { class: 'tx' }, r.nodes, m.image ? picEl(m.image) : null), r.cards,
+          isRoom(S.conv) && m.text ? h('button', { class: 'pinb', type: 'button', 'aria-label': 'Pin this message', onclick: () => pinMsg(m) }, 'pin') : null));
       prev = m;
     }
     log.append(row);
-    if (S.conv === 'lounge') {
+    if (isRoom(S.conv)) {
       const seen = new Set();
       for (const t of m.text.matchAll(/@([\w.-]{2,20})/g)) {
         const hit = bySnMap.get(t[1].toLowerCase());
@@ -683,8 +710,9 @@ function renderAll() {
 /* ---------- conversations ---------- */
 function openConv(key) {
   if (S.editing) return;
-  if (key !== 'lounge' && !S.profiles.has(key)) key = 'lounge';
-  S.conv = key; if (key !== 'lounge') S.opened.add(key);
+  if (!isRoom(key) && !S.profiles.has(key)) key = 'lounge';
+  if (key.startsWith('c:') && !S.channels.has(key.slice(2))) key = 'lounge';
+  S.conv = key; if (!isRoom(key)) S.opened.add(key);
   S.unread[key] = 0;
   setTab('chat'); renderConvs(); renderLog(); renderNote(); renderBuddies(); renderTabs();
   const l = $('log'); l.scrollTop = l.scrollHeight;
@@ -692,7 +720,7 @@ function openConv(key) {
 }
 
 /* ---------- messages ---------- */
-const normMsg = r => ({ id: String(r.id), uid: String(r.sender || ''), to: r.recipient ? String(r.recipient) : null, text: clamp(r.body, 300), kind: r.kind === 'me' ? 'me' : 'msg', image: r.image ? String(r.image) : '', ts: Date.parse(r.created_at) || Date.now() });
+const normMsg = r => ({ id: String(r.id), uid: String(r.sender || ''), to: r.recipient ? String(r.recipient) : null, text: clamp(r.body, 300), kind: r.kind === 'me' ? 'me' : 'msg', ch: r.channel ? String(r.channel) : null, image: r.image ? String(r.image) : '', ts: Date.parse(r.created_at) || Date.now() });
 function addMsg(r, live) {
   const m = normMsg(r);
   if ((!m.text && !m.image) || S.msgIds.has(m.id)) return false;
@@ -705,22 +733,29 @@ function addMsg(r, live) {
       sfx('in');
       const viewing = c === S.conv && (S.tab === 'chat' || !isPhone()) && !document.hidden;
       if (!viewing) S.unread[c] = (S.unread[c] || 0) + 1;
-      if (c !== 'lounge') S.opened.add(c);
+      if (!isRoom(c)) S.opened.add(c);
     }
   }
   return true;
 }
-const MSG_COLS = 'id,sender,recipient,kind,body,image,created_at';
+const chanRow = c => ({ id: String(c.id), name: clamp(c.name, 20), keep: !!c.keep, by: String(c.created_by || '') });
+const pinRow = p => ({ id: String(p.id), ch: p.channel ? String(p.channel) : null, text: clamp(p.body, 300), author: p.author ? String(p.author) : '', by: p.pinned_by ? String(p.pinned_by) : '' });
+const MSG_COLS = 'id,sender,recipient,channel,kind,body,image,created_at';
 async function sync(live) {
-  const [pr, ms] = await Promise.all([
+  const [pr, ms, chs, pns] = await Promise.all([
     sb.from('profiles').select('*').limit(500),
-    sb.from('messages').select(MSG_COLS).order('created_at', { ascending: false }).limit(400)
+    sb.from('messages').select(MSG_COLS).order('created_at', { ascending: false }).limit(400),
+    sb.from('channels').select('*').limit(50),
+    sb.from('pins').select('*').limit(50)
   ]);
+  if (!chs.error) S.channels = new Map((chs.data || []).map(c => [String(c.id), chanRow(c)]));
+  if (!pns.error) S.pins = new Map((pns.data || []).map(p => [p.channel ? String(p.channel) : 'lounge', pinRow(p)]));
   if (pr.error) throw pr.error;
   if (ms.error) throw ms.error;
   const map = new Map(); (pr.data || []).forEach(r => map.set(String(r.id), fromRow(r)));
   S.profiles = map;
   (ms.data || []).slice().reverse().forEach(r => addMsg(r, live));
+  if (S.conv.startsWith('c:') && !S.channels.has(S.conv.slice(2))) S.conv = 'lounge';
   S.lastSync = Date.now();
 }
 async function fetchMissing() {
@@ -735,13 +770,64 @@ async function fetchMissing() {
 }
 function refreshUi() { if (!S.signedOn) return; renderAll(); if (S.editing) fillTop(); }
 
+async function makeChannel(e) {
+  e.preventDefault();
+  const name = $('chName').value.trim().replace(/^#/, '').replace(/\s+/g, '-');
+  const say = t => { S.extra = t; renderNote(); clearExtraSoon(); };
+  if (!/^[A-Za-z0-9._-]{2,20}$/.test(name)) return say('Channel names are 2 to 20 letters, numbers, dots, dashes.');
+  const { data, error } = await sb.from('channels').insert({ name, keep: $('chKeep').value === 'keep' }).select('*').single();
+  if (error) return say(error.code === '23505' ? 'That channel name is taken.' : 'Could not make the channel. There may be too many already.');
+  S.channels.set(String(data.id), chanRow(data));
+  $('chName').value = ''; $('chForm').hidden = true;
+  openConv('c:' + data.id);
+}
+async function delChannel() {
+  const id = S.conv.startsWith('c:') ? S.conv.slice(2) : '', c = S.channels.get(id);
+  if (!c || c.by !== S.uid) return;
+  if (!confirm('Delete #' + c.name + ' and everything in it?')) return;
+  const { error } = await sb.from('channels').delete().eq('id', id);
+  if (error) { S.extra = 'Could not delete that channel.'; renderNote(); clearExtraSoon(); return; }
+  dropChannel(id);
+}
+function dropChannel(id) {
+  S.channels.delete(id); S.pins.delete(id);
+  S.msgs = S.msgs.filter(m => m.ch !== id); S.msgIds = new Set(S.msgs.map(m => m.id));
+  if (S.conv === 'c:' + id) S.conv = 'lounge';
+  refreshUi();
+}
+function renderPin() {
+  const b = $('pinBar'), p = isRoom(S.conv) ? S.pins.get(pinKey(S.conv)) : null;
+  b.hidden = !p; b.replaceChildren(); if (!p) return;
+  const a = profileOf(p.author);
+  b.append(h('span', { 'aria-hidden': 'true' }, '\u{1F4CC}'),
+    h('button', { class: 'pt', type: 'button', 'aria-expanded': String(b.classList.contains('open')), onclick: () => { b.classList.toggle('open'); renderPin(); } }, (a ? a.sn + ': ' : '') + p.text),
+    h('button', { class: 'x', type: 'button', 'aria-label': 'Unpin', onclick: unpin }, '\u00d7'));
+}
+async function pinMsg(m) {
+  const { error } = await sb.rpc('set_pin', { p_msg: Number(m.id) });
+  if (error) { S.extra = 'Could not pin that.'; renderNote(); clearExtraSoon(); return; }
+  await loadPins();
+}
+async function unpin() {
+  const k = pinKey(S.conv);
+  const { error } = await sb.rpc('clear_pin', { p_channel: k === 'lounge' ? null : k });
+  if (error) return;
+  S.pins.delete(k); renderPin();
+}
+async function loadPins() {
+  const { data, error } = await sb.from('pins').select('*').limit(50);
+  if (error) return;
+  S.pins = new Map((data || []).map(p => [p.channel ? String(p.channel) : 'lounge', pinRow(p)]));
+  renderPin();
+}
+const target = () => isRoom(S.conv) ? (S.conv === 'lounge' ? {} : { channel: S.conv.slice(2) }) : { recipient: S.conv };
 async function send(text) {
   text = clamp(text.trim(), 300); if (!text || !S.signedOn || !mine()) return;
   let kind = 'msg';
   if (/^\/me\s+/i.test(text)) { kind = 'me'; text = text.replace(/^\/me\s+/i, ''); }
   if (!text) return;
   sfx('out');
-  const { data, error } = await sb.from('messages').insert({ recipient: S.conv === 'lounge' ? null : S.conv, kind, body: text }).select(MSG_COLS).single();
+  const { data, error } = await sb.from('messages').insert({ ...target(), kind, body: text }).select(MSG_COLS).single();
   if (error) { S.extra = 'That did not go through. Try again in a moment.'; renderNote(); clearExtraSoon(); return; }
   S.extra = '';
   if (addMsg(data, false)) { renderLog(); renderConvs(); }
@@ -776,7 +862,7 @@ async function sendPhoto(file) {
   const up = await sb.storage.from('media').upload(path, blob, { contentType: blob.type, upsert: false });
   if (up.error) return say('Upload did not go through. Try again.');
   const cap = clamp($('msg').value.trim(), 300);
-  const { data, error } = await sb.from('messages').insert({ recipient: S.conv === 'lounge' ? null : S.conv, kind: 'msg', body: cap, image: path }).select(MSG_COLS).single();
+  const { data, error } = await sb.from('messages').insert({ ...target(), kind: 'msg', body: cap, image: path }).select(MSG_COLS).single();
   if (error) { fire(sb.storage.from('media').remove([path])); return say('That did not go through. Try again in a moment.'); }
   $('msg').value = ''; S.extra = '';
   if (addMsg(data, false)) { renderLog(); renderConvs(); }
@@ -836,6 +922,11 @@ function subscribe() {
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, p => {
       if (p && p.new && addMsg(p.new, true)) { renderLog(); renderConvs(); renderBuddies(); renderTabs(); fetchMissing(); }
     })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'channels' }, p => {
+      if (p.eventType === 'DELETE') { if (p.old && p.old.id) dropChannel(String(p.old.id)); return; }
+      if (p.new && p.new.id) { S.channels.set(String(p.new.id), chanRow(p.new)); renderConvs(); }
+    })
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'pins' }, () => { loadPins(); })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, p => {
       if (p.eventType === 'DELETE') { if (p.old && p.old.id) S.profiles.delete(String(p.old.id)); }
       else if (p.new && p.new.id) {
@@ -893,7 +984,7 @@ async function afterAuth() {
 }
 async function enterApp() {
   S.pmeta = {}; S.lastAct = Date.now(); S.lastTracked = ''; S.dnd = LS.get('am.dnd') === '1';
-  S.msgs = []; S.msgIds = new Set(); S.sys = []; S.unread = {}; S.opened = new Set(); S.conv = 'lounge'; S.online = new Set(); S.presLive = false; S.presSettled = false;
+  S.channels = new Map(); S.pins = new Map(); S.msgs = []; S.msgIds = new Set(); S.sys = []; S.unread = {}; S.opened = new Set(); S.conv = 'lounge'; S.online = new Set(); S.presLive = false; S.presSettled = false;
   const hrs = await sb.rpc('message_ttl_hours');
   if (hrs && typeof hrs.data === 'number' && hrs.data > 0) S.ttlH = hrs.data;
   await sync(false);
@@ -1055,6 +1146,8 @@ function pickAvatar(file) {
 /* ---------- wiring ---------- */
 $('soForm').addEventListener('submit', onSignon);
 $('soSwap').addEventListener('click', swapMode);
+$('chForm').addEventListener('submit', makeChannel);
+$('chCancel').addEventListener('click', () => { $('chForm').hidden = true; });
 $('photoBtn').addEventListener('click', () => $('photoIn').click());
 $('photoIn').addEventListener('change', e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (f) sendPhoto(f); });
 $('compose').addEventListener('submit', e => { e.preventDefault(); const i = $('msg'); const v = i.value; i.value = ''; send(v); i.focus(); });
