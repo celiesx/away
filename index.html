@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="20261107153537">
+<meta name="build" content="20261107154048">
 <link rel="icon" type="image/png" href="icon-64.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
@@ -685,6 +685,10 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
           <label for="eBio">About me</label><textarea id="eBio" rows="4" maxlength="400"></textarea>
         </details>
         <details class="esec"><summary>Social</summary>
+          <div id="eSpBox" hidden><b>Spotify</b><p class="fine">Show what you are playing on your page automatically. 1. Type your Spotify email and tap Request. 2. Wait for Monica to add you. 3. Tap Connect Spotify.</p>
+            <small id="eSpNote" class="muted"></small>
+            <div class="avrow"><input id="eSpEm" type="email" maxlength="120" placeholder="your Spotify email" aria-label="Your Spotify email"><button id="eSpReq" class="btn sm" type="button">Request</button></div><small id="eSpReqNote" class="muted"></small>
+            <div class="avrow"><button id="eSpGo" class="btn sm" type="button">Connect Spotify</button><button id="eSpOff" class="btn sm" type="button" hidden>Disconnect</button></div></div>
           <label for="eDm">Who can message me</label><select id="eDm"><option value="all">Everyone</option><option value="friends">Friends only</option></select>
           <div id="eFontBox" hidden><label for="eHandFont">Handwriting font for the planner (admin only)</label><input id="eHandFont" type="file" accept=".otf,.ttf,.woff,.woff2"><small id="eFontNote" class="muted"></small><label for="ePdf">Planner PDF (admin only)</label><input id="ePdf" type="file" accept="application/pdf,.pdf"><small id="ePdfNote" class="muted"></small><label for="eCov">Planner covers PDF (admin only)</label><input id="eCov" type="file" accept="application/pdf,.pdf"><small id="eCovNote" class="muted"></small><label for="eStk">Planner stickers: pick both stickers files (admin only)</label><input id="eStk" type="file" multiple accept=".webp,.json"><small id="eStkNote" class="muted"></small></div>
           <p class="muted" style="margin:8px 0 0">Friends are people who accepted your request. Mods can always reach you.</p>
@@ -747,7 +751,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=20261107153537"></script>
+<script src="config.js?v=20261107154048"></script>
 <script>
 (() => {
 'use strict';
@@ -765,6 +769,7 @@ const h = (t, a, ...k) => {
   return e;
 };
 const LS = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} } };
+try { const q = new URLSearchParams(location.search); if (q.get('state') && q.get('state') === LS.get('am.sp.state')) { if (q.get('code')) LS.set('am.sp.code', q.get('code')); else LS.set('am.sp.err', '1'); LS.set('am.sp.state', ''); history.replaceState(null, '', location.pathname + location.hash); } } catch { /* ok */ }
 const clamp = (s, n) => typeof s === 'string' ? s.slice(0, n) : '';
 const fire = b => { try { return Promise.resolve(b).catch(() => {}); } catch { return Promise.resolve(); } };
 
@@ -1998,12 +2003,13 @@ function modPanel(id, p) {
   return wrap;
 }
 async function showLog() {
+  const sr = isAdmin() ? await sb.from('spotify_requests').select('*').order('created_at', { ascending: false }).limit(60) : { data: [] };
   const [rp, ev, bg] = await Promise.all([sb.from('reports').select('*').order('created_at', { ascending: false }).limit(60), sb.from('events').select('*').order('created_at', { ascending: false }).limit(60), sb.from('bug_reports').select('*').order('created_at', { ascending: false }).limit(40)]);
   S.logUnread = 0; renderMe();
   const nm = i => { const p = profileOf(i ? String(i) : ''); return p ? p.sn : 'someone'; };
   const wc = {}, warnNo = new Map();
   for (const r of [...(ev.data || [])].reverse()) if (r.kind === 'warn') { wc[r.target] = (wc[r.target] || 0) + 1; warnNo.set(r.id, wc[r.target]); }
-  const items = [...(bg.data || []).map(r => ({ ts: Date.parse(r.created_at), text: '\u{1F41B} help: ' + nm(r.reporter) + ' \u2014 ' + r.note })), ...(rp.data || []).map(r => ({ ts: Date.parse(r.created_at), text: (r.kind === 'down' ? '\u{1F44E} ' : '\u{1F6A9} report: ') + nm(r.reporter) + ' about ' + nm(r.target) + (r.comment ? ' \u2014 ' + r.comment : '') })),
+  const items = [...(sr.data || []).map(r => ({ ts: Date.parse(r.created_at), text: '\u{1F3A7} spotify access: ' + nm(r.owner) + ' \u2014 ' + r.email })), ...(bg.data || []).map(r => ({ ts: Date.parse(r.created_at), text: '\u{1F41B} help: ' + nm(r.reporter) + ' \u2014 ' + r.note })), ...(rp.data || []).map(r => ({ ts: Date.parse(r.created_at), text: (r.kind === 'down' ? '\u{1F44E} ' : '\u{1F6A9} report: ') + nm(r.reporter) + ' about ' + nm(r.target) + (r.comment ? ' \u2014 ' + r.comment : '') })),
     ...(ev.data || []).map(r => ({ ts: Date.parse(r.created_at), text: ({ board: 'new board by ' + nm(r.actor) + ': ' + r.note, warn: nm(r.actor) + ' warned ' + nm(r.target) + ' (warning ' + (warnNo.get(r.id) || 1) + ')' + (r.note ? ': ' + r.note : ''), timeout: nm(r.actor) + ' put ' + nm(r.target) + ' in the corner (' + r.note + ')', role: nm(r.actor) + ' set ' + nm(r.target) + ' to ' + r.note, purge: nm(r.actor) + ' ' + String(r.note || '').replace(/^Cleared/, 'cleared'), msgdel: nm(r.actor) + ' deleted a message by ' + nm(r.target) + ': ' + r.note })[r.kind] || r.kind }))].sort((a, b) => b.ts - a.ts);
   const prev = document.activeElement;
   const done = () => { ov.remove(); if (prev && prev.focus) prev.focus(); };
@@ -2112,6 +2118,7 @@ function subscribe() {
       if (p.new && p.new.id) { S.channels.set(String(p.new.id), chanRow(p.new)); renderConvs(); renderProfile(); }
     })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'warnings' }, p => { if (p && p.new && String(p.new.target) === S.uid) showWarn(p.new); })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'spotify_requests' }, () => { if (isAdmin()) { S.logUnread = (S.logUnread || 0) + 1; sfx('in'); renderMe(); } })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'reports' }, () => { if (isStaff()) { S.logUnread = (S.logUnread || 0) + 1; sfx('in'); renderMe(); } })
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'events' }, () => { if (isStaff()) { S.logUnread = (S.logUnread || 0) + 1; renderMe(); } })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'board_members' }, () => { loadBms(); })
@@ -2215,6 +2222,7 @@ async function enterApp() {
   S.signedOn = true; S.selected = S.uid; S.mode = 'login';
   fire(loadHand()); fire(cleanMedia()); if (!S.invis) fire(sb.rpc('touch_seen')); fire(checkWarnings());
   S.showInfo = !isPhone(); S.logUnread = 0; S.modForm = null;
+  fire(spInit()); S.timers.push(setInterval(spPoll, 20000));
   S.timers.push(setInterval(() => { if (!S.invis && Date.now() - S.lastAct < 300000 && !document.hidden) fire(sb.rpc('touch_seen')); }, 300000));
   subscribe();
   S.timers.push(setInterval(() => fire(cleanMedia()), 15 * 60000));
@@ -2305,7 +2313,7 @@ function fillTop() {
   }
 }
 function fillEditor() {
-  const d = S.draft;
+  const d = S.draft; fire(renderSp());
   $('eDm').value = d.dmFriends ? 'friends' : 'all'; $('eFontBox').hidden = !isAdmin(); if (isAdmin()) fire(showUploads()); $('eSn').value = d.sn; $('eBio').value = d.bio; $('eSongT').value = d.song.title; $('eSongU').value = d.song.url;
   for (let i = 0; i < 3; i++) { const l = d.links[i] || { label: '', url: '' }; $('eL' + i + 'n').value = l.label; $('eL' + i + 'u').value = l.url; }
   syncLook(); fillTop(); showBnPrev(); $('eAvPrev').replaceChildren(avatar(d, 44)); $('eErr').hidden = true;
@@ -2901,6 +2909,76 @@ async function pvRender() {
     }
   } catch { /* links are optional */ }
 }
+/* ---------- spotify ---------- */
+const SP_SCOPE = 'user-read-currently-playing user-read-playback-state';
+const spRedirect = () => location.origin + location.pathname;
+const spGet = () => { try { return JSON.parse(LS.get('am.sp.' + S.uid) || 'null'); } catch { return null; } };
+const spSet = v => LS.set('am.sp.' + S.uid, v ? JSON.stringify(v) : '');
+const b64url = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+async function spConnect() {
+  if (!CFG.spotify) return;
+  const v = b64url(crypto.getRandomValues(new Uint8Array(48))), st = b64url(crypto.getRandomValues(new Uint8Array(12)));
+  const ch = b64url(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(v)));
+  LS.set('am.sp.v', v); LS.set('am.sp.state', st);
+  location.href = 'https://accounts.spotify.com/authorize?' + new URLSearchParams({ client_id: CFG.spotify, response_type: 'code', redirect_uri: spRedirect(), scope: SP_SCOPE, code_challenge_method: 'S256', code_challenge: ch, state: st });
+}
+async function spTokenCall(body) {
+  const r = await fetch('https://accounts.spotify.com/api/token', { method: 'POST', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: new URLSearchParams({ client_id: CFG.spotify, ...body }) });
+  const j = await r.json().catch(() => ({})); if (!r.ok || !j.access_token) throw new Error(j.error || 'token');
+  return j;
+}
+async function spInit() {
+  if (!CFG.spotify) return;
+  const code = LS.get('am.sp.code'), err = LS.get('am.sp.err');
+  if (err) { LS.set('am.sp.err', ''); S.extra = 'Spotify did not connect. If it said you are not allowed, request access first and wait for Monica to add you.'; renderNote(); clearExtraSoon(); }
+  if (code) {
+    LS.set('am.sp.code', '');
+    try { const j = await spTokenCall({ grant_type: 'authorization_code', code, redirect_uri: spRedirect(), code_verifier: LS.get('am.sp.v') || '' }); spSet({ a: j.access_token, r: j.refresh_token, e: Date.now() + j.expires_in * 1000 }); S.extra = 'Spotify is connected.'; }
+    catch { S.extra = 'Spotify did not connect. Try again.'; }
+    renderNote(); clearExtraSoon();
+  }
+  spPoll();
+}
+async function spToken() {
+  const t = spGet(); if (!t) return '';
+  if (t.e - 60000 > Date.now()) return t.a;
+  try { const j = await spTokenCall({ grant_type: 'refresh_token', refresh_token: t.r }); const n = { a: j.access_token, r: j.refresh_token || t.r, e: Date.now() + j.expires_in * 1000 }; spSet(n); return n.a; }
+  catch { spSet(null); return ''; }
+}
+let spBusy = false, spPause = 0;
+async function spPoll() {
+  if (!CFG.spotify || !S.signedOn || !sb || S.invis || spBusy || Date.now() < spPause) return;
+  const tok = await spToken(); if (!tok) return;
+  spBusy = true;
+  try {
+    const r = await fetch('https://api.spotify.com/v1/me/player/currently-playing', { headers: { Authorization: 'Bearer ' + tok } });
+    if (r.status === 429) { spPause = Date.now() + 60000; return; }
+    if (r.status === 401) { spSet(null); return; }
+    if (r.status === 403) { spPause = Date.now() + 3600000; return; }
+    if (r.status !== 200) return;
+    const j = await r.json(); if (!j || !j.is_playing || !j.item || j.currently_playing_type !== 'track') return;
+    const title = clamp((j.item.artists || []).map(a => a.name).join(', ') + ' - ' + j.item.name, 60), url = safeUrl((j.item.external_urls || {}).spotify || '') || '';
+    const p = mine(); if (!p || (p.song.title === title && p.song.url === url)) return;
+    const { error } = await sb.from('profiles').update({ song_title: title, song_url: clamp(url, 300) }).eq('id', S.uid);
+    if (!error) { p.song = { title, url: clamp(url, 300) }; renderMe(); renderBuddies(); renderProfile(); }
+  } catch { /* offline or blocked, try next time */ } finally { spBusy = false; }
+}
+async function renderSp() {
+  const box = $('eSpBox'); if (!box) return; box.hidden = !CFG.spotify; if (!CFG.spotify) return;
+  const on = !!spGet();
+  $('eSpGo').hidden = on; $('eSpOff').hidden = !on; $('eSpNote').textContent = on ? '✓ Connected. Your song updates by itself while you are signed on.' : 'Not connected yet.';
+  const { data } = await sb.from('spotify_requests').select('email').eq('owner', S.uid).maybeSingle();
+  $('eSpEm').value = data ? data.email : ''; $('eSpReqNote').textContent = data ? 'Requested. Once Monica adds you, tap Connect Spotify.' : '';
+}
+function wireSp() {
+  $('eSpGo').addEventListener('click', spConnect);
+  $('eSpOff').addEventListener('click', () => { spSet(null); renderSp(); });
+  $('eSpReq').addEventListener('click', async () => {
+    const em = $('eSpEm').value.trim().toLowerCase(); if (!/^\S+@\S+\.\S+$/.test(em) || em.length > 120) { $('eSpReqNote').textContent = 'Type the email you use for Spotify.'; return; }
+    const { error } = await sb.from('spotify_requests').upsert({ owner: S.uid, email: em });
+    $('eSpReqNote').textContent = error ? 'That did not go through.' : 'Sent. Once Monica adds you, tap Connect Spotify.';
+  });
+}
 /* ---------- notepad ---------- */
 let npEl = null, npTimer = null;
 const NP_HELP = ['hi', 'I need a hug', 'drink some water', 'you can do this', 'did you eat yet', 'pls stretch', 'this is just a notepad lol', 'ctrl+z cannot undo feelings', 'no help here, only vibes', 'go touch grass (briefly)', 'you are doing fine', 'hi again'];
@@ -2941,6 +3019,7 @@ async function openNotepad() {
 /* ---------- wiring ---------- */
 $('soForm').addEventListener('submit', onSignon);
 $('soSwap').addEventListener('click', swapMode);
+wireSp();
 $('soDisc').addEventListener('click', async () => { if (!sb || S.busy) return; showSoErr(''); const { error } = await sb.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: location.origin + location.pathname } }); if (error) showSoErr('Discord sign on is not available right now.'); });
 $('soMsg').addEventListener('click', splashTap);
 $('soInfo').addEventListener('click', () => { const x = $('soHelp'); x.hidden = !x.hidden; $('soInfo').setAttribute('aria-expanded', String(!x.hidden)); });
