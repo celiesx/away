@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794073599">
+<meta name="build" content="1794074134">
 <link rel="icon" href="data:,">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -192,23 +192,32 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .card{display:flex;align-items:center;gap:10px;margin-top:5px;padding:7px 10px;border:1px solid var(--line);background:var(--panel2);color:var(--fg)!important;text-decoration:none;max-width:min(100%,380px);border-radius:var(--rs)}
 .card:hover{border-color:var(--ac)}
 .calov{z-index:60;padding:10px}
-.calbox{width:min(96vw,640px);max-height:94vh;display:flex;flex-direction:column;overflow:hidden;background:#fbf8ee;color:#1d2440;border:2px solid #243b8c;border-radius:6px;box-shadow:4px 4px 0 #0007;font-family:var(--font);font-size:14px}
+.calbox{width:min(96vw,640px);max-height:94vh;display:flex;flex-direction:column;overflow:hidden;background:#fff;color:#1d2440;border:2px solid #243b8c;border-radius:6px;box-shadow:4px 4px 0 #0007;font-family:var(--font);font-size:14px}
 .calhead{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px;background:#2b4aa8;color:#fff}
 .caltitle{min-width:7.5em;text-align:center}
 .cbtn{padding:2px 9px;background:#e9edf9;color:#1d2440;border:0;border-radius:4px;font-weight:700;cursor:pointer}
 .calbody{overflow:auto;padding:8px}
+.pbanner{display:flex;align-items:center;gap:12px;padding:6px 8px 8px;border-bottom:3px solid #2b4aa8;margin-bottom:6px}
+.pname{flex:1;display:flex;flex-direction:column;line-height:1}
+.pname b{font-size:26px;letter-spacing:.06em;color:#2b4aa8}
+.pname small{font-size:12px;color:#556}
+.mini{display:grid;grid-template-columns:repeat(7,1.35em);font-size:9px;text-align:center;color:#334}
+.mini i{font-style:normal;padding:1px 0}.mini .mh{color:#2b4aa8;font-weight:700}.mini .o{opacity:.3}.mini .h{background:#ffe48a;border-radius:2px}.mini .t{outline:1px solid #2b4aa8}
 .cgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
-.cdow div{padding:3px;text-align:center;font-size:12px;font-weight:700;color:#2b4aa8}
-.cdow .we{color:#b3473f}
-.cd{display:flex;flex-direction:column;align-items:stretch;gap:1px;min-height:68px;padding:3px;text-align:left;background:#fffdf5;color:#1d2440;border:1px solid #d6cfb6;border-radius:0;cursor:pointer;overflow:hidden}
-.cd.we{background:#f9e6e2}.cd.oth{opacity:.45}
+.cdow div{padding:3px 2px;text-align:center;font-size:11px;font-weight:700;color:#fff;background:#2b4aa8;border-left:1px solid #8ea0dc;overflow:hidden;white-space:nowrap}
+.cdow .we{background:#2b4aa8;box-shadow:inset 0 -4px 0 #f0b1ab}
+.cdow .f{display:none}
+@media (min-width:560px){.cdow .f{display:inline}.cdow .s{display:none}}
+.cd{display:flex;flex-direction:column;align-items:stretch;gap:2px;min-height:86px;padding:3px 4px;text-align:left;background:#fff;color:#1d2440;border:1px solid #98a2c8;border-radius:0;cursor:pointer;overflow:hidden}
+.cd.we{box-shadow:inset 4px 0 0 #f5cdc8}.cd.oth{opacity:.45}
+.cd.has{background-image:repeating-linear-gradient(135deg,#ffe99a55 0 6px,transparent 6px 12px);box-shadow:inset 0 0 0 2px #f1c75a}
+.cd.we.has{box-shadow:inset 4px 0 0 #f5cdc8,inset 0 0 0 2px #f1c75a}
 .cd.td{outline:2px solid #2b4aa8;outline-offset:-2px}
-.cn{font-size:12px;font-weight:700}
-.ce{display:flex;align-items:center;gap:3px;font-size:10px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.cdot{flex:none;width:6px;height:6px;border-radius:50%}
+.cn{font-size:12px;font-weight:700;color:#334}
+.ce{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;font-family:'Comic Neue',var(--font);font-size:12px;font-weight:700;line-height:1.15;color:color-mix(in srgb,var(--ink,#2b4aa8) 70%,#000);overflow-wrap:anywhere}
 .cmore{font-size:10px;color:#777}
-.wday{display:flex;gap:8px;padding:6px 0;border-top:1px solid #d6cfb6;background:repeating-linear-gradient(transparent 0 22px,#ece6d0 22px 23px)}
-.wday.we{background-color:#f9e6e2}.wday.td{box-shadow:inset 3px 0 0 #2b4aa8}
+.wday{display:flex;gap:8px;padding:6px 8px 6px 12px;min-height:60px;border-top:1px solid #c5cbe0;background:#fff repeating-linear-gradient(transparent 0 22px,#e4e8f3 22px 23px)}
+.wday.we{box-shadow:inset 5px 0 0 #f5cdc8}.wday.td .wlab b{color:#fff;background:#2b4aa8;border-radius:50%;width:26px;height:26px;display:grid;place-items:center;font-size:14px}
 .wlab{flex:none;width:44px;display:flex;flex-direction:column;align-items:center}
 .wlab b{font-size:20px}.wlab small{font-size:10px;color:#2b4aa8;letter-spacing:.08em}
 .wev{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
@@ -2282,15 +2291,18 @@ function drawCal(force) {
   const body = h('div', { class: 'calbody' });
   if (cal.add && cal.add.dated) body.append(calForm(cal.add.day, true));
   if (!inWeek) {
-    body.append(h('div', { class: 'cgrid cdow' }, DOW.map((d, i) => h('div', { class: i > 4 ? 'we' : '' }, d))));
+    { const mf = monOf(cal.month), mini = h('div', { class: 'mini' }, DOW.map(d => h('i', { class: 'mh' }, d[0])));
+      for (let i = 0; i < 42; i++) { const d = addDays(mf, i); if (i >= 35 && d.getMonth() !== cal.month.getMonth()) break; const k = dstr(d); mini.append(h('i', { class: (d.getMonth() !== cal.month.getMonth() ? 'o ' : '') + (k === today ? 't ' : '') + (byDay.has(k) ? 'h' : '') }, String(d.getDate()))); }
+      body.append(h('div', { class: 'pbanner' }, h('div', { class: 'pname' }, h('b', {}, MON[cal.month.getMonth()].toUpperCase()), h('small', {}, String(cal.month.getFullYear()))), mini)); }
+    body.append(h('div', { class: 'cgrid cdow' }, ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((d, i) => h('div', { class: i > 4 ? 'we' : '' }, h('span', { class: 'f' }, d), h('span', { class: 's' }, d.slice(0, 3))))));
     const first = monOf(cal.month), grid = h('div', { class: 'cgrid' });
     for (let i = 0; i < 42; i++) {
       const d = addDays(first, i); if (i >= 35 && d.getMonth() !== cal.month.getMonth()) break;
       const k = dstr(d), evs = byDay.get(k) || [], wk = (d.getDay() + 6) % 7 > 4;
-      grid.append(h('button', { type: 'button', class: 'cd' + (d.getMonth() !== cal.month.getMonth() ? ' oth' : '') + (wk ? ' we' : '') + (k === today ? ' td' : ''), onclick: () => { cal.week = monOf(d); cal.add = null; drawCal(true); } },
+      grid.append(h('button', { type: 'button', class: 'cd' + (d.getMonth() !== cal.month.getMonth() ? ' oth' : '') + (wk ? ' we' : '') + (k === today ? ' td' : '') + (evs.length ? ' has' : ''), onclick: () => { cal.week = monOf(d); cal.add = null; drawCal(true); } },
         h('span', { class: 'cn' }, String(d.getDate())),
-        evs.slice(0, 2).map(ev => h('span', { class: 'ce' }, h('i', { class: 'cdot', style: 'background:' + ((profileOf(ev.by) || { theme: { ac: '#2b4aa8' } }).theme.ac) }), ev.title)),
-        evs.length > 2 ? h('span', { class: 'cmore' }, '+' + (evs.length - 2)) : null));
+        evs.slice(0, 3).map(ev => h('span', { class: 'ce', style: '--ink:' + ((profileOf(ev.by) || { theme: { ac: '#2b4aa8' } }).theme.ac) }, ev.at ? ev.at + ' ' : '', ev.title)),
+        evs.length > 3 ? h('span', { class: 'cmore' }, '+' + (evs.length - 3) + ' more') : null));
     }
     body.append(grid);
   } else {
@@ -2363,12 +2375,12 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && S.
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '1794073599' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '1794074134' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '1794073599') { newBuild = m[1]; $('updBar').hidden = false; }
+    if (m && m[1] !== BUILD && m[1] !== '1794074134') { newBuild = m[1]; $('updBar').hidden = false; }
   } catch {}
 }
 $('updBtn').addEventListener('click', () => { location.replace(location.pathname + '?v=' + encodeURIComponent(newBuild || Date.now())); });
