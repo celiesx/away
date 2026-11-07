@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794067582">
+<meta name="build" content="1794067737">
 <link rel="icon" href="data:,">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -102,27 +102,27 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .start.off{opacity:.8}
 .pops{position:absolute;inset:0 0 auto 0;z-index:5;pointer-events:none}
 .pop{background:#d4d0c8!important}
-.pop{font-family:Tahoma,Verdana,'MS Sans Serif',sans-serif;position:absolute;width:min(86%,330px);max-height:min(60vh,420px);display:flex;flex-direction:column;pointer-events:auto;background:var(--panel);color:var(--fg);border:2px solid var(--ac);box-shadow:3px 3px 0 #0006}
+.pop{font-family:VT323,Terminal,'Courier New',monospace;font-size:17px;position:absolute;width:min(86%,330px);max-height:min(60vh,420px);display:flex;flex-direction:column;pointer-events:auto;background:var(--panel);color:var(--fg);border:2px solid var(--ac);box-shadow:3px 3px 0 #0006}
 .poptb{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:3px 4px 3px 9px;background:var(--ac);color:var(--oc,#fff);font-weight:800}
-.poptb{font-size:14px;letter-spacing:.02em}
+.poptb{font-size:19px;letter-spacing:.03em}
 .poptb button{padding:0 6px;line-height:1.1;font-size:15px;font-weight:800;cursor:pointer;color:#111;background:#d4d0c8;border:2px solid;border-color:#fff #404040 #404040 #fff;border-radius:0}
 .poptabs{flex:none;display:flex;gap:3px;padding:3px 4px 4px}
-.poptabs button{flex:1;padding:2px 8px;font-size:13px;font-weight:700;color:#111;background:#d4d0c8;border:2px solid;border-color:#fff #404040 #404040 #fff;border-radius:0;cursor:pointer}
+.poptabs button{flex:1;padding:0 8px;font-size:19px;font-weight:400;color:#111;background:#d4d0c8;border:2px solid;border-color:#fff #404040 #404040 #fff;border-radius:0;cursor:pointer}
 .poptabs button:active{border-color:#404040 #fff #fff #404040}
 .popflash{position:absolute;left:50%;bottom:44px;transform:translateX(-50%);max-width:90%;padding:4px 10px;background:#ffffe1;color:#111;border:1px solid #111;font-size:12px;animation:pf 2.6s forwards;pointer-events:none}
 @keyframes pf{0%,70%{opacity:1}100%{opacity:0}}
 .popmenu{display:flex;gap:4px;padding:2px 6px;background:#d4d0c8;color:#111;font-weight:700;border-bottom:2px solid #404040}
-.popmenu button{border:0;background:none;padding:2px 7px;color:#111;font-weight:700;font-size:14px;cursor:pointer}
+.popmenu button{border:0;background:none;padding:0 8px;color:#111;font-weight:400;font-size:19px;cursor:pointer}
 .popmenu button u{text-decoration:underline}
 .popact{color:#1a1ad0;font-weight:700;overflow-wrap:anywhere}
 .popnote{margin:10px 0 0;font-style:italic;color:#777;overflow-wrap:anywhere}
 .poptb,.popmenu{flex:none}
-.popbody{margin:4px 4px 0;border:2px solid;border-color:#404040 #fff #fff #404040;background:#fff;color:#111;flex:1;min-height:0;overflow:auto;padding:10px 12px;font-size:14px}
+.popbody{font-size:18px;margin:4px 4px 0;border:2px solid;border-color:#404040 #fff #fff #404040;background:#fff;color:#111;flex:1;min-height:0;overflow:auto;padding:10px 12px;font-size:14px}
 .pophead{display:flex;gap:12px;align-items:flex-start}
 .popinfo{display:flex;flex-direction:column;gap:3px;min-width:0;overflow-wrap:anywhere}
 .popbody hr{border:0;border-top:1px dashed #999;margin:10px 0}
 .popbio{margin:0;overflow-wrap:anywhere}
-.popbody textarea{background:#fff;color:#111;border:1px solid #777;width:100%;margin-top:4px;font-size:14px}
+.popbody textarea{font:inherit;background:#fff;color:#111;border:1px solid #777;width:100%;margin-top:4px;font-size:14px}
 .taskbar{display:flex;gap:4px;padding:5px;overflow-x:auto;background:var(--panel2);border-top:2px solid var(--line)}
 .taskbar button{display:flex;gap:6px;align-items:center;flex:0 1 auto;min-width:0;max-width:34%;padding:3px 8px 3px 4px;font-size:13px;font-weight:700;border:1px solid var(--line);background:var(--panel);cursor:pointer}
 .taskbar button.cur{background:var(--bg);border-style:inset}
@@ -2140,12 +2140,12 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && S.
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '1794067582' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '1794067737' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '1794067582') { newBuild = m[1]; $('updBar').hidden = false; }
+    if (m && m[1] !== BUILD && m[1] !== '1794067737') { newBuild = m[1]; $('updBar').hidden = false; }
   } catch {}
 }
 $('updBtn').addEventListener('click', () => { location.replace(location.pathname + '?v=' + encodeURIComponent(newBuild || Date.now())); });
