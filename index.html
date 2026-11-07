@@ -686,6 +686,17 @@ async function sync(live) {
   const map = new Map(); (pr.data || []).forEach(r => map.set(String(r.id), fromRow(r)));
   S.profiles = map;
   (ms.data || []).slice().reverse().forEach(r => addMsg(r, live));
+  S.lastSync = Date.now();
+}
+async function fetchMissing() {
+  const need = new Set();
+  for (const m of S.msgs) { if (m.uid && !S.profiles.has(m.uid)) need.add(m.uid); if (m.to && !S.profiles.has(m.to)) need.add(m.to); }
+  for (const id of S.online) if (!S.profiles.has(id)) need.add(id);
+  if (!need.size) return;
+  const { data, error } = await sb.from('profiles').select('*').in('id', [...need]);
+  if (error || !data || !data.length) return;
+  data.forEach(r => S.profiles.set(String(r.id), fromRow(r)));
+  refreshUi();
 }
 function refreshUi() { if (!S.signedOn) return; renderAll(); if (S.editing) fillTop(); }
 
@@ -731,7 +742,7 @@ function subscribe() {
   S.rtTried = false;
   S.rtChan = sb.channel('am-db')
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, p => {
-      if (p && p.new && addMsg(p.new, true)) { renderLog(); renderConvs(); renderBuddies(); renderTabs(); }
+      if (p && p.new && addMsg(p.new, true)) { renderLog(); renderConvs(); renderBuddies(); renderTabs(); fetchMissing(); }
     })
     .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles' }, p => {
       if (p.eventType === 'DELETE') { if (p.old && p.old.id) S.profiles.delete(String(p.old.id)); }
@@ -750,7 +761,7 @@ function subscribe() {
     }
     S.online = now;
     if (!S.presLive) { S.presLive = true; setTimeout(() => { S.presSettled = true; }, 2500); }
-    renderBuddies(); renderLog(); renderProfile();
+    renderBuddies(); renderLog(); renderProfile(); fetchMissing();
   }).subscribe(async st => { if (st === 'SUBSCRIBED') { try { await S.presChan.track({ t: Date.now() }); } catch {} } });
 }
 
@@ -793,7 +804,7 @@ async function enterApp() {
   subscribe();
   S.timers.push(setInterval(() => fire(sb.rpc('purge_expired')), 15 * 60000));
   S.timers.push(setInterval(() => { pruneMsgs(); renderLog(); }, 60000));
-  S.timers.push(setInterval(() => { if (!S.rt && S.signedOn && !S.editing) sync(true).then(refreshUi).catch(() => {}); }, 8000));
+  S.timers.push(setInterval(() => { if (!S.signedOn || S.editing) return; if (Date.now() - (S.lastSync || 0) >= (S.rt ? 20000 : 5000)) sync(true).then(() => { refreshUi(); return fetchMissing(); }).catch(() => {}); }, 5000));
   sfx('open'); setTab('chat'); renderAll();
   if (!$('msg').disabled && !isPhone()) $('msg').focus();
 }
