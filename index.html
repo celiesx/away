@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Away Message</title>
+<meta name="theme-color" content="#0b0b0c">
 <link rel="icon" href="data:,">
-<script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac)}}catch(e){}</script>
+<script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Share+Tech+Mono&family=VT323&display=swap">
 <style>
 
@@ -159,6 +160,7 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .sec p{margin:0;white-space:pre-wrap;overflow-wrap:anywhere}
 .song{display:flex;gap:9px;align-items:center;border:1px solid var(--line);padding:6px 9px;background:var(--panel)}
 .song a{color:var(--ac)}
+.pmood{margin-top:3px;font-style:italic;overflow-wrap:anywhere}
 .mq{flex:1;min-width:0;overflow:hidden;white-space:nowrap}
 .mq span{display:inline-block;animation:mq 12s linear infinite}
 @keyframes mq{0%,25%{transform:translateX(0)}100%{transform:translateX(-100%)}}
@@ -189,6 +191,9 @@ body.editing #chatWin{display:none}
 @media (min-width:901px){body.noprof #desk{grid-template-columns:260px minmax(0,1fr)}body.noprof #profWin{display:none}}
 body.editing #profX{display:none}
 @media (max-width:900px){
+  input,select,textarea{font-size:16px}
+  #npIn{font-size:16px}
+  .macts button{padding:6px 8px}
   #tabs{display:flex}
   #desk{grid-template-columns:minmax(0,1fr)}
   #buddyWin,#chatWin,#editWin,#profWin{grid-column:1;grid-row:1;display:none}
@@ -220,7 +225,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 .m .body{position:relative}
 .macts{position:absolute;right:0;top:0;display:flex;gap:8px;opacity:0}
 .m:hover .macts,.macts:focus-within{opacity:.85}
-@media (hover:none){.macts{opacity:.4}}
+@media (hover:none){.macts{opacity:.7}}
 .pinb{font-size:11px}
 .convs .btn[aria-current=true]{background:var(--ac);color:var(--on-ac);border-color:var(--ac)}
 .f{display:flex;flex-direction:column}
@@ -259,6 +264,8 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
           <select id="stSel"><option value="on">Available</option><option value="away">Away</option><option value="dnd">Do not disturb</option></select></div></div>
         <label class="sr" for="awayIn">Away message</label>
         <input id="awayIn" maxlength="80" placeholder="Away message" hidden>
+        <label class="sr" for="moodIn">Status</label>
+        <input id="moodIn" maxlength="60" placeholder="status: what are you up to?">
         <label class="sr" for="npIn">Now playing</label>
         <input id="npIn" maxlength="160" placeholder="&#9834; now playing: artist - song (links work)">
         <button id="editBtn" class="btn" type="button">Edit my profile</button>
@@ -429,13 +436,14 @@ function fromRow(r) {
   const links = Array.isArray(r.links) ? r.links : [];
   return {
     id: String(r.id || ''), sn: clamp(r.sn, 20) || 'unknown', bio: clamp(r.bio, 400), away: clamp(r.away, 80), awayOn: !!r.away_on,
+    mood: clamp(r.mood, 60),
     song: { title: clamp(r.song_title, 60), url: clamp(r.song_url, 300) },
     links: links.slice(0, 3).map(l => ({ label: clamp(l && l.label, 24), url: clamp(l && l.url, 300) })),
     top: (Array.isArray(r.top) ? r.top : []).filter(x => typeof x === 'string').slice(0, 8),
     theme: cleanTheme(r.theme), avatar: okAvatar(r.avatar), created: r.created_at ? (Date.parse(r.created_at) || 0) : 0, lastSeen: r.last_seen ? (Date.parse(r.last_seen) || 0) : 0
   };
 }
-const toRow = p => ({ sn: p.sn, bio: p.bio, away: p.away, away_on: p.awayOn, song_title: p.song.title, song_url: p.song.url, links: p.links, top: p.top, theme: p.theme, avatar: p.avatar });
+const toRow = p => ({ sn: p.sn, bio: p.bio, away: p.away, away_on: p.awayOn, mood: p.mood, song_title: p.song.title, song_url: p.song.url, links: p.links, top: p.top, theme: p.theme, avatar: p.avatar });
 
 /* ---------- state ---------- */
 const S = {
@@ -571,6 +579,7 @@ function renderMe() {
   $('stSel').value = p.awayOn ? 'away' : (S.dnd ? 'dnd' : 'on');
   const a = $('awayIn'); a.hidden = !p.awayOn;
   if (document.activeElement !== a) a.value = p.away;
+  const mo = $('moodIn'); if (document.activeElement !== mo) mo.value = p.mood;
   const n = $('npIn'); if (document.activeElement !== n) n.value = p.song.title;
   $('sndBtn').textContent = S.sound ? 'Sound on' : 'Sound off';
 }
@@ -606,7 +615,7 @@ function renderBuddies() {
     box.append(h('h4', { class: 'grp' }, name + ' (' + list.length + ')'));
     for (const [id, p] of list) {
       const st = statusOf(id, p), n = S.unread[id] || 0;
-      const sub = p.awayOn ? (p.away || 'Away') : (p.song.title ? '♪ ' + p.song.title : '');
+      const sub = p.awayOn ? (p.away || 'Away') : (p.mood || (p.song.title ? '♪ ' + p.song.title : ''));
       box.append(h('div', { class: 'brow' + (S.selected === id ? ' cur' : '') },
         h('button', { class: 'buddy', type: 'button', onclick: () => { selectProfile(id); if (isPhone()) setTab('profile'); } },
           avatar(p, 30),
@@ -736,7 +745,7 @@ const ago = ts => {
   const hr = Math.round(m / 60); if (hr < 24) return hr + ' hr ago';
   const d = Math.round(hr / 24); return d + (d === 1 ? ' day ago' : ' days ago');
 };
-const LOUNGE_ABOUT = 'The lounge is for everyone. Be kind, no spamming, and what happens here disappears after a day.';
+const LOUNGE_ABOUT = 'The lounge is for everyone. Be kind and no spamming.';
 function renderInfo() {
   const body = $('profBody'), win = $('profWin');
   body.replaceChildren(); applyTheme(win, S.theme); body.dataset.pat = S.theme.pat;
@@ -782,7 +791,8 @@ function renderProfile() {
   const st = S.editing ? { cls: '', text: 'Preview. This is how your page looks.' } : statusOf(id, p);
   body.append(h('div', { class: 'phead' }, avatar({ sn: p.sn || '?', avatar: p.avatar, theme: t }, 84),
     h('div', { class: 'grow' }, h('h2', { class: 'psn' }, p.sn || '...'),
-      st.text ? h('div', { class: 'pst' }, h('span', { class: 'dot ' + st.cls, 'aria-hidden': 'true' }), st.text) : null)));
+      st.text ? h('div', { class: 'pst' }, h('span', { class: 'dot ' + st.cls, 'aria-hidden': 'true' }), st.text) : null,
+      p.mood ? h('div', { class: 'pmood' }, p.mood) : null)));
   if (!S.editing && isRoom(S.conv)) body.append(h('button', { class: 'btn sm', type: 'button', onclick: () => { S.showInfo = true; renderProfile(); } }, '\u2190 ' + (S.conv === 'lounge' ? 'the lounge' : '#' + ((S.channels.get(S.conv.slice(2)) || {}).name || ''))));
   if (!S.editing && id && id !== S.uid) body.append(h('button', { class: 'btn pri pmsg', type: 'button', onclick: () => openConv(id) }, 'Message ' + p.sn));
   if (p.bio) body.append(h('div', { class: 'sec' }, h('h3', {}, 'About me'), h('p', {}, p.bio)));
@@ -1060,6 +1070,14 @@ async function songTitle(url) {
   if (/youtu/.test(host)) return 'a song on YouTube';
   return host;
 }
+async function setMood() {
+  const p = mine(); if (!p) return;
+  const t = clamp($('moodIn').value.trim(), 60);
+  if (t === p.mood) return;
+  const { error } = await sb.from('profiles').update({ mood: t }).eq('id', S.uid);
+  if (error) { S.extra = 'Could not save your status.'; renderNote(); clearExtraSoon(); renderMe(); return; }
+  p.mood = t; renderMe(); renderBuddies(); renderProfile();
+}
 async function setNow() {
   const p = mine(); if (!p) return;
   let t = $('npIn').value.trim(), url = '';
@@ -1320,6 +1338,7 @@ $('compose').addEventListener('submit', e => { e.preventDefault(); const i = $('
 $('stSel').addEventListener('change', setAway);
 $('awayIn').addEventListener('change', setAway);
 $('npIn').addEventListener('change', setNow);
+$('moodIn').addEventListener('change', setMood);
 $('editBtn').addEventListener('click', openEditor);
 $('offBtn').addEventListener('click', signOff);
 $('sndBtn').addEventListener('click', () => { S.sound = !S.sound; LS.set('am.sound', S.sound ? 'on' : 'off'); renderMe(); if (S.sound) sfx('in'); });
