@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794072599">
+<meta name="build" content="1794073599">
 <link rel="icon" href="data:,">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -191,6 +191,39 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .auto{margin:3px 0 0 42px;font-size:12px;color:var(--muted);border-left:3px solid var(--c);padding-left:8px}
 .card{display:flex;align-items:center;gap:10px;margin-top:5px;padding:7px 10px;border:1px solid var(--line);background:var(--panel2);color:var(--fg)!important;text-decoration:none;max-width:min(100%,380px);border-radius:var(--rs)}
 .card:hover{border-color:var(--ac)}
+.calov{z-index:60;padding:10px}
+.calbox{width:min(96vw,640px);max-height:94vh;display:flex;flex-direction:column;overflow:hidden;background:#fbf8ee;color:#1d2440;border:2px solid #243b8c;border-radius:6px;box-shadow:4px 4px 0 #0007;font-family:var(--font);font-size:14px}
+.calhead{display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding:8px;background:#2b4aa8;color:#fff}
+.caltitle{min-width:7.5em;text-align:center}
+.cbtn{padding:2px 9px;background:#e9edf9;color:#1d2440;border:0;border-radius:4px;font-weight:700;cursor:pointer}
+.calbody{overflow:auto;padding:8px}
+.cgrid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.cdow div{padding:3px;text-align:center;font-size:12px;font-weight:700;color:#2b4aa8}
+.cdow .we{color:#b3473f}
+.cd{display:flex;flex-direction:column;align-items:stretch;gap:1px;min-height:68px;padding:3px;text-align:left;background:#fffdf5;color:#1d2440;border:1px solid #d6cfb6;border-radius:0;cursor:pointer;overflow:hidden}
+.cd.we{background:#f9e6e2}.cd.oth{opacity:.45}
+.cd.td{outline:2px solid #2b4aa8;outline-offset:-2px}
+.cn{font-size:12px;font-weight:700}
+.ce{display:flex;align-items:center;gap:3px;font-size:10px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cdot{flex:none;width:6px;height:6px;border-radius:50%}
+.cmore{font-size:10px;color:#777}
+.wday{display:flex;gap:8px;padding:6px 0;border-top:1px solid #d6cfb6;background:repeating-linear-gradient(transparent 0 22px,#ece6d0 22px 23px)}
+.wday.we{background-color:#f9e6e2}.wday.td{box-shadow:inset 3px 0 0 #2b4aa8}
+.wlab{flex:none;width:44px;display:flex;flex-direction:column;align-items:center}
+.wlab b{font-size:20px}.wlab small{font-size:10px;color:#2b4aa8;letter-spacing:.08em}
+.wev{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.wevent{padding:4px 6px;background:#fffdf5cc;border-left:3px solid #2b4aa8}
+.wtop{display:flex;align-items:center;gap:6px}
+.wat{color:#2b4aa8;font-size:12px;white-space:nowrap}
+.wti{flex:1;min-width:0;overflow-wrap:anywhere}
+.wx{padding:0 6px;background:none;border:0;color:#777;cursor:pointer}
+.wrx{display:flex;gap:4px;margin-top:3px;flex-wrap:wrap}
+.rx1{padding:0 6px;font-size:12px;background:#fff;color:#1d2440;border:1px solid #cfc9b4;border-radius:10px;cursor:pointer}
+.rx1.me{background:#dbe4ff;border-color:#2b4aa8}.rx1.zero{opacity:.45}
+.wadd{align-self:flex-start;padding:0 10px;background:none;border:1px dashed #9aa6d6;color:#2b4aa8;border-radius:4px;cursor:pointer}
+.calform{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin:4px 0}
+.calform input{background:#fff;color:#1d2440;border:1px solid #aab;font-size:16px}
+.cftime{width:5.5em}.cftitle{flex:1;min-width:8em}
 .ovl{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px;background:#000a}
 .ovbox{max-width:min(92vw,420px);max-height:92vh;overflow:auto;padding:14px;background:var(--panel);border:2px solid var(--ac);border-radius:var(--rs);color:var(--fg)}
 .ovbox img{display:block;max-width:100%;max-height:50vh;margin:8px auto}
@@ -449,7 +482,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
         <button id="editBtn" class="btn" type="button">Edit my profile</button>
       </div>
       <div id="buddies" class="scroll"></div>
-      <div class="foot"><button id="sndBtn" class="btn sm" type="button">Sound on</button><label class="sr" for="toneSel">Message sound</label><select id="toneSel" class="sm"></select><label class="sr" for="autoSel">Auto sign-off</label><select id="autoSel" class="sm" title="Sign off automatically after being away"><option value="0">Stay signed in</option><option value="10">Sign off after 10 min</option><option value="30">Sign off after 30 min</option><option value="60">Sign off after 1 hour</option></select><button id="logBtn" class="btn sm" type="button" hidden>Log</button><button id="offBtn" class="btn sm" type="button">Sign off</button></div>
+      <div class="foot"><button id="sndBtn" class="btn sm" type="button">Sound on</button><label class="sr" for="toneSel">Message sound</label><select id="toneSel" class="sm"></select><label class="sr" for="autoSel">Auto sign-off</label><select id="autoSel" class="sm" title="Sign off automatically after being away"><option value="0">Stay signed in</option><option value="10">Sign off after 10 min</option><option value="30">Sign off after 30 min</option><option value="60">Sign off after 1 hour</option></select><button id="calBtn" class="btn sm" type="button">Calendar</button><button id="logBtn" class="btn sm" type="button" hidden>Log</button><button id="offBtn" class="btn sm" type="button">Sign off</button></div>
     </section>
 
     <section id="chatWin" class="win" aria-label="Chat">
@@ -2186,6 +2219,94 @@ keepFocus($('emoBtn')); keepFocus($('sendBtn'));
   document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('input,select,textarea')) vp.content = base + ',maximum-scale=1'; });
   document.addEventListener('focusout', () => { setTimeout(() => { if (!document.activeElement || !document.activeElement.matches || !document.activeElement.matches('input,select,textarea')) vp.content = base; }, 50); }); })();
 document.addEventListener('gesturestart', e => e.preventDefault());
+/* ---------- group calendar ---------- */
+const CAL_EMO = ['❤️', '\u{1F44D}', '\u{1F602}', '✨'], MON = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], DOW = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+const dstr = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const pday = x => { const [y, m, d] = x.split('-').map(Number); return new Date(y, m - 1, d); };
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const monOf = d => addDays(d, -((d.getDay() + 6) % 7));
+let calEl = null, cal = null, calTimer = null;
+async function loadCal() {
+  if (!cal) return;
+  const [e, r] = await Promise.all([sb.from('cal_events').select('id,author,day,at,title').order('day', { ascending: true }).limit(500), sb.from('cal_reacts').select('event,uid,emoji').limit(2000)]);
+  if (!cal) return;
+  if (!e.error) cal.events = (e.data || []).map(x => ({ id: x.id, by: String(x.author), day: String(x.day), at: x.at || '', title: clamp(x.title, 60) })).sort((a, b) => a.day < b.day ? -1 : a.day > b.day ? 1 : a.at < b.at ? -1 : a.at > b.at ? 1 : a.id - b.id);
+  if (!r.error) { cal.reacts = new Map(); for (const x of r.data || []) { if (!cal.reacts.has(x.event)) cal.reacts.set(x.event, []); cal.reacts.get(x.event).push({ u: String(x.uid), e: x.emoji }); } }
+  drawCal();
+}
+function openCalendar() {
+  if (calEl) return;
+  const n = new Date(); cal = { month: new Date(n.getFullYear(), n.getMonth(), 1), week: null, events: [], reacts: new Map(), add: null };
+  calEl = h('div', { class: 'ovl calov', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Calendar' }, h('div', { class: 'calbox' }));
+  calEl.addEventListener('keydown', e => { if (e.key === 'Escape') closeCal(); });
+  calEl.addEventListener('pointerdown', e => { if (e.target === calEl) closeCal(); });
+  document.body.append(calEl); drawCal(); loadCal();
+  calTimer = setInterval(() => { if (!document.hidden && !(cal && cal.add && calEl.contains(document.activeElement))) loadCal(); }, 20000);
+  fire(sb.rpc('purge_calendar'));
+}
+function closeCal() { if (!calEl) return; clearInterval(calTimer); calEl.remove(); calEl = null; cal = null; }
+async function calAdd(day, at, title) {
+  title = clamp(String(title || '').trim(), 60); if (!title) return 'Give it a name.'; if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return 'Pick a date.';
+  const { error } = await sb.from('cal_events').insert({ day, at: clamp(String(at || '').trim(), 11), title });
+  if (error) return /too_many/.test(error.message || '') ? 'You have a lot of events already.' : /row-level|policy|42501/i.test((error.message || '') + (error.code || '')) ? 'That date is too far off, or already passed.' : 'That did not go through.';
+  cal.add = null; await loadCal(); return '';
+}
+async function calDel(ev) { const { error } = await sb.from('cal_events').delete().eq('id', ev.id); if (!error) { cal.events = cal.events.filter(x => x.id !== ev.id); drawCal(); } }
+async function calReact(ev, emo) {
+  const list = cal.reacts.get(ev.id) || [], mine = list.some(x => x.u === S.uid && x.e === emo);
+  const { error } = mine ? await sb.from('cal_reacts').delete().eq('event', ev.id).eq('uid', S.uid).eq('emoji', emo) : await sb.from('cal_reacts').insert({ event: ev.id, emoji: emo });
+  if (error) return;
+  cal.reacts.set(ev.id, mine ? list.filter(x => !(x.u === S.uid && x.e === emo)) : [...list, { u: S.uid, e: emo }]); drawCal();
+}
+function calForm(day, withDate) {
+  const note = h('small', { class: 'muted' }, ''), dt = h('input', { type: 'date', 'aria-label': 'Date', value: day }), tm = h('input', { type: 'text', maxlength: '11', placeholder: 'time', 'aria-label': 'Time', class: 'cftime' }), ti = h('input', { type: 'text', maxlength: '60', placeholder: 'What is happening?', 'aria-label': 'Event', class: 'cftitle' });
+  const go = async () => { note.textContent = '...'; const m = await calAdd(withDate ? dt.value : day, tm.value, ti.value); if (m) note.textContent = m; };
+  ti.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); go(); } });
+  return h('div', { class: 'calform' }, withDate ? dt : null, tm, ti, h('button', { class: 'btn sm', type: 'button', onclick: go }, 'Add'), h('button', { class: 'btn sm', type: 'button', onclick: () => { cal.add = null; drawCal(true); } }, 'Cancel'), note);
+}
+function drawCal(force) {
+  if (!cal || !calEl) return;
+  if (!force && cal.add && calEl.contains(document.activeElement)) return;
+  const box = calEl.firstChild, today = dstr(new Date()), byDay = new Map();
+  for (const ev of cal.events) { if (!byDay.has(ev.day)) byDay.set(ev.day, []); byDay.get(ev.day).push(ev); }
+  const inWeek = !!cal.week;
+  const title = inWeek ? MON[cal.week.getMonth()].slice(0, 3) + ' ' + cal.week.getDate() + ' – ' + MON[addDays(cal.week, 6).getMonth()].slice(0, 3) + ' ' + addDays(cal.week, 6).getDate() : MON[cal.month.getMonth()] + ' ' + cal.month.getFullYear();
+  const step = n => { if (inWeek) { cal.week = addDays(cal.week, 7 * n); cal.month = new Date(cal.week.getFullYear(), cal.week.getMonth(), 1); } else cal.month = new Date(cal.month.getFullYear(), cal.month.getMonth() + n, 1); drawCal(true); };
+  const head = h('div', { class: 'calhead' },
+    inWeek ? h('button', { class: 'cbtn', type: 'button', onclick: () => { cal.week = null; cal.add = null; drawCal(true); } }, '‹ Month') : null,
+    h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Previous', onclick: () => step(-1) }, '◀'), h('b', { class: 'caltitle' }, title), h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Next', onclick: () => step(1) }, '▶'),
+    h('span', { class: 'grow' }),
+    h('button', { class: 'cbtn', type: 'button', onclick: () => { const n = new Date(); cal.month = new Date(n.getFullYear(), n.getMonth(), 1); cal.week = inWeek ? monOf(n) : null; drawCal(true); } }, 'Today'),
+    !inWeek ? h('button', { class: 'cbtn', type: 'button', onclick: () => { cal.add = { day: today, dated: true }; drawCal(true); } }, '+ Add') : null,
+    h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Close calendar', onclick: closeCal }, '×'));
+  const body = h('div', { class: 'calbody' });
+  if (cal.add && cal.add.dated) body.append(calForm(cal.add.day, true));
+  if (!inWeek) {
+    body.append(h('div', { class: 'cgrid cdow' }, DOW.map((d, i) => h('div', { class: i > 4 ? 'we' : '' }, d))));
+    const first = monOf(cal.month), grid = h('div', { class: 'cgrid' });
+    for (let i = 0; i < 42; i++) {
+      const d = addDays(first, i); if (i >= 35 && d.getMonth() !== cal.month.getMonth()) break;
+      const k = dstr(d), evs = byDay.get(k) || [], wk = (d.getDay() + 6) % 7 > 4;
+      grid.append(h('button', { type: 'button', class: 'cd' + (d.getMonth() !== cal.month.getMonth() ? ' oth' : '') + (wk ? ' we' : '') + (k === today ? ' td' : ''), onclick: () => { cal.week = monOf(d); cal.add = null; drawCal(true); } },
+        h('span', { class: 'cn' }, String(d.getDate())),
+        evs.slice(0, 2).map(ev => h('span', { class: 'ce' }, h('i', { class: 'cdot', style: 'background:' + ((profileOf(ev.by) || { theme: { ac: '#2b4aa8' } }).theme.ac) }), ev.title)),
+        evs.length > 2 ? h('span', { class: 'cmore' }, '+' + (evs.length - 2)) : null));
+    }
+    body.append(grid);
+  } else {
+    for (let i = 0; i < 7; i++) {
+      const d = addDays(cal.week, i), k = dstr(d), evs = byDay.get(k) || [];
+      body.append(h('div', { class: 'wday' + (i > 4 ? ' we' : '') + (k === today ? ' td' : '') },
+        h('div', { class: 'wlab' }, h('b', {}, String(d.getDate())), h('small', {}, DOW[i].toUpperCase())),
+        h('div', { class: 'wev' },
+          evs.map(ev => { const rs = cal.reacts.get(ev.id) || [], a = profileOf(ev.by);
+            return h('div', { class: 'wevent' }, h('div', { class: 'wtop' }, a ? avatar(a, 20) : null, ev.at ? h('b', { class: 'wat' }, ev.at) : null, h('span', { class: 'wti' }, ev.title), (ev.by === S.uid || isStaff()) ? h('button', { class: 'wx', type: 'button', 'aria-label': 'Delete event', onclick: () => calDel(ev) }, '×') : null),
+              h('div', { class: 'wrx' }, CAL_EMO.map(e => { const n = rs.filter(x => x.e === e).length, mine = rs.some(x => x.u === S.uid && x.e === e); return h('button', { type: 'button', class: 'rx1' + (mine ? ' me' : '') + (n ? '' : ' zero'), 'aria-pressed': String(mine), onclick: () => calReact(ev, e) }, e, n ? ' ' + n : ''); }))); }),
+          cal.add && !cal.add.dated && cal.add.day === k ? calForm(k, false) : h('button', { class: 'wadd', type: 'button', onclick: () => { cal.add = { day: k }; drawCal(true); setTimeout(() => { const t = calEl && calEl.querySelector('.cftitle'); if (t) t.focus(); }, 0); } }, '+'))));
+    }
+  }
+  box.replaceChildren(head, body);
+}
 /* ---------- wiring ---------- */
 $('soForm').addEventListener('submit', onSignon);
 $('soSwap').addEventListener('click', swapMode);
@@ -2214,6 +2335,7 @@ $('offBtn').addEventListener('click', signOff);
 (() => { const sel = $('toneSel'); for (const [k, t] of Object.entries(TONES)) sel.append(h('option', { value: k }, t.name)); sel.value = toneKey();
   sel.addEventListener('change', () => { S.tone = sel.value; LS.set('am.tone', S.tone); sfx('in', true); }); })();
 $('logBtn').addEventListener('click', showLog);
+$('calBtn').addEventListener('click', openCalendar);
 $('sndBtn').addEventListener('click', () => { S.sound = !S.sound; LS.set('am.sound', S.sound ? 'on' : 'off'); renderMe(); if (S.sound) sfx('in'); });
 $('eClose').addEventListener('click', closeEditor);
 $('eCancel').addEventListener('click', closeEditor);
@@ -2241,12 +2363,12 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && S.
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '1794072599' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '1794073599' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '1794072599') { newBuild = m[1]; $('updBar').hidden = false; }
+    if (m && m[1] !== BUILD && m[1] !== '1794073599') { newBuild = m[1]; $('updBar').hidden = false; }
   } catch {}
 }
 $('updBtn').addEventListener('click', () => { location.replace(location.pathname + '?v=' + encodeURIComponent(newBuild || Date.now())); });
