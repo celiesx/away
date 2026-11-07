@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="20261107140020">
+<meta name="build" content="20261107140632">
 <link rel="icon" href="data:,">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -396,12 +396,14 @@ body.hand{--font:'Patrick Hand','Comic Neue',cursive;--fs:16px}
 .ctext small{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .tb #profBack{margin-left:auto;margin-right:2px;font-size:20px;line-height:1;font-weight:700;border:0;padding:0 8px;align-self:center}
 #soMsg{cursor:pointer;-webkit-tap-highlight-color:transparent;user-select:none}
-#profX{border:0;font-size:20px;line-height:1;padding:0 6px;align-self:center}
+#profX{align-self:center}
 .tb{align-items:center}
-.tb #profBack+#profX{margin-left:0}
+.tb #profBack:not([hidden])+#profX{margin-left:0}
 .avbtn{border:0;padding:0;background:none;cursor:zoom-in;align-self:start;line-height:0;border-radius:var(--rs)}
 .avzoom{cursor:zoom-out}
 .avbig{text-align:center}
+.bnbig{display:block;max-width:92vw;max-height:70vh;border:3px solid var(--ac);border-radius:var(--rs);margin:0 auto 8px}
+.banner.zm{cursor:zoom-in}
 .avbig .av{font-size:min(120px,30vw);border:3px solid var(--ac);border-radius:var(--rs);image-rendering:auto}
 .avname{margin-top:10px;font-weight:800;color:#fff;text-shadow:0 1px 4px #000}
 .jumpbar{border:0;border-bottom:1px solid var(--line);background:var(--ac-soft);color:var(--fg);font:inherit;font-size:12px;font-weight:700;padding:5px 10px;cursor:pointer;text-align:center}
@@ -528,6 +530,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 .convbar{display:flex;align-items:center;gap:6px;padding-right:10px;border-bottom:1px solid var(--line);flex:none}
 .convs{display:flex;gap:8px;padding:8px 0 8px 10px;overflow-x:auto;flex:1;min-width:0}
 .convs .tabx{margin-left:4px;padding:0 3px;background:none;border:0;color:inherit;font:inherit;cursor:pointer;opacity:.6}
+.convs .tabx:hover{opacity:1}
 .convs .btn{flex:none;white-space:nowrap;position:relative}
 .convs .plus{padding:2px 9px;font-weight:800}
 .chform{display:flex;gap:6px;padding:6px 10px;border-bottom:1px solid var(--line);flex-wrap:wrap;align-items:center}
@@ -849,6 +852,14 @@ const isMuted = () => ((mine() || {}).mutedUntil || 0) > Date.now();
 const profileOf = id => S.profiles.get(id) || null;
 const SN_OK = /^[A-Za-z0-9._-]{2,20}$/;
 
+function zoomBanner(p) {
+  if (!p || !p.banner) return;
+  const prev = document.activeElement, done = () => { ov.remove(); if (prev && prev.focus) prev.focus(); };
+  const ov = h('div', { class: 'ovl avzoom', role: 'dialog', 'aria-modal': 'true', 'aria-label': (p.sn || 'Profile') + ' banner', onclick: done },
+    h('div', { class: 'avbig' }, h('img', { class: 'bnbig', alt: (p.sn || 'their') + ' banner', src: p.banner }), h('div', { class: 'avname' }, p.sn || '')));
+  ov.addEventListener('keydown', e => { if (e.key === 'Escape') done(); });
+  ov.tabIndex = -1; document.body.append(ov); ov.focus();
+}
 function zoomAvatar(p) {
   if (!p) return;
   const prev = document.activeElement, done = () => { ov.remove(); if (prev && prev.focus) prev.focus(); };
@@ -1553,7 +1564,7 @@ function renderProfile() {
   $('profTitle').textContent = (p.sn || 'profile') + "'s page";
   const st = S.editing ? { cls: '', text: 'Preview. This is how your page looks.' } : statusOf(id, p);
   const acts = !S.editing && id && id !== S.uid ? h('div', { class: 'bact' }, friendBtn(id), iconBtn(IC_MSG, ((p.dmFriends && !isFriend(id) && !isStaff()) ? p.sn + ' only takes messages from friends' : 'Message ' + p.sn), () => { if (p.dmFriends && !isFriend(id) && !isStaff()) return say(p.sn + ' only takes messages from friends.'); openConv(id); }, p.dmFriends && !isFriend(id) && !isStaff() ? 'dim' : '')) : null;
-  if (p.banner || acts) body.append(h('div', { class: 'bwrap' + (p.banner ? '' : ' nob') }, p.banner ? h('div', { class: 'banner', role: 'img', 'aria-label': (p.sn || 'their') + ' banner', style: 'background-image:url(' + p.banner + ')' }) : null, acts));
+  if (p.banner || acts) body.append(h('div', { class: 'bwrap' + (p.banner ? '' : ' nob') }, p.banner ? h('div', { class: 'banner zm', role: 'button', tabindex: '0', 'aria-label': 'View ' + (p.sn || 'their') + ' banner', style: 'background-image:url(' + p.banner + ')', onclick: () => zoomBanner(p), onkeydown: e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); zoomBanner(p); } } }) : null, acts));
   const away = st.cls === 'away', tipOn = away && st.text;
   body.append(h('div', { class: 'phead' }, (S.editing ? avatar : avBtn)({ sn: p.sn || '?', avatar: p.avatar, theme: t }, 84),
     h('div', { class: 'grow' }, h('h2', { class: 'psn' }, away ? h('span', { class: 'dot away' + (tipOn ? ' tip' : ''), 'aria-hidden': tipOn ? null : 'true', role: tipOn ? 'button' : null, tabindex: tipOn ? '0' : null, title: st.text || 'Away', onclick: tipOn ? e => { if (thoughtEl && thoughtEl.dataset.of === st.text) closeThought(); else { thought(e.currentTarget, st.text); thoughtEl.dataset.of = st.text; } } : null }) : null, p.sn || '...'),
@@ -2682,9 +2693,10 @@ function pvSide(custom) {
   const NM = { 1: 'Cover', 3: 'Index', 4: 'This week', 5: 'Templates' };
   const item = (page, label, on, onclick, extra) => { const tk = page === 1 && cover ? 'c' + cover : String(page), im = h('img', { class: 'pvth', alt: '', 'data-tk': tk, src: pv.thumbs[tk] || '' }); pvThumb(tk, page === 1 && cover ? cover : page, page === 1 && !!cover);
     return h('div', { class: 'pvit' + (on ? ' on' : '') }, h('button', { type: 'button', class: 'pvitb', 'aria-label': label, onclick }, im, h('span', {}, label)), extra || null); };
-  const addPage = (tpl, label) => { if (pv.notes._pages.length >= 30) return; const c = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 4), tpl, label: clamp(label, 24) }; pv.notes._pages.push(c); pvSave(); pvGoCustom(c); };
+  const addPage = (tpl, label) => { if (pv.notes._pages.length >= 30) return; const same = pv.notes._pages.filter(x => x.label === label || x.label.startsWith(label + ' ')).length, c = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 4), tpl, label: clamp(same ? label + ' ' + (same + 1) : label, 24) }; pv.notes._pages.push(c); pvSave(); pvGoCustom(c); };
   side.append(h('div', { class: 'pvsh' }, 'My pages'));
-  if (!pv.notes._pages.length) side.append(h('small', { class: 'pvhint' }, 'Open All pages below and tap + on one to add it here.'));
+  side.append(item(1, 'Cover', pv.key === '1', pv.cdoc ? () => { pv.page = 1; pv.key = '1'; pv.covers = true; pv.form = false; pv.del = false; pvRender(); } : () => pvGo(1)));
+  if (!pv.notes._pages.length) side.append(h('small', { class: 'pvhint' }, 'Tap + on a template below to add a page.'));
   let dragId = null;
   for (const c of pv.notes._pages) {
     const it = item(c.tpl, c.label, pv.key === 'u' + c.id, () => pvGoCustom(c),
@@ -2697,18 +2709,16 @@ function pvSide(custom) {
     it.addEventListener('drop', e => { e.preventDefault(); const from = pv.notes._pages.findIndex(x => x.id === dragId), to = pv.notes._pages.indexOf(c); if (from < 0 || to < 0 || from === to) return; const [m] = pv.notes._pages.splice(from, 1); pv.notes._pages.splice(to, 0, m); pvSave(); pvRender(); });
     side.append(it);
   }
-  const open = !!pv.allOpen;
-  side.append(h('button', { type: 'button', class: 'pvsh pvshb', 'aria-expanded': String(open), onclick: () => { pv.allOpen = !pv.allOpen; pvRender(); } }, (open ? '▾' : '▸') + ' All pages (' + pv.doc.numPages + ')'));
-  if (open) {
-    side.append(h('small', { class: 'pvhint' }, 'Tap + (or right-click) to add a copy to My pages.' + (pv.cdoc ? ' Tap Cover to change it.' : '')));
-    for (let n = 1; n <= pv.doc.numPages; n++) {
-      const t = (PV_TPL.find(x => x[0] === n) || [])[1], lab = NM[n] ? n + ' · ' + NM[n] : t ? n + ' · ' + t : String(n), nm = NM[n] || t || 'Page ' + n;
-      const plus = n === 1 ? null : h('button', { type: 'button', class: 'pvdel pvadd', 'aria-label': 'Add ' + nm + ' to My pages', title: 'Add to My pages', onclick: () => addPage(n, nm) }, '+');
-      const it = item(n, lab, pv.key === String(n), n === 1 && pv.cdoc ? () => { pv.page = 1; pv.key = '1'; pv.covers = true; pv.form = false; pv.del = false; pvRender(); } : () => pvGo(n), plus);
-      if (plus) it.addEventListener('contextmenu', e => { e.preventDefault(); addPage(n, nm); });
-      side.append(it);
-    }
-  }
+  const drop = (key, title, on) => h('button', { type: 'button', class: 'pvsh pvshb', 'aria-expanded': String(on), onclick: () => { pv[key] = !on; pvRender(); } }, (on ? '▾ ' : '▸ ') + title);
+  const row = (n, lab, nm) => {
+    const plus = h('button', { type: 'button', class: 'pvdel pvadd', 'aria-label': 'Add ' + nm + ' to My pages', title: 'Add to My pages', onclick: () => addPage(n, nm) }, '+');
+    const it = item(n, lab, pv.key === String(n), () => pvGo(n), plus); it.addEventListener('contextmenu', e => { e.preventDefault(); addPage(n, nm); }); return it;
+  };
+  const tplOn = pv.tplOpen !== false, allOn = !!pv.allOpen;
+  side.append(drop('tplOpen', 'Templates', tplOn));
+  if (tplOn) for (const [n, t] of PV_TPL) side.append(row(n, t, t));
+  side.append(drop('allOpen', 'All pages (' + pv.doc.numPages + ')', allOn));
+  if (allOn) for (let n = 2; n <= pv.doc.numPages; n++) { const t = (PV_TPL.find(x => x[0] === n) || [])[1], nm = NM[n] || t || 'Page ' + n; side.append(row(n, NM[n] ? n + ' · ' + NM[n] : t ? n + ' · ' + t : String(n), nm)); }
   setTimeout(() => { const cur = side.querySelector('.pvit.on'); if (cur) cur.scrollIntoView({ block: 'nearest' }); }, 0);
   return side;
 }
@@ -2717,20 +2727,10 @@ async function pvRender() {
   const my = ++pv.tok, box = pvEl.firstChild, onCover = pv.page === 1 && !!pv.cdoc, pg = onCover ? await pv.cdoc.getPage(Math.min(pv.notes._cover || 1, pv.cdoc.numPages)) : await pv.doc.getPage(pv.page);
   if (!pv || my !== pv.tok) return;
   const custom = pv.key[0] === 'u' ? pv.notes._pages.find(c => 'u' + c.id === pv.key) : null;
-  const head = h('div', { class: 'calhead pvhead' },  h('button', { class: 'cbtn', type: 'button', onclick: () => { pv.form = !pv.form; pvRender(); } }, '+ New page'),
-    STK ? h('button', { class: 'cbtn' + (pv.tray ? ' on' : ''), type: 'button', onclick: () => { pv.tray = !pv.tray; pvRender(); } }, 'Stickers') : null, h('button', { class: 'cbtn' + (pv.tick ? ' on' : ''), type: 'button', 'aria-pressed': String(!!pv.tick), title: 'Tap to turn on, then tap a box to tick it', onclick: () => { pv.tick = !pv.tick; pvRender(); } }, '\u2713 Tick'),
+  const head = h('div', { class: 'calhead pvhead' },  STK ? h('button', { class: 'cbtn' + (pv.tray ? ' on' : ''), type: 'button', onclick: () => { pv.tray = !pv.tray; pvRender(); } }, 'Stickers') : null, h('button', { class: 'cbtn' + (pv.tick ? ' on' : ''), type: 'button', 'aria-pressed': String(!!pv.tick), title: 'Tap to turn on, then tap a box to tick it', onclick: () => { pv.tick = !pv.tick; pvRender(); } }, '\u2713 Tick'),
     h('b', { class: 'caltitle' }, custom ? custom.label : 'Page ' + pv.page + ' of ' + pv.doc.numPages),
     h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Previous page', onclick: () => pvGo(pv.page - 1) }, '‹'), h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Next page', onclick: () => pvGo(pv.page + 1) }, '›'), h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Close planner', onclick: closePv }, '×'));
-  let form = null;
-  if (pv.form) {
-    const sn = sunOf(new Date()), lb = h('input', { type: 'text', maxlength: '24', value: 'Week of ' + MON[sn.getMonth()].slice(0, 3) + ' ' + sn.getDate(), 'aria-label': 'Page name' });
-    let pick = 14;
-    const grid = h('div', { class: 'pvtpls' }, PV_TPL.map(([n, t]) => { const tk = String(n), im = h('img', { class: 'pvth', alt: '', 'data-tk': tk, src: pv.thumbs[tk] || '' }); pvThumb(tk, n, false);
-      const b = h('button', { type: 'button', class: 'pvtp' + (n === pick ? ' on' : ''), onclick: () => { pick = n; for (const x of grid.children) x.classList.toggle('on', x === b); } }, im, h('span', {}, t)); return b; }));
-    const go = () => { const t = lb.value.trim(); if (!t || pv.notes._pages.length >= 30) return; const c = { id: Date.now().toString(36), tpl: pick, label: clamp(t, 24) }; pv.notes._pages.push(c); pvSave(); pvGoCustom(c); };
-    lb.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); go(); } });
-    form = h('div', { class: 'pvform' }, h('small', {}, '1. Tap the layout you want'), grid, h('div', { class: 'pvfrow' }, h('small', {}, '2. Name it'), lb, h('button', { class: 'cbtn', type: 'button', onclick: go }, '3. Add')));
-  }
+  const form = null;
   let cstrip = null;
   if (pv.covers && pv.cdoc) {
     cstrip = h('div', { class: 'pvcovers' });
@@ -2938,12 +2938,12 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && S.
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '20261107140020' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '20261107140632' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '20261107140020') { newBuild = m[1]; $('updBar').hidden = false; }
+    if (m && m[1] !== BUILD && m[1] !== '20261107140632') { newBuild = m[1]; $('updBar').hidden = false; }
   } catch {}
 }
 $('updBtn').addEventListener('click', () => { location.replace(location.pathname + '?v=' + encodeURIComponent(newBuild || Date.now())); });
