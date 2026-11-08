@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="20261108111622">
-<link rel="icon" type="image/png" href="icon-64.png?v=20261108111622">
-<link rel="shortcut icon" href="favicon.ico?v=20261108111622">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261108111622">
-<link rel="manifest" href="manifest.webmanifest?v=20261108111622">
+<meta name="build" content="20261108112452">
+<link rel="icon" type="image/png" href="icon-64.png?v=20261108112452">
+<link rel="shortcut icon" href="favicon.ico?v=20261108112452">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261108112452">
+<link rel="manifest" href="manifest.webmanifest?v=20261108112452">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
 <style>
@@ -614,6 +614,11 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 .picker h4{margin:6px 2px 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .typing{padding:2px 10px;font-size:12px;color:var(--muted)}.typing i{display:inline-block;animation:tdot 1.2s infinite;font-style:normal}.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}@keyframes tdot{0%,60%,100%{opacity:.25}30%{opacity:1}}@media(prefers-reduced-motion:reduce){.typing i{animation:none}}
 .pnone{display:block;margin:0 0 6px}.moodchip::after{content:'\2715';position:absolute;top:-5px;right:-5px;width:13px;height:13px;border-radius:50%;background:var(--panel2);border:1px solid var(--line);font-size:8px;line-height:11px;text-align:center;color:var(--fg)}
+.compose{position:relative}.compose>#photoBtn,.compose>#micBtn{display:none}
+.plusbtn{width:38px;padding:0;font-size:24px;line-height:1;font-weight:400}.plusbtn span{display:block;transition:transform .22s ease}.plusbtn[aria-expanded=true] span{transform:rotate(45deg)}
+.plustray{position:absolute;left:8px;bottom:calc(100% + 6px);z-index:30;display:flex;flex-direction:column;gap:2px;min-width:190px;padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:var(--rad);box-shadow:0 6px 22px #0005;animation:trayin .18s ease both}.plustray[hidden]{display:none}.plustray button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:0;background:transparent;padding:10px 12px;font-weight:700;cursor:pointer;border-radius:var(--rx)}.plustray button:hover,.plustray button:focus-visible{background:var(--panel2)}
+@keyframes trayin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}@media(prefers-reduced-motion:reduce){.plustray{animation:none}.plusbtn span{transition:none}}
+.strow #npTog,.strow #moodEm,.strow #watchBtn{width:44px;height:34px;padding:0;display:inline-flex;align-items:center;justify-content:center}
 .pclose{position:sticky;top:0;float:right;z-index:3;width:26px;height:26px;padding:0;line-height:1;font-size:13px;border-radius:50%;cursor:pointer;margin:0 0 0 4px}
 .ptabs{display:flex;gap:4px;margin-bottom:6px;position:sticky;top:-8px;background:var(--panel);padding:4px 0 2px;z-index:1}
 .ptabs button{flex:1;border:1px solid var(--line);background:transparent;color:inherit;font:inherit;padding:5px;border-radius:8px;cursor:pointer}
@@ -728,7 +733,9 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
       <div id="log" class="log" role="log" aria-live="polite" aria-label="Messages"></div>
       <form id="compose" class="compose" autocomplete="off">
         <label class="sr" for="msg">Message</label>
-                <button id="photoBtn" class="btn" type="button" aria-label="Send a file, photo or GIF" title="Send a file, photo or GIF"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5l-8.6 8.6a5.5 5.5 0 0 1-7.8-7.8l8.6-8.6a3.7 3.7 0 0 1 5.2 5.2l-8.6 8.6a1.8 1.8 0 0 1-2.6-2.6l7.9-7.9"/></svg></button>
+                <button id="plusBtn" class="btn plusbtn" type="button" aria-label="More: files and voice messages" aria-expanded="false" aria-controls="plusTray"><span aria-hidden="true">+</span></button>
+        <div id="plusTray" class="plustray" role="menu" aria-label="Attach" hidden><button type="button" role="menuitem" id="ptFile"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5l-8.6 8.6a5.5 5.5 0 0 1-7.8-7.8l8.6-8.6a3.7 3.7 0 0 1 5.2 5.2l-8.6 8.6a1.8 1.8 0 0 1-2.6-2.6l7.9-7.9"/></svg>Files</button><button type="button" role="menuitem" id="ptVoice"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>Voice message</button></div>
+        <button id="photoBtn" class="btn" type="button" aria-label="Send a file, photo or GIF" title="Send a file, photo or GIF"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5l-8.6 8.6a5.5 5.5 0 0 1-7.8-7.8l8.6-8.6a3.7 3.7 0 0 1 5.2 5.2l-8.6 8.6a1.8 1.8 0 0 1-2.6-2.6l7.9-7.9"/></svg></button>
         <button id="emoBtn" class="btn" type="button" aria-label="Emoji and emotes">🧸ྀི</button>
 
         <textarea id="msg" rows="1" maxlength="300" enterkeyhint="enter" autocomplete="off" placeholder="Message"></textarea>
@@ -811,7 +818,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=20261108111622"></script>
+<script src="config.js?v=20261108112452"></script>
 <script>
 (() => {
 'use strict';
@@ -1377,7 +1384,7 @@ async function askJoin() { const c = curCh(); if (!c) return; await sb.rpc('requ
 async function answerJoin(ch, member, ok) { await sb.rpc('answer_join', { p_channel: ch, p_member: member, p_ok: ok }); await loadBms(); }
 function renderComposer() {
   const muted = isMuted(), can = S.signedOn && !!mine() && canRead(curCh()) && !muted;
-  $('msg').disabled = !can; $('sendBtn').disabled = !can; $('photoBtn').disabled = !can; $('micBtn').disabled = !can;
+  $('msg').disabled = !can; $('sendBtn').disabled = !can; $('photoBtn').disabled = !can; $('plusBtn').disabled = !can; $('micBtn').disabled = !can;
   $('msg').placeholder = muted ? 'You are in the corner until ' + fmtTime(mine().mutedUntil) + '. Back soon!' : (isPhone() ? 'Message' : 'Message (try /me or @name)');
 }
 
@@ -3623,6 +3630,15 @@ $('newCh').addEventListener('click', () => { const f = $('chForm'); f.hidden = !
 $('chForm').addEventListener('submit', makeChannel);
 $('chCancel').addEventListener('click', () => { $('chForm').hidden = true; });
 $('photoBtn').addEventListener('click', () => $('photoIn').click());
+{ const pb = $('plusBtn'), tr = $('plusTray');
+  const shut = () => { tr.hidden = true; pb.setAttribute('aria-expanded', 'false'); };
+  pb.addEventListener('click', () => { const open = tr.hidden; tr.hidden = !open; pb.setAttribute('aria-expanded', String(open)); if (open) setTimeout(() => { const f = tr.querySelector('button'); if (f && !isPhone()) f.focus(); }, 0); });
+  $('ptFile').addEventListener('click', () => { shut(); $('photoBtn').click(); });
+  $('ptVoice').addEventListener('click', () => { shut(); $('micBtn').click(); });
+  document.addEventListener('pointerdown', e => { if (!tr.hidden && !tr.contains(e.target) && !pb.contains(e.target)) shut(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !tr.hidden) { shut(); pb.focus(); } });
+  keepFocus(pb);
+}
 function voiceEl(path) {
   const a = h('audio', { class: 'voice', controls: '', preload: 'metadata' });
   const set = u => { if (u) a.src = u; else a.replaceWith(h('span', { class: 'muted' }, 'voice message expired')); };
@@ -3839,12 +3855,12 @@ window.addEventListener('focus', () => { if (S.pings) { S.pings = 0; setBadge();
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '20261108111622' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '20261108112452' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '20261108111622') { if (newBuild !== m[1]) showPill('New version ready. Tap to update', () => $('updBtn').click()); newBuild = m[1]; $('updBar').hidden = false; }
+    if (m && m[1] !== BUILD && m[1] !== '20261108112452') { if (newBuild !== m[1]) showPill('New version ready. Tap to update', () => $('updBtn').click()); newBuild = m[1]; $('updBar').hidden = false; }
   } catch {}
 }
 $('updBtn').addEventListener('click', () => { location.replace(location.pathname + '?v=' + encodeURIComponent(newBuild || Date.now())); });
