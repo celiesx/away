@@ -1948,8 +1948,8 @@ function addMsg(r, live) {
       const me = mine(), ping = !isRoom(c) || (!!me && !!m.text && new RegExp('(^|\\W)@' + me.sn.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?!\\w)', 'i').test(m.text));
       if (ping && !tabMuted(c)) sfx('in');
       const viewing = c === S.conv && (S.tab === 'chat' || !isPhone()) && !document.hidden;
-      if (isRoom(c)) { const a = (actBurst.get(c) || []).filter(t => Date.now() - t < 120000); a.push(Date.now()); actBurst.set(c, a); if (a.length >= 4 && !viewing && !document.hidden && !tabMuted(c) && Date.now() - (actHot.get(c) || 0) > 600000) { actHot.set(c, Date.now()); const where = c === 'lounge' ? 'the lounge' : '#' + ((S.channels.get(c.slice(2)) || {}).name || 'a board'); showPill(where + ' is active right now', () => { if (S.tab !== 'chat') setTab('chat'); openConv(c); }); actAny = Date.now(); } }
-      if (!viewing) { S.unread[c] = (S.unread[c] || 0) + 1; if (!document.hidden && !tabMuted(c)) if (!(LS.get('am.push') === '1' && !isRoom(c))) actPill(m, c, ping); }
+      if (isRoom(c)) { const a = (actBurst.get(c) || []).filter(t => Date.now() - t < 120000); a.push(Date.now()); actBurst.set(c, a); if (a.length >= 4 && LS.get('am.push') !== '1' && !viewing && !document.hidden && !tabMuted(c) && Date.now() - (actHot.get(c) || 0) > 600000) { actHot.set(c, Date.now()); const where = c === 'lounge' ? 'the lounge' : '#' + ((S.channels.get(c.slice(2)) || {}).name || 'a board'); showPill(where + ' is active right now', () => { if (S.tab !== 'chat') setTab('chat'); openConv(c); }); actAny = Date.now(); } }
+      if (!viewing) { S.unread[c] = (S.unread[c] || 0) + 1; if (!document.hidden && !tabMuted(c)) if (LS.get('am.push') !== '1') actPill(m, c, ping); }
       if (ping && (document.hidden || !viewing) && !tabMuted(c)) pingTab(m, c);
       else if (c === S.conv && !nearBottom()) S.newBelow = true;
       if (!isRoom(c)) { S.opened.add(c); if (S.closedDms.delete(c)) LS.set('am.closed', JSON.stringify([...S.closedDms])); }
