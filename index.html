@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794105900">
-<link rel="icon" type="image/png" href="icon-64.png?v=1794105900">
-<link rel="shortcut icon" href="favicon.ico?v=1794105900">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1794105900">
-<link rel="manifest" href="manifest.webmanifest?v=1794105900">
+<meta name="build" content="1794106882">
+<link rel="icon" type="image/png" href="icon-64.png?v=1794106882">
+<link rel="shortcut icon" href="favicon.ico?v=1794106882">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1794106882">
+<link rel="manifest" href="manifest.webmanifest?v=1794106882">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
 <style>
@@ -581,7 +581,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 .rx button{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border:1px solid var(--line);border-radius:999px;background:var(--panel2);color:var(--fg);font:inherit;font-size:13px;cursor:pointer;line-height:1.5}
 .rx button.me{border-color:var(--ac);background:var(--ac-soft)}
 .wpov{position:fixed;inset:0;z-index:60;display:grid;grid-template-columns:180px minmax(0,1fr) 300px;background:var(--bg);color:var(--fg)}
-.wpl{padding:10px;border-right:1px solid var(--line);overflow:auto}.wpjoin{color:var(--muted);display:inline-flex;align-items:center}.wpjoin.on{color:#3ecf5b}.wpjoin:disabled{opacity:.5}.wpl .wpch{display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--panel2);border-radius:6px;color:#3ecf5b}.wpl .wpch b{color:var(--fg);overflow:hidden;text-overflow:ellipsis}.wpl .wpmem{display:flex;align-items:center;gap:8px;padding:4px 8px 4px 22px}.wpl h4{margin:0 0 6px;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}.wpl div{padding:3px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wpl{padding:10px;border-right:1px solid var(--line);overflow:auto}.wpjoin{color:var(--muted);display:inline-flex;align-items:center}.wpjoin.on{color:#3ecf5b}.wpjoin:disabled{opacity:.5}.wpl .wpch{display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--panel2);border-radius:6px;color:#3ecf5b}.wpl .wpch b{color:var(--fg);overflow:hidden;text-overflow:ellipsis}.wpl .wpmem{display:flex;align-items:center;gap:8px;padding:4px 8px 4px 22px}.wpl{display:flex;flex-direction:column;padding:0}.wplist{flex:1;overflow:auto;padding:10px;min-height:0}.wpl .wpcard{border-top:1px solid var(--line);padding:10px;background:var(--panel2);display:block}.wpcard .wpst{display:flex;align-items:center;gap:10px;padding:0 0 8px}.wpcard .wpsig{color:#3ecf5b;display:flex}.wpcard small{display:block;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.wpcard .wpbtns{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:0}.wpib{display:flex;align-items:center;justify-content:center;padding:8px 0;border:0;border-radius:8px;background:var(--panel);color:var(--fg);cursor:pointer}.wpib:hover{background:var(--ac-soft)}.wpib.off{color:#e5484d}.wpib.leave{background:#e5484d;color:#fff}.wpl h4{margin:0 0 6px;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}.wpl div{padding:3px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .wpm{display:flex;flex-direction:column;min-width:0;min-height:0;background:#000}.wpm video{flex:1;min-height:0;width:100%;background:#000;object-fit:contain}
 .wpmsg[hidden],.wpm video[hidden]{display:none}.wpmsg{display:flex;align-items:center;justify-content:center;flex:1;color:#bbb;text-align:center;padding:20px}
 .wpbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px;background:var(--panel);color:var(--fg)}.wpbar .grow{flex:1}
@@ -778,7 +778,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=1794105900"></script>
+<script src="config.js?v=1794106882"></script>
 <script>
 (() => {
 'use strict';
@@ -2561,6 +2561,16 @@ function spkIc(size) {
   const d = new DOMParser().parseFromString('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="' + size + '" height="' + size + '" aria-hidden="true"><path fill="currentColor" d="M3 9v6h4l5 4V5L7 9z"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M15.5 8.5a5 5 0 0 1 0 7M18.2 5.8a8.6 8.6 0 0 1 0 12.4"/></svg>', 'image/svg+xml');
   return document.importNode(d.documentElement, true);
 }
+function wpIc(kind, off) {
+  const P = {
+    mic: '<path fill="currentColor" d="M12 14.5a3.5 3.5 0 0 0 3.5-3.5V6a3.5 3.5 0 0 0-7 0v5a3.5 3.5 0 0 0 3.5 3.5z"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/>',
+    head: '<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 15v-3a8 8 0 0 1 16 0v3"/><path fill="currentColor" d="M3 14h4v7H5a2 2 0 0 1-2-2zM17 14h4v5a2 2 0 0 1-2 2h-2z"/>',
+    full: '<path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
+    phone: '<path fill="currentColor" d="M2 14.5c0-1 .8-1.8 1.8-2.3C6 11 9 10.5 12 10.5s6 .5 8.2 1.7c1 .5 1.8 1.3 1.8 2.3v1.2a1.2 1.2 0 0 1-1.3 1.2l-3-.3a1.3 1.3 0 0 1-1.2-1.2v-1.5c-1.2-.4-2.6-.6-4.5-.6s-3.300.2-4.500.6v1.500a1.300 1.300 0 0 1-1.200 1.200l-3 .3A1.200 1.200 0 0 1 2 15.700z"/>'
+  };
+  const d = new DOMParser().parseFromString('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">' + P[kind] + (off ? '<path d="M4 4L20 20" stroke="#e5484d" stroke-width="2.4" stroke-linecap="round"/>' : '') + '</svg>', 'image/svg+xml');
+  return document.importNode(d.documentElement, true);
+}
 function wpBtn(id) {
   const pm = S.pmeta[id], wp = id !== S.uid && S.online.has(id) && pm && pm.st !== 'invis' && pm.wp;
   if (!wp || !wp.max) return null;
@@ -2575,7 +2585,7 @@ function wpAddChat(who, text, sys) {
 function wpRoster() {
   if (!WP) return;
   const hp = profileOf(WP.host);
-  WP.rost.replaceChildren(h('h4', {}, 'Watch party'), h('div', { class: 'wpch' }, spkIc(18), h('b', {}, (hp ? hp.sn : 'host') + '\u2019s stream')),
+  WP.list.replaceChildren(h('h4', {}, 'Watch party'), h('div', { class: 'wpch' }, spkIc(18), h('b', {}, (hp ? hp.sn : 'host') + '\u2019s stream')),
     ...[...WP.members].map(id => { const p = profileOf(id); return h('div', { class: 'wpmem' }, avatar(p || { sn: '?' }, 24), h('span', {}, (p ? p.sn : 'someone') + (id === WP.host ? ' (host)' : ''))); }));
 }
 function wpUi() {
@@ -2587,26 +2597,31 @@ function wpUi() {
   const post = t => { const p = mine(); wpSend('chat', { from: S.uid, sn: p ? p.sn : 'me', text: t }); wpAddChat(p ? p.sn : 'me', t); };
   const send = () => { const t = inp.value.trim().slice(0, 300); if (!t) return; inp.value = ''; const p = mine(); wpSend('chat', { from: S.uid, sn: p ? p.sn : 'me', text: t }); wpAddChat(p ? p.sn : 'me', t); };
   inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); send(); } });
-  const rost = h('div', { class: 'wpl' });
+  const rost = h('div', { class: 'wpl' }), list = h('div', { class: 'wplist' }); rost.append(list);
   const ov = h('div', { class: 'wpov', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Watch party' }, rost, h('div', { class: 'wpm' , style: 'display:contents' }, ''), h('div', { class: 'wpc' }, log, h('div', { class: 'wpin' }, inp, h('button', { class: 'btn', type: 'button', 'aria-label': 'Emoji, emotes and GIFs', onclick: e => { if (pickEl) return closePicker(); const b = e.currentTarget.getBoundingClientRect(); openPicker(Math.max(8, b.right - 330), Math.max(8, b.top - 460), v => { inp.value = (inp.value + v + ' ').slice(0, 300); inp.focus(); }, true, u => post(u)); } }, '\u{1F9F8}'), h('button', { class: 'btn', type: 'button', onclick: send }, 'Send'))));
   ov.replaceChild(h('div', { class: 'wpm' }, msg, vid, bar), ov.children[1]);
-  Object.assign(WP, { ov, vid, msg, bar, log, rost });
+  Object.assign(WP, { ov, vid, msg, bar, log, rost, list });
   document.body.append(ov);
-  const leave = h('button', { class: 'btn', type: 'button', onclick: () => wpLeave() }, WP.isHost ? 'Stop sharing' : 'Leave');
-  bar.append(leave);
+  const ibtn = (kind, label, fn, off) => { const b = h('button', { class: 'wpib' + (off ? ' off' : ''), type: 'button', 'aria-label': label, title: label, onclick: () => fn(b) }, wpIc(kind, off)); return b; };
+  const setIc = (b, kind, off) => { b.classList.toggle('off', !!off); b.replaceChildren(wpIc(kind, off)); };
+  const mic = ibtn('mic', 'Turn your mic on or off', async b => { await wpMicToggle(b); setIc(b, 'mic', !WP.micOn); }, true);
+  const snd = ibtn('head', 'Mute or unmute the sound', b => {
+    if (WP.isHost) { WP.deaf = !WP.deaf; if (WP.mon) WP.mon.gain.value = WP.deaf ? 0 : 1; setIc(b, 'head', WP.deaf); }
+    else { vid.muted = !vid.muted; setIc(b, 'head', vid.muted); if (vid.paused) vid.play().catch(() => {}); }
+  }, false);
+  WP.setSnd = off => setIc(snd, 'head', off);
+  const fs = ibtn('full', 'Full screen', () => { try { (vid.requestFullscreen || vid.webkitEnterFullscreen || (() => {})).call(vid); } catch {} });
+  const lv = ibtn('phone', WP.isHost ? 'Stop sharing' : 'Leave the watch party', () => wpLeave()); lv.classList.add('leave');
+  const hp = profileOf(WP.host);
+  rost.append(h('div', { class: 'wpcard' },
+    h('div', { class: 'wpst' }, h('span', { class: 'wpsig' }, spkIc(22)), h('div', {}, h('b', {}, WP.isHost ? 'You are sharing' : 'Connected'), h('small', {}, (hp ? hp.sn : 'host') + '\u2019s stream'))),
+    h('div', { class: 'wpbtns' }, mic, snd, fs, lv)));
   if (WP.isHost) {
     const mx = h('select', { 'aria-label': 'Max viewers' }, [1, 2, 3, 4, 5, 6].map(n => h('option', { value: String(n) }, 'Max ' + n))); mx.value = String(S.wp.max);
     mx.addEventListener('change', () => { S.wp.max = Number(mx.value); S.lastTracked = ''; trackMe(); });
     const lk = h('button', { class: 'btn', type: 'button', onclick: () => { S.wp.locked = !S.wp.locked; lk.textContent = S.wp.locked ? 'Unlock room' : 'Lock room'; S.lastTracked = ''; trackMe(); } }, 'Lock room');
-    const mic = h('button', { class: 'btn', type: 'button', onclick: () => wpMicToggle(mic) }, 'Mic off');
-    bar.append(mic, lk, mx);
-  } else {
-    const snd = h('button', { class: 'btn', type: 'button', onclick: () => { vid.muted = !vid.muted; snd.textContent = vid.muted ? 'Sound off' : 'Sound on'; if (!vid.paused) return; vid.play().catch(() => {}); } }, 'Sound on');
-    const fs = h('button', { class: 'btn', type: 'button', onclick: () => { try { (vid.requestFullscreen || vid.webkitEnterFullscreen || (() => {})).call(vid); } catch {} } }, 'Full screen');
-    const vmic = h('button', { class: 'btn', type: 'button', onclick: () => wpMicToggle(vmic) }, 'Mic off');
-    bar.append(vmic, snd, fs); WP.snd = snd;
-  }
-  bar.append(h('span', { class: 'grow' }));
+    bar.append(lk, mx);
+  } else bar.hidden = true;
   wpRoster();
 }
 function wpChanOpen(hostId, onSub) {
@@ -2634,7 +2649,7 @@ function wpViewerAudio(uid, e) {
   const ms = new MediaStream([e.track]), a = new Audio(); a.srcObject = ms; a.muted = true; a.play().catch(() => {}); WP.keep.push(a);
   const n = WP.ac.createMediaStreamSource(ms); WP.vsrc.set(uid, n);
   for (const [id, dv] of WP.mix) if (id !== uid) n.connect(dv);
-  n.connect(WP.ac.destination);
+  n.connect(WP.mon || WP.ac.destination);
 }
 async function wpMicToggle(btn) {
   if (!WP || !WP.micGain) return say('Wait until you are connected, then try again.');
@@ -2642,7 +2657,6 @@ async function wpMicToggle(btn) {
     if (!WP.micSrc) { try { WP.micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); WP.micSrc = WP.ac.createMediaStreamSource(WP.micStream); WP.micSrc.connect(WP.micGain); } catch { return say('Allow the microphone first.'); } }
     WP.ac.resume().catch(() => {}); WP.micGain.gain.value = 1; WP.micOn = true;
   } else { WP.micGain.gain.value = 0; WP.micOn = false; }
-  btn.textContent = WP.micOn ? 'Mic on' : 'Mic off';
 }
 function wpDrop(id) {
   if (!WP) return;
@@ -2675,7 +2689,7 @@ async function wpSig(p) {
   if (p.t === 'offer') {
     clearTimeout(WP.tmo);
     const pc = WP.peers.get(WP.host) || wpPeer(WP.host);
-    pc.ontrack = e => { WP.vid.srcObject = e.streams[0]; WP.vid.hidden = false; WP.msg.hidden = true; WP.vid.play().catch(() => { WP.vid.muted = true; if (WP.snd) WP.snd.textContent = 'Sound off'; WP.vid.play().catch(() => {}); }); };
+    pc.ontrack = e => { WP.vid.srcObject = e.streams[0]; WP.vid.hidden = false; WP.msg.hidden = true; WP.vid.play().catch(() => { WP.vid.muted = true; if (WP.setSnd) WP.setSnd(true); WP.vid.play().catch(() => {}); }); };
     if (!WP.ac) { try { WP.ac = new (window.AudioContext || window.webkitAudioContext)(); WP.vdest = WP.ac.createMediaStreamDestination(); WP.micGain = WP.ac.createGain(); WP.micGain.gain.value = 0; WP.micGain.connect(WP.vdest); } catch { WP.ac = null; WP.micGain = null; WP.vdest = null; } }
     await pc.setRemoteDescription(p.d);
     try { const tr = pc.getTransceivers().find(x => x.receiver.track && x.receiver.track.kind === 'audio'); if (tr && WP.vdest) { tr.direction = 'sendrecv'; await tr.sender.replaceTrack(WP.vdest.stream.getAudioTracks()[0]); } } catch {}
@@ -2688,13 +2702,14 @@ async function wpStart() {
   if (WP) return;
   if (!canShare()) { S.extra = 'Sharing your screen needs a laptop browser (Chrome, Edge or Firefox).'; renderNote(); clearExtraSoon(); return; }
   let stream; try { stream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 30, displaySurface: 'browser' }, audio: true, systemAudio: 'include', selfBrowserSurface: 'exclude', surfaceSwitching: 'include' }); } catch { return; }
-  let ac = null, micGain = null, dispNode = null;
+  let ac = null, micGain = null, dispNode = null, mon = null;
   try {
     ac = new (window.AudioContext || window.webkitAudioContext)(); ac.resume().catch(() => {});
     micGain = ac.createGain(); micGain.gain.value = 0;
+    mon = ac.createGain(); mon.connect(ac.destination);
     if (stream.getAudioTracks().length) dispNode = ac.createMediaStreamSource(new MediaStream([stream.getAudioTracks()[0]]));
   } catch { ac = null; micGain = null; dispNode = null; }
-  WP = { isHost: true, host: S.uid, peers: new Map(), members: new Set([S.uid]), stream, raw: stream, vtrack: stream.getVideoTracks()[0], ac, micGain, dispNode, vsrc: new Map(), mix: new Map(), keep: [] };
+  WP = { isHost: true, host: S.uid, peers: new Map(), members: new Set([S.uid]), stream, raw: stream, vtrack: stream.getVideoTracks()[0], ac, micGain, dispNode, mon, vsrc: new Map(), mix: new Map(), keep: [] };
   stream.getVideoTracks()[0].addEventListener('ended', () => wpLeave());
   S.wp = { max: 4, locked: false, k: Date.now() }; S.wpLive = false;
   wpUi(); WP.vid.srcObject = stream; WP.vid.muted = true; WP.vid.hidden = false; WP.msg.hidden = true; WP.vid.play().catch(() => {});
