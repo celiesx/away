@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="20261107160409">
-<link rel="icon" type="image/png" href="icon-64.png?v=20261107160409">
-<link rel="shortcut icon" href="favicon.ico?v=20261107160409">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261107160409">
-<link rel="manifest" href="manifest.webmanifest?v=20261107160409">
+<meta name="build" content="20261107161729">
+<link rel="icon" type="image/png" href="icon-64.png?v=20261107161729">
+<link rel="shortcut icon" href="favicon.ico?v=20261107161729">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261107161729">
+<link rel="manifest" href="manifest.webmanifest?v=20261107161729">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
 <style>
@@ -335,7 +335,8 @@ body.hand{--font:'Patrick Hand','Comic Neue',cursive;--fs:16px}
 .nptimes{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}.npchip{margin-left:4px;padding:0 5px;font-size:12px;line-height:1.3;border:1px solid currentColor;border-radius:9px;background:transparent;color:var(--ac);cursor:pointer;flex:none}.npcard.click{cursor:pointer}
 .dock{flex:none;border-top:1px solid var(--line,#0003);background:var(--panel);padding:6px 8px}.dock[hidden]{display:none}
 .dockhd{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted);margin-bottom:4px}.dockbtns{display:flex;gap:4px}
-.dockbtn{padding:0 7px;min-width:24px;line-height:1.2;font-size:13px;background:transparent;color:inherit;border:1px solid currentColor;border-radius:3px;cursor:pointer}
+.dockbtn{display:inline-flex;align-items:center;justify-content:center;width:24px;height:22px;padding:0;font-size:14px;background:#0001;color:inherit;border:0;border-radius:11px;cursor:pointer}.dockbtn:hover{background:#0003}
+.npctl{display:flex;justify-content:center;gap:10px;margin-top:6px}.ctl{display:inline-flex;align-items:center;justify-content:center;width:34px;height:30px;padding:0;background:#0001;color:inherit;border:0;border-radius:15px;cursor:pointer}.ctl:hover{background:var(--ac);color:var(--on-ac,#fff)}.dockfix{margin-top:6px;font-size:12px;padding:3px 8px;background:transparent;color:inherit;border:1px solid currentColor;border-radius:3px;cursor:pointer}
 .dock .npart{width:56px;height:56px}.dockl{display:inline-block;margin-top:4px;font-size:12px}
 .dockmin{display:flex;align-items:center;gap:8px}.dockth{border-radius:4px;flex:none}.docktxt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.docktxt small{color:var(--muted)}
 a.btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
@@ -766,7 +767,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=20261107160409"></script>
+<script src="config.js?v=20261107161729"></script>
 <script>
 (() => {
 'use strict';
@@ -1070,7 +1071,7 @@ function renderMe() { setTimeout(checkRole, 0);
 const myState = () => S.dnd ? 'dnd' : (Date.now() - S.lastAct > 120000 ? 'idle' : 'on');
 function trackMe() {
   if (!S.presChan || !S.signedOn) return;
-  const st = S.invis ? 'invis' : myState(), key = st + '|' + (S.np ? S.np.u + S.np.t : ''); if (S.lastTracked === key) return; S.lastTracked = key;
+  const st = S.invis ? 'invis' : myState(), key = st + '|' + (S.np ? S.np.u + S.np.t + S.np.pz : ''); if (S.lastTracked === key) return; S.lastTracked = key;
   try { S.presChan.track({ t: Date.now(), st, np: S.invis ? null : S.np || null }); } catch {}
 }
 function statusOf(id, p) {
@@ -1623,9 +1624,9 @@ function renderProfile() {
   if (p.created) body.append(h('div', { class: 'sec' }, h('h3', {}, 'Member since'), h('p', {}, new Date(p.created).toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' }), null)));
   const liveNp = id === S.uid ? S.np : (S.online.has(id) && S.pmeta[id] && S.pmeta[id].st !== 'invis' ? S.pmeta[id].np : null);
   if (liveNp && liveNp.t && typeof liveNp.d === 'number') {
-    const np = { t: clamp(String(liveNp.t), 80), a: clamp(String(liveNp.a || ''), 80), g: /^https:\/\/i\.scdn\.co\//.test(String(liveNp.g || '')) ? String(liveNp.g) : '', d: Math.max(0, +liveNp.d || 0), p: Math.max(0, +liveNp.p || 0), s: +liveNp.s || Date.now() };
+    const np = { t: clamp(String(liveNp.t), 80), a: clamp(String(liveNp.a || ''), 80), g: /^https:\/\/i\.scdn\.co\//.test(String(liveNp.g || '')) ? String(liveNp.g) : '', d: Math.max(0, +liveNp.d || 0), p: Math.max(0, +liveNp.p || 0), s: +liveNp.s || Date.now(), pz: liveNp.pz ? 1 : 0 };
     const href = safeUrl(p.song && p.song.url), card = npCard(np, href);
-    body.append(h('div', { class: 'sec' }, h('h3', {}, 'Now playing'), card)); setTimeout(npTick, 0);
+    body.append(h('div', { class: 'sec' }, h('h3', {}, 'Now playing'), card, id === S.uid ? npControls() : null)); setTimeout(npTick, 0);
   } else if (p.song && p.song.title) {
     const href = safeUrl(p.song.url);
     body.append(h('div', { class: 'sec' }, h('h3', {}, 'Now playing'),
@@ -2188,7 +2189,7 @@ function subscribe() {
     }
     if (!S.presLive) { S.presLive = true; setTimeout(() => { S.presSettled = true; }, 2500); }
     renderBuddies(); renderDock(); renderLog(); renderProfile(); fetchMissing();
-  }).subscribe(async st => { if (st === 'SUBSCRIBED') { try { const st0 = S.invis ? 'invis' : myState(); S.lastTracked = st0 + '|' + (S.np ? S.np.u + S.np.t : ''); await S.presChan.track({ t: Date.now(), st: st0, np: S.invis ? null : S.np || null }); } catch {} } });
+  }).subscribe(async st => { if (st === 'SUBSCRIBED') { try { const st0 = S.invis ? 'invis' : myState(); S.lastTracked = st0 + '|' + (S.np ? S.np.u + S.np.t + S.np.pz : ''); await S.presChan.track({ t: Date.now(), st: st0, np: S.invis ? null : S.np || null }); } catch {} } });
 }
 
 /* ---------- auth ---------- */
@@ -2930,7 +2931,7 @@ async function pvRender() {
   } catch { /* links are optional */ }
 }
 /* ---------- spotify ---------- */
-const SP_SCOPE = 'user-read-currently-playing user-read-playback-state';
+const SP_SCOPE = 'user-read-currently-playing user-read-playback-state user-modify-playback-state';
 const spRedirect = () => location.origin + location.pathname;
 const spGet = () => { try { return JSON.parse(LS.get('am.sp.' + S.uid) || 'null'); } catch { return null; } };
 const spSet = v => LS.set('am.sp.' + S.uid, v ? JSON.stringify(v) : '');
@@ -2953,7 +2954,7 @@ async function spInit() {
   if (err) { LS.set('am.sp.err', ''); S.extra = 'Spotify did not connect. If it said you are not allowed, request access first and wait for Monica to add you.'; renderNote(); clearExtraSoon(); }
   if (code) {
     LS.set('am.sp.code', '');
-    try { const j = await spTokenCall({ grant_type: 'authorization_code', code, redirect_uri: spRedirect(), code_verifier: LS.get('am.sp.v') || '' }); spSet({ a: j.access_token, r: j.refresh_token, e: Date.now() + j.expires_in * 1000 }); S.extra = 'Spotify is connected.'; }
+    try { const j = await spTokenCall({ grant_type: 'authorization_code', code, redirect_uri: spRedirect(), code_verifier: LS.get('am.sp.v') || '' }); spSet({ a: j.access_token, r: j.refresh_token, e: Date.now() + j.expires_in * 1000, sc: j.scope || '' }); S.extra = 'Spotify is connected.'; }
     catch { S.extra = 'Spotify did not connect. Try again.'; }
     renderNote(); clearExtraSoon();
   }
@@ -2962,11 +2963,34 @@ async function spInit() {
 async function spToken() {
   const t = spGet(); if (!t) return '';
   if (t.e - 60000 > Date.now()) return t.a;
-  try { const j = await spTokenCall({ grant_type: 'refresh_token', refresh_token: t.r }); const n = { a: j.access_token, r: j.refresh_token || t.r, e: Date.now() + j.expires_in * 1000 }; spSet(n); return n.a; }
+  try { const j = await spTokenCall({ grant_type: 'refresh_token', refresh_token: t.r }); const n = { a: j.access_token, r: j.refresh_token || t.r, e: Date.now() + j.expires_in * 1000, sc: j.scope || t.sc || '' }; spSet(n); return n.a; }
   catch { spSet(null); return ''; }
 }
-const npOf = id => { const n = id === S.uid ? S.np : (S.online.has(id) && S.pmeta[id] && S.pmeta[id].st !== 'invis' ? S.pmeta[id].np : null); return n && n.t && typeof n.d === 'number' ? { t: clamp(String(n.t), 80), a: clamp(String(n.a || ''), 80), g: /^https:\/\/i\.scdn\.co\//.test(String(n.g || '')) ? String(n.g) : '', d: Math.max(0, +n.d || 0), p: Math.max(0, +n.p || 0), s: +n.s || Date.now() } : null; };
+const npOf = id => { const n = id === S.uid ? S.np : (S.online.has(id) && S.pmeta[id] && S.pmeta[id].st !== 'invis' ? S.pmeta[id].np : null); return n && n.t && typeof n.d === 'number' ? { t: clamp(String(n.t), 80), a: clamp(String(n.a || ''), 80), g: /^https:\/\/i\.scdn\.co\//.test(String(n.g || '')) ? String(n.g) : '', d: Math.max(0, +n.d || 0), p: Math.max(0, +n.p || 0), s: +n.s || Date.now(), pz: n.pz ? 1 : 0 } : null; };
 const npChip = id => npOf(id) ? h('button', { type: 'button', class: 'npchip', title: 'Open the player', 'aria-label': 'Open the player', onclick: e => { e.stopPropagation(); openPlayer(id); } }, '\u266a') : null;
+function svgIc(kind) {
+  const NS = 'http://www.w3.org/2000/svg', svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('width', '16'); svg.setAttribute('height', '16'); svg.setAttribute('aria-hidden', 'true');
+  const D = { prev: 'M6 5h2v14H6zM20 5v14L9 12z', next: 'M16 5h2v14h-2zM4 5v14l11-7z', play: 'M7 4v16l13-8z', pause: 'M6 4h4v16H6zM14 4h4v16h-4z', down: 'M5 9l7 7 7-7', up: 'M5 15l7-7 7 7' };
+  const pa = document.createElementNS(NS, 'path'); pa.setAttribute('d', D[kind]);
+  if (kind === 'down' || kind === 'up') { pa.setAttribute('fill', 'none'); pa.setAttribute('stroke', 'currentColor'); pa.setAttribute('stroke-width', '2.6'); pa.setAttribute('stroke-linecap', 'round'); pa.setAttribute('stroke-linejoin', 'round'); } else pa.setAttribute('fill', 'currentColor');
+  svg.append(pa); return svg;
+}
+async function spCtl(act) {
+  const tok = await spToken(); if (!tok) return;
+  const m = { play: ['PUT', 'play'], pause: ['PUT', 'pause'], next: ['POST', 'next'], previous: ['POST', 'previous'] }[act]; if (!m) return;
+  if (S.np && (act === 'pause' || act === 'play')) { const n = S.np, e = n.pz ? n.p : Math.min(n.d, n.p + Date.now() - n.s); spNp({ ...n, pz: act === 'pause' ? 1 : 0, p: e, s: Date.now() }); }
+  try {
+    const r = await fetch('https://api.spotify.com/v1/me/player/' + m[1], { method: m[0], headers: { Authorization: 'Bearer ' + tok } });
+    if (r.status === 403 || r.status === 404) { S.extra = r.status === 404 ? 'Open Spotify on a device first, then try again.' : 'Spotify would not do that. Playing and skipping needs Spotify Premium.'; renderNote(); clearExtraSoon(); }
+  } catch { /* offline */ }
+  setTimeout(spPoll, 800);
+}
+function npControls() {
+  const t = spGet(); if (!t) return null;
+  if (!/modify/.test(t.sc || '')) return h('button', { type: 'button', class: 'dockfix', onclick: spConnect }, 'Turn on play and skip buttons');
+  const b = (kind, aria, fn) => h('button', { type: 'button', class: 'ctl', 'aria-label': aria, title: aria, onclick: fn }, svgIc(kind)), pz = S.np && S.np.pz;
+  return h('div', { class: 'npctl' }, b('prev', 'Previous song', () => spCtl('previous')), b(pz ? 'play' : 'pause', pz ? 'Play' : 'Pause', () => spCtl(pz ? 'play' : 'pause')), b('next', 'Next song', () => spCtl('next')));
+}
 function openPlayer(id) { if (!npOf(id)) return; S.dockId = id; LS.set('am.dock', 'open'); renderDock(); if (isPhone()) setTab('buddies'); }
 function renderDock() {
   const d = $('dock'); if (!d) return;
@@ -2974,25 +2998,26 @@ function renderDock() {
   if (!np) { d.hidden = true; d.replaceChildren(); return; }
   const min = LS.get('am.dock') === 'min', p = profileOf(id), href = safeUrl(p && p.song && p.song.url), who = id === S.uid ? 'You are listening to' : (p ? p.sn : 'Someone') + ' is listening to';
   d.hidden = false; d.className = 'dock' + (min ? ' min' : '');
-  const toggle = h('button', { type: 'button', class: 'dockbtn', 'aria-label': min ? 'Open the player' : 'Minimize the player', title: min ? 'Open' : 'Minimize', onclick: () => { LS.set('am.dock', min ? 'open' : 'min'); renderDock(); } }, min ? '\u25b4' : '_');
+  const toggle = h('button', { type: 'button', class: 'dockbtn', 'aria-label': min ? 'Open the player' : 'Minimize the player', title: min ? 'Open' : 'Minimize', onclick: () => { LS.set('am.dock', min ? 'open' : 'min'); renderDock(); } }, svgIc(min ? 'up' : 'down'));
   const close = id !== S.uid ? h('button', { type: 'button', class: 'dockbtn', 'aria-label': 'Back to my player', title: 'Back to mine', onclick: () => { S.dockId = null; renderDock(); } }, '\u00d7') : null;
+  const ctl = id === S.uid ? npControls() : null;
   if (min) { d.replaceChildren(h('div', { class: 'dockmin' }, np.g ? h('img', { class: 'dockth', src: np.g, alt: '', width: 28, height: 28 }) : null, h('span', { class: 'docktxt' }, h('b', {}, np.t), ' ', h('small', {}, np.a)), toggle)); return; }
   const card = npCard(np, href);
-  d.replaceChildren(h('div', { class: 'dockhd' }, h('small', {}, who), h('span', { class: 'dockbtns' }, close, toggle)), card);
+  d.replaceChildren(h('div', { class: 'dockhd' }, h('small', {}, who), h('span', { class: 'dockbtns' }, close, toggle)), card, ctl);
   npTick();
 }
 let spBusy = false, spPause = 0;
-function spNp(n) { const prev = S.np; S.np = n; const same = (prev && prev.u + prev.t) === (n && n.u + n.t); if (!same) { S.lastTracked = ''; trackMe(); } if (!same || !n) { renderMe(); renderBuddies(); renderProfile(); renderDock(); } }
+function spNp(n) { const prev = S.np; S.np = n; const same = (prev && prev.u + prev.t + prev.pz) === (n && n.u + n.t + n.pz); if (!same) { S.lastTracked = ''; trackMe(); } if (!same || !n) { renderMe(); renderBuddies(); renderProfile(); renderDock(); } }
 window.__spNp = spNp;
 const fmtT = ms => { const t = Math.max(0, Math.floor(ms / 1000)); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); };
 function npCard(np, href) {
   const bar = h('i', { class: 'npfill' }), el = h('span', {}, '0:00'), tot = h('span', {}, fmtT(np.d));
-  const card = h('div', { class: 'npcard', 'data-p': String(np.p), 'data-s': String(np.s), 'data-d': String(np.d) },
+  const card = h('div', { class: 'npcard', 'data-p': String(np.p), 'data-s': String(np.s), 'data-d': String(np.d), 'data-pz': String(np.pz || 0) },
     np.g ? h('img', { class: 'npart', src: np.g, alt: '', width: 64, height: 64 }) : null,
     h('div', { class: 'npinfo' }, href ? h('a', { class: 'npt', href, target: '_blank', rel: 'noopener noreferrer', title: 'Open in Spotify' }, np.t) : h('b', {}, np.t), h('small', {}, np.a), h('div', { class: 'npbar' }, bar), h('div', { class: 'nptimes' }, el, tot)));
   card._f = [bar, el]; return card;
 }
-function npTick() { for (const c of document.querySelectorAll('.npcard')) { const d = +c.dataset.d, e = Math.min(d, +c.dataset.p + Date.now() - +c.dataset.s); if (!c._f) { const f = c.querySelector('.npfill'), t = c.querySelector('.nptimes span'); c._f = [f, t]; } c._f[0].style.width = (d ? Math.min(100, e / d * 100) : 0) + '%'; c._f[1].textContent = fmtT(e); } }
+function npTick() { for (const c of document.querySelectorAll('.npcard')) { const d = +c.dataset.d, e = c.dataset.pz === '1' ? +c.dataset.p : Math.min(d, +c.dataset.p + Date.now() - +c.dataset.s); if (!c._f) { const f = c.querySelector('.npfill'), t = c.querySelector('.nptimes span'); c._f = [f, t]; } c._f[0].style.width = (d ? Math.min(100, e / d * 100) : 0) + '%'; c._f[1].textContent = fmtT(e); } }
 async function spPoll() {
   if (!CFG.spotify || !S.signedOn || !sb || S.invis || spBusy || Date.now() < spPause) return;
   const tok = await spToken(); if (!tok) return;
@@ -3004,10 +3029,10 @@ async function spPoll() {
     if (r.status === 403) { spPause = Date.now() + 3600000; return; }
     if (r.status === 204) { spNp(null); return; }
     if (r.status !== 200) return;
-    const j = await r.json(); if (!j || !j.is_playing || !j.item || j.currently_playing_type !== 'track') { spNp(null); return; }
+    const j = await r.json(); if (!j || !j.item || j.currently_playing_type !== 'track') { spNp(null); return; }
     const arts = (j.item.artists || []).map(a => a.name).join(', '), title = clamp(arts + ' - ' + j.item.name, 60), url = safeUrl((j.item.external_urls || {}).spotify || '') || '';
     const imgs = ((j.item.album || {}).images || []), art = (imgs[1] || imgs[0] || {}).url || '';
-    spNp({ t: clamp(j.item.name, 80), a: clamp(arts, 80), g: /^https:\/\/i\.scdn\.co\//.test(art) ? art : '', d: j.item.duration_ms || 0, p: j.progress_ms || 0, s: Date.now(), u: url });
+    spNp({ t: clamp(j.item.name, 80), a: clamp(arts, 80), g: /^https:\/\/i\.scdn\.co\//.test(art) ? art : '', d: j.item.duration_ms || 0, p: j.progress_ms || 0, s: Date.now(), u: url, pz: j.is_playing ? 0 : 1 });
     const p = mine(); if (!p || (p.song.title === title && p.song.url === url)) return;
     const { error } = await sb.from('profiles').update({ song_title: title, song_url: clamp(url, 300) }).eq('id', S.uid);
     if (!error) { p.song = { title, url: clamp(url, 300) }; renderMe(); renderBuddies(); renderProfile(); }
