@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794102679">
-<link rel="icon" type="image/png" href="icon-64.png?v=1794102679">
-<link rel="shortcut icon" href="favicon.ico?v=1794102679">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1794102679">
-<link rel="manifest" href="manifest.webmanifest?v=1794102679">
+<meta name="build" content="1794102993">
+<link rel="icon" type="image/png" href="icon-64.png?v=1794102993">
+<link rel="shortcut icon" href="favicon.ico?v=1794102993">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1794102993">
+<link rel="manifest" href="manifest.webmanifest?v=1794102993">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
 <style>
@@ -580,6 +580,14 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 .rx{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
 .rx button{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border:1px solid var(--line);border-radius:999px;background:var(--panel2);color:var(--fg);font:inherit;font-size:13px;cursor:pointer;line-height:1.5}
 .rx button.me{border-color:var(--ac);background:var(--ac-soft)}
+.wpov{position:fixed;inset:0;z-index:60;display:grid;grid-template-columns:180px minmax(0,1fr) 300px;background:var(--bg);color:var(--fg)}
+.wpl{padding:10px;border-right:1px solid var(--line);overflow:auto}.wpl h4{margin:0 0 6px;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}.wpl div{padding:3px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wpm{display:flex;flex-direction:column;min-width:0;min-height:0;background:#000}.wpm video{flex:1;min-height:0;width:100%;background:#000;object-fit:contain}
+.wpmsg{display:flex;align-items:center;justify-content:center;flex:1;color:#bbb;text-align:center;padding:20px}
+.wpbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px;background:var(--panel);color:var(--fg)}.wpbar .grow{flex:1}
+.wpc{display:flex;flex-direction:column;border-left:1px solid var(--line);min-height:0;background:var(--panel)}.wplog{flex:1;overflow:auto;padding:8px;overflow-wrap:anywhere}.wplog div{margin-bottom:4px}
+.wpin{display:flex;gap:6px;padding:8px}.wpin input{flex:1;min-width:0}
+@media(max-width:800px){.wpov{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,45%) minmax(0,1fr)}.wpl{display:none}.wpc{border-left:0;border-top:1px solid var(--line)}}
 .stkem{display:inline-block;background-repeat:no-repeat}.pgrid button .stkem{width:30px;height:30px}.em.sm{width:22px;height:22px;vertical-align:-6px}.zimg{display:block;max-width:94vw;max-height:88vh;object-fit:contain;border-radius:8px}.rx img{width:26px;height:26px;vertical-align:-8px;object-fit:contain}.em{width:34px;height:34px;vertical-align:-11px;object-fit:contain}
 .rx img{width:16px;height:16px;vertical-align:-3px}
 .msgmenu,.picker{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
@@ -662,7 +670,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
         <label class="sr" for="awayIn">Away message</label>
         <input id="awayIn" maxlength="80" placeholder="Away message" hidden>
         <label class="sr" for="moodIn">Status</label>
-        <div class="moodrow"><div class="moodwrap"><textarea id="moodIn" rows="1" maxlength="60" placeholder="Set a status" spellcheck="false"></textarea><button id="moodChip" class="moodchip" type="button" hidden aria-label="Remove status emote" title="Tap to remove"></button></div><span class="moodbtns"><button id="npTog" class="btn sm" type="button" aria-label="Add what you are listening to" title="Add what you are listening to">♪</button><button id="moodEm" class="btn sm" type="button" aria-label="Add an emote to your status" title="Add an emote to your status">🧸</button></span></div>
+        <div class="moodrow"><div class="moodwrap"><textarea id="moodIn" rows="1" maxlength="60" placeholder="Set a status" spellcheck="false"></textarea><button id="moodChip" class="moodchip" type="button" hidden aria-label="Remove status emote" title="Tap to remove"></button></div><span class="moodbtns"><button id="npTog" class="btn sm" type="button" aria-label="Add what you are listening to" title="Add what you are listening to">♪</button><button id="moodEm" class="btn sm" type="button" aria-label="Add an emote to your status" title="Add an emote to your status">🧸</button><button id="watchBtn" class="btn sm" type="button" aria-label="Start a watch party" title="Start a watch party">📺</button></span></div>
         <label class="sr" for="npIn">Now playing</label>
         <input id="npIn" maxlength="160" placeholder="&#9834; What are we listening to?">
         <button id="editBtn" class="btn" type="button">Edit my profile</button>
@@ -770,7 +778,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=1794102679"></script>
+<script src="config.js?v=1794102993"></script>
 <script>
 (() => {
 'use strict';
@@ -1087,8 +1095,8 @@ function renderMe() { setTimeout(checkRole, 0);
 const myState = () => S.dnd ? 'dnd' : (Date.now() - S.lastAct > 120000 ? 'idle' : 'on');
 function trackMe() {
   if (!S.presChan || !S.signedOn) return;
-  const st = S.invis ? 'invis' : myState(), key = st + '|' + (S.np ? S.np.u + S.np.t + S.np.pz : ''); if (S.lastTracked === key) return; S.lastTracked = key;
-  try { S.presChan.track({ t: Date.now(), st, np: S.invis ? null : S.np || null }); } catch {}
+  const st = S.invis ? 'invis' : myState(), key = st + '|' + (S.np ? S.np.u + S.np.t + S.np.pz : '') + '|' + (S.wp ? 'wp' + S.wp.max + S.wp.locked + S.wp.k : ''); if (S.lastTracked === key) return; S.lastTracked = key;
+  try { S.presChan.track({ t: Date.now(), st, np: S.invis ? null : S.np || null, wp: S.wp || null }); } catch {}
 }
 function statusOf(id, p) {
   if (p.awayOn) return { cls: 'away', text: p.away || '' };
@@ -1142,7 +1150,7 @@ function renderBuddies() {
         h('button', { class: 'buddy', type: 'button', onclick: () => { selectProfile(id); if (isPhone()) setTab('profile'); } },
           avatar(p, 30),
           h('span', { class: 'grow' }, h('span', { class: 'nm' }, h('span', { class: 'dot ' + (S.presLive ? st.cls : (p.awayOn ? 'away' : '')), 'aria-hidden': 'true', title: p.awayOn ? (p.away || 'Away') : null }), fr ? heartImg(12) : null, p.sn, npChip(id), ld ? h('small', { class: 'when' }, ' ' + ago(ld.ts).replace(/ ago$/, '')) : null), sub ? h('div', { class: 'sub' }, moodNodes(sub)) : null)),
-        h('button', { class: 'btn sm dmb', type: 'button', 'aria-label': 'Message ' + p.sn, onclick: () => openConv(id) }, 'DM', n ? h('span', { class: 'pip' }, n > 9 ? '9+' : n) : null),
+        wpBtn(id), h('button', { class: 'btn sm dmb', type: 'button', 'aria-label': 'Message ' + p.sn, onclick: () => openConv(id) }, 'DM', n ? h('span', { class: 'pip' }, n > 9 ? '9+' : n) : null),
         fr ? h('span', { class: 'bxs', 'aria-hidden': 'true', style: 'visibility:hidden' }, '×') : h('button', { class: 'bx', type: 'button', 'aria-label': 'Remove ' + p.sn + ' from this list', title: 'Hide from list', onclick: () => { S.hid.add(id); LS.set('am.hid', JSON.stringify([...S.hid])); renderBuddies(); } }, '×')));
     }
   }
@@ -2347,7 +2355,7 @@ const wake = () => { if (!S.signedOn) return; if (autoExpired()) { signOff(AUTO_
 document.addEventListener('visibilitychange', () => { if (!document.hidden) wake(); });
 addEventListener('pageshow', wake); addEventListener('focus', () => { if (S.signedOn && autoExpired()) signOff(AUTO_MSG); });
 setInterval(trackMe, 15000);
-async function signOff(why) { sfx('close'); S.awayNote = typeof why === 'string' ? why : ''; try { await sb.auth.signOut(); } catch {} resetApp(); }
+async function signOff(why) { try { wpLeave(); } catch {} sfx('close'); S.awayNote = typeof why === 'string' ? why : ''; try { await sb.auth.signOut(); } catch {} resetApp(); }
 const autoMs = () => { const v = LS.get('am.auto'); const n = v == null || v === '' ? 30 : Number(v); return n > 0 ? n * 60000 : 0; };
 const AUTO_MSG = 'You were signed off after being away. Sign back on when you are ready.';
 function autoExpired() { const ms = autoMs(); return !!(S.signedOn && ms && Date.now() - S.lastAct > ms); }
@@ -2514,6 +2522,126 @@ keepFocus($('emoBtn')); keepFocus($('sendBtn'));
   document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('input,select,textarea')) vp.content = base + ',maximum-scale=1'; });
   document.addEventListener('focusout', () => { setTimeout(() => { if (!document.activeElement || !document.activeElement.matches || !document.activeElement.matches('input,select,textarea')) vp.content = base; }, 50); }); })();
 document.addEventListener('gesturestart', e => e.preventDefault());
+
+/* ---------- watch party (screen share, peer to peer) ---------- */
+let WP = null;
+const RTC_CFG = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+const canShare = () => !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia && window.RTCPeerConnection);
+function wpSend(ev, payload) { try { WP.chan.send({ type: 'broadcast', event: ev, payload }); } catch {} }
+function wpBtn(id) {
+  const pm = S.pmeta[id], wp = id !== S.uid && S.online.has(id) && pm && pm.st !== 'invis' && pm.wp;
+  if (!wp || !wp.max) return null;
+  const full = wp.locked;
+  return h('button', { class: 'btn sm dmb', type: 'button', 'aria-label': 'Join the watch party', title: full ? 'Room is locked' : 'Join the watch party', disabled: full ? '' : null, onclick: () => wpJoin(id) }, full ? '\u{1F512}' : '▶');
+}
+function wpAddChat(who, text, sys) {
+  if (!WP) return; const log = WP.log;
+  log.append(h('div', sys ? { class: 'muted' } : {}, sys ? text : [h('b', {}, who + ': '), ...emoText(text)])); log.scrollTop = log.scrollHeight;
+}
+function wpRoster() {
+  if (!WP) return;
+  WP.rost.replaceChildren(h('h4', {}, 'In the room'), ...[...WP.members].map(id => { const p = profileOf(id); return h('div', {}, (p ? p.sn : 'someone') + (id === WP.host ? ' (host)' : '')); }));
+}
+function wpUi() {
+  const vid = h('video', { autoplay: '', playsinline: '', 'aria-label': 'Shared screen' });
+  const msg = h('div', { class: 'wpmsg' }, WP.isHost ? 'Starting...' : 'Connecting...');
+  const mid = h('div', { class: 'wpm' }, msg, vid); vid.hidden = true;
+  const bar = h('div', { class: 'wpbar' });
+  const log = h('div', { class: 'wplog' }), inp = h('input', { maxlength: '200', placeholder: 'Say something', 'aria-label': 'Party chat', autocomplete: 'off' });
+  const send = () => { const t = inp.value.trim().slice(0, 200); if (!t) return; inp.value = ''; const p = mine(); wpSend('chat', { from: S.uid, sn: p ? p.sn : 'me', text: t }); wpAddChat(p ? p.sn : 'me', t); };
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); send(); } });
+  const rost = h('div', { class: 'wpl' });
+  const ov = h('div', { class: 'wpov', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Watch party' }, rost, h('div', { class: 'wpm' , style: 'display:contents' }, ''), h('div', { class: 'wpc' }, log, h('div', { class: 'wpin' }, inp, h('button', { class: 'btn', type: 'button', onclick: send }, 'Send'))));
+  ov.replaceChild(h('div', { class: 'wpm' }, msg, vid, bar), ov.children[1]);
+  Object.assign(WP, { ov, vid, msg, bar, log, rost });
+  document.body.append(ov);
+  const leave = h('button', { class: 'btn', type: 'button', onclick: () => wpLeave() }, WP.isHost ? 'Stop sharing' : 'Leave');
+  bar.append(leave);
+  if (WP.isHost) {
+    const mx = h('select', { 'aria-label': 'Max viewers' }, [1, 2, 3, 4, 5, 6].map(n => h('option', { value: String(n) }, 'Max ' + n))); mx.value = String(S.wp.max);
+    mx.addEventListener('change', () => { S.wp.max = Number(mx.value); S.lastTracked = ''; trackMe(); });
+    const lk = h('button', { class: 'btn', type: 'button', onclick: () => { S.wp.locked = !S.wp.locked; lk.textContent = S.wp.locked ? 'Unlock room' : 'Lock room'; S.lastTracked = ''; trackMe(); } }, 'Lock room');
+    bar.append(lk, mx);
+  } else {
+    const snd = h('button', { class: 'btn', type: 'button', onclick: () => { vid.muted = !vid.muted; snd.textContent = vid.muted ? 'Sound off' : 'Sound on'; if (!vid.paused) return; vid.play().catch(() => {}); } }, 'Sound on');
+    const fs = h('button', { class: 'btn', type: 'button', onclick: () => { try { (vid.requestFullscreen || vid.webkitEnterFullscreen || (() => {})).call(vid); } catch {} } }, 'Full screen');
+    bar.append(snd, fs); WP.snd = snd;
+  }
+  bar.append(h('span', { class: 'grow' }));
+  wpRoster();
+}
+function wpChanOpen(hostId, onSub) {
+  WP.chan = sb.channel('am-watch-' + hostId, { config: { broadcast: { self: false } } });
+  WP.chan.on('broadcast', { event: 'chat' }, ({ payload: p }) => { if (p && typeof p.text === 'string' && p.from !== S.uid) wpAddChat(String(p.sn || '?').slice(0, 20), p.text.slice(0, 200)); });
+  WP.chan.on('broadcast', { event: 'roster' }, ({ payload: p }) => { if (!WP || WP.isHost || !p || !Array.isArray(p.list)) return; WP.members = new Set(p.list.slice(0, 12).map(String)); wpRoster(); });
+  WP.chan.on('broadcast', { event: 'sig' }, ({ payload: p }) => { if (p && (p.to === S.uid || p.to === '*')) fire(wpSig(p)); });
+  WP.chan.subscribe(st => { if (st === 'SUBSCRIBED') onSub(); });
+}
+function wpPeer(other) {
+  const pc = new RTCPeerConnection(RTC_CFG); WP.peers.set(other, pc); pc.pend = [];
+  pc.onicecandidate = e => { if (e.candidate) wpSend('sig', { to: other, from: S.uid, t: 'ice', d: e.candidate.toJSON() }); };
+  pc.onconnectionstatechange = () => { if (WP && WP.isHost && (pc.connectionState === 'failed' || pc.connectionState === 'closed')) wpDrop(other); };
+  return pc;
+}
+function wpDrop(id) {
+  if (!WP) return; const pc = WP.peers.get(id); if (pc) { try { pc.close(); } catch {} WP.peers.delete(id); }
+  if (WP.members.delete(id)) { wpRoster(); wpSend('roster', { list: [...WP.members] }); }
+}
+async function wpSig(p) {
+  if (!WP) return;
+  if (WP.isHost) {
+    if (p.t === 'join') {
+      if (S.wp.locked || WP.peers.size >= S.wp.max) return wpSend('sig', { to: p.from, from: S.uid, t: 'full' });
+      WP.peers.get(p.from) && wpDrop(p.from);
+      const pc = wpPeer(p.from); WP.stream.getTracks().forEach(t => pc.addTrack(t, WP.stream));
+      WP.members.add(p.from); wpRoster(); wpSend('roster', { list: [...WP.members] });
+      const prof = profileOf(p.from); wpAddChat('', (prof ? prof.sn : 'Someone') + ' joined', true);
+      await pc.setLocalDescription(await pc.createOffer());
+      wpSend('sig', { to: p.from, from: S.uid, t: 'offer', d: pc.localDescription.toJSON() });
+    } else if (p.t === 'answer') { const pc = WP.peers.get(p.from); if (pc) await pc.setRemoteDescription(p.d); }
+    else if (p.t === 'ice') { const pc = WP.peers.get(p.from); if (pc && pc.remoteDescription) try { await pc.addIceCandidate(p.d); } catch {} else if (pc) pc.pend.push(p.d); }
+    else if (p.t === 'leave') wpDrop(p.from);
+    return;
+  }
+  if (p.from !== WP.host) return;
+  if (p.t === 'full') { WP.msg.textContent = 'This room is full or locked.'; return; }
+  if (p.t === 'end') { wpAddChat('', 'The host stopped sharing.', true); WP.msg.hidden = false; WP.msg.textContent = 'The host stopped sharing.'; WP.vid.hidden = true; return; }
+  if (p.t === 'offer') {
+    clearTimeout(WP.tmo);
+    const pc = WP.peers.get(WP.host) || wpPeer(WP.host);
+    pc.ontrack = e => { WP.vid.srcObject = e.streams[0]; WP.vid.hidden = false; WP.msg.hidden = true; WP.vid.play().catch(() => { WP.vid.muted = true; if (WP.snd) WP.snd.textContent = 'Sound off'; WP.vid.play().catch(() => {}); }); };
+    await pc.setRemoteDescription(p.d); for (const c of pc.pend.splice(0)) try { await pc.addIceCandidate(c); } catch {}
+    await pc.setLocalDescription(await pc.createAnswer());
+    wpSend('sig', { to: WP.host, from: S.uid, t: 'answer', d: pc.localDescription.toJSON() });
+  } else if (p.t === 'ice') { const pc = WP.peers.get(WP.host); if (pc && pc.remoteDescription) try { await pc.addIceCandidate(p.d); } catch {} else if (pc) pc.pend.push(p.d); }
+}
+async function wpStart() {
+  if (WP) return;
+  if (!canShare()) { S.extra = 'Sharing your screen needs a laptop browser (Chrome, Edge or Firefox).'; renderNote(); clearExtraSoon(); return; }
+  let stream; try { stream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 30 }, audio: true }); } catch { return; }
+  WP = { isHost: true, host: S.uid, peers: new Map(), members: new Set([S.uid]), stream };
+  stream.getVideoTracks()[0].addEventListener('ended', () => wpLeave());
+  wpUi(); WP.vid.srcObject = stream; WP.vid.muted = true; WP.vid.hidden = false; WP.msg.hidden = true; WP.vid.play().catch(() => {});
+  wpChanOpen(S.uid, () => { S.wp = { max: 4, locked: false, k: Date.now() }; S.lastTracked = ''; trackMe(); wpAddChat('', 'You are sharing. Friends get a ▶ button next to your name.', true); });
+}
+function wpJoin(hostId) {
+  if (WP) return;
+  WP = { isHost: false, host: hostId, peers: new Map(), members: new Set([hostId, S.uid]) };
+  wpUi();
+  wpChanOpen(hostId, () => { wpSend('sig', { to: hostId, from: S.uid, t: 'join' }); WP.tmo = setTimeout(() => { if (WP && WP.msg && !WP.msg.hidden) WP.msg.textContent = 'Could not connect. The host may be gone, or this wifi blocks it.'; }, 15000); });
+}
+function wpLeave() {
+  if (!WP) return; const w = WP; WP = null;
+  try { if (w.isHost) { w.chan.send({ type: 'broadcast', event: 'sig', payload: { to: '*', from: S.uid, t: 'end' } }); } else w.chan.send({ type: 'broadcast', event: 'sig', payload: { to: w.host, from: S.uid, t: 'leave' } }); } catch {}
+  clearTimeout(w.tmo);
+  w.peers.forEach(pc => { try { pc.close(); } catch {} });
+  if (w.stream) w.stream.getTracks().forEach(t => t.stop());
+  try { sb.removeChannel(w.chan); } catch {}
+  if (w.ov) w.ov.remove();
+  if (w.isHost) { S.wp = null; S.lastTracked = ''; trackMe(); }
+}
+$('watchBtn').addEventListener('click', () => { if (WP) return; wpStart(); });
+if (!canShare()) $('watchBtn').title = 'Watching works on phones; sharing needs a laptop';
 /* ---------- group calendar ---------- */
 const CAL_EMO = ['❤️', '\u{1F44D}', '\u{1F602}', '✨'], MON = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'], DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const dstr = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
