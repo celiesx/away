@@ -1944,7 +1944,7 @@ function addMsg(r, live) {
       const me = mine(), ping = !isRoom(c) || (!!me && !!m.text && new RegExp('(^|\\W)@' + me.sn.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?!\\w)', 'i').test(m.text));
       if (ping && !tabMuted(c)) sfx('in');
       const viewing = c === S.conv && (S.tab === 'chat' || !isPhone()) && !document.hidden;
-      if (!viewing) { S.unread[c] = (S.unread[c] || 0) + 1; if (!document.hidden && !tabMuted(c)) actPill(m, c); }
+      if (!viewing) { S.unread[c] = (S.unread[c] || 0) + 1; if (!document.hidden && !tabMuted(c)) if (!(LS.get('am.push') === '1' && ping)) actPill(m, c); }
       if (ping && (document.hidden || !viewing) && !tabMuted(c)) pingTab(m, c);
       else if (c === S.conv && !nearBottom()) S.newBelow = true;
       if (!isRoom(c)) { S.opened.add(c); if (S.closedDms.delete(c)) LS.set('am.closed', JSON.stringify([...S.closedDms])); }
