@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794105444">
-<link rel="icon" type="image/png" href="icon-64.png?v=1794105444">
-<link rel="shortcut icon" href="favicon.ico?v=1794105444">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1794105444">
-<link rel="manifest" href="manifest.webmanifest?v=1794105444">
+<meta name="build" content="1794105900">
+<link rel="icon" type="image/png" href="icon-64.png?v=1794105900">
+<link rel="shortcut icon" href="favicon.ico?v=1794105900">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1794105900">
+<link rel="manifest" href="manifest.webmanifest?v=1794105900">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
 <style>
@@ -581,7 +581,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 .rx button{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border:1px solid var(--line);border-radius:999px;background:var(--panel2);color:var(--fg);font:inherit;font-size:13px;cursor:pointer;line-height:1.5}
 .rx button.me{border-color:var(--ac);background:var(--ac-soft)}
 .wpov{position:fixed;inset:0;z-index:60;display:grid;grid-template-columns:180px minmax(0,1fr) 300px;background:var(--bg);color:var(--fg)}
-.wpl{padding:10px;border-right:1px solid var(--line);overflow:auto}.wpl h4{margin:0 0 6px;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}.wpl div{padding:3px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.wpl{padding:10px;border-right:1px solid var(--line);overflow:auto}.wpjoin{color:var(--muted);display:inline-flex;align-items:center}.wpjoin.on{color:#3ecf5b}.wpjoin:disabled{opacity:.5}.wpl .wpch{display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--panel2);border-radius:6px;color:#3ecf5b}.wpl .wpch b{color:var(--fg);overflow:hidden;text-overflow:ellipsis}.wpl .wpmem{display:flex;align-items:center;gap:8px;padding:4px 8px 4px 22px}.wpl h4{margin:0 0 6px;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}.wpl div{padding:3px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .wpm{display:flex;flex-direction:column;min-width:0;min-height:0;background:#000}.wpm video{flex:1;min-height:0;width:100%;background:#000;object-fit:contain}
 .wpmsg[hidden],.wpm video[hidden]{display:none}.wpmsg{display:flex;align-items:center;justify-content:center;flex:1;color:#bbb;text-align:center;padding:20px}
 .wpbar{display:flex;flex-wrap:wrap;gap:6px;align-items:center;padding:8px;background:var(--panel);color:var(--fg)}.wpbar .grow{flex:1}
@@ -778,7 +778,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=1794105444"></script>
+<script src="config.js?v=1794105900"></script>
 <script>
 (() => {
 'use strict';
@@ -2557,11 +2557,16 @@ let WP = null;
 const RTC_CFG = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 const canShare = () => !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia && window.RTCPeerConnection);
 function wpSend(ev, payload) { try { WP.chan.send({ type: 'broadcast', event: ev, payload }); } catch {} }
+function spkIc(size) {
+  const d = new DOMParser().parseFromString('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="' + size + '" height="' + size + '" aria-hidden="true"><path fill="currentColor" d="M3 9v6h4l5 4V5L7 9z"/><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M15.5 8.5a5 5 0 0 1 0 7M18.2 5.8a8.6 8.6 0 0 1 0 12.4"/></svg>', 'image/svg+xml');
+  return document.importNode(d.documentElement, true);
+}
 function wpBtn(id) {
   const pm = S.pmeta[id], wp = id !== S.uid && S.online.has(id) && pm && pm.st !== 'invis' && pm.wp;
   if (!wp || !wp.max) return null;
   const full = wp.locked;
-  return h('button', { class: 'btn sm dmb', type: 'button', 'aria-label': 'Join the watch party', title: full ? 'Room is locked' : 'Join the watch party', disabled: full ? '' : null, onclick: () => wpJoin(id) }, full ? '\u{1F512}' : '▶');
+  const on = !!WP && WP.host === id;
+  return h('button', { class: 'btn sm dmb wpjoin' + (on ? ' on' : ''), type: 'button', 'aria-label': full ? 'Watch party is locked' : 'Join the watch party', title: full ? 'Room is locked' : on ? 'You are in this watch party' : 'Join the watch party', disabled: full ? '' : null, onclick: () => wpJoin(id) }, spkIc(18));
 }
 function wpAddChat(who, text, sys) {
   if (!WP) return; const log = WP.log;
@@ -2569,7 +2574,9 @@ function wpAddChat(who, text, sys) {
 }
 function wpRoster() {
   if (!WP) return;
-  WP.rost.replaceChildren(h('h4', {}, 'In the room'), ...[...WP.members].map(id => { const p = profileOf(id); return h('div', {}, (p ? p.sn : 'someone') + (id === WP.host ? ' (host)' : '')); }));
+  const hp = profileOf(WP.host);
+  WP.rost.replaceChildren(h('h4', {}, 'Watch party'), h('div', { class: 'wpch' }, spkIc(18), h('b', {}, (hp ? hp.sn : 'host') + '\u2019s stream')),
+    ...[...WP.members].map(id => { const p = profileOf(id); return h('div', { class: 'wpmem' }, avatar(p || { sn: '?' }, 24), h('span', {}, (p ? p.sn : 'someone') + (id === WP.host ? ' (host)' : ''))); }));
 }
 function wpUi() {
   const vid = h('video', { autoplay: '', playsinline: '', 'aria-label': 'Shared screen' });
@@ -2680,7 +2687,7 @@ async function wpSig(p) {
 async function wpStart() {
   if (WP) return;
   if (!canShare()) { S.extra = 'Sharing your screen needs a laptop browser (Chrome, Edge or Firefox).'; renderNote(); clearExtraSoon(); return; }
-  let stream; try { stream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 30 }, audio: true }); } catch { return; }
+  let stream; try { stream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 30, displaySurface: 'browser' }, audio: true, systemAudio: 'include', selfBrowserSurface: 'exclude', surfaceSwitching: 'include' }); } catch { return; }
   let ac = null, micGain = null, dispNode = null;
   try {
     ac = new (window.AudioContext || window.webkitAudioContext)(); ac.resume().catch(() => {});
@@ -2691,7 +2698,7 @@ async function wpStart() {
   stream.getVideoTracks()[0].addEventListener('ended', () => wpLeave());
   S.wp = { max: 4, locked: false, k: Date.now() }; S.wpLive = false;
   wpUi(); WP.vid.srcObject = stream; WP.vid.muted = true; WP.vid.hidden = false; WP.msg.hidden = true; WP.vid.play().catch(() => {});
-  wpChanOpen(S.uid, () => { S.wpLive = true; S.lastTracked = ''; trackMe(); wpAddChat('', 'You are sharing. Friends get a ▶ button next to your name.', true); if (!stream.getAudioTracks().length) wpAddChat('', 'No sound is being shared. To include it, stop and pick a Chrome tab, then tick Also share tab audio.', true); });
+  wpChanOpen(S.uid, () => { S.wpLive = true; S.lastTracked = ''; trackMe(); wpAddChat('', 'You are sharing. Friends get a ▶ button next to your name.', true); if (!stream.getAudioTracks().length) wpAddChat('', 'No sound is being shared. To include it: stop, then in the popup tap Tab at the top, pick the tab, and tick Also share tab audio at the bottom. Sharing a whole screen or window has no sound on a Mac.', true); });
 }
 function wpJoin(hostId) {
   if (WP) return;
