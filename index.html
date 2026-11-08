@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="20261107155606">
-<link rel="icon" type="image/png" href="icon-64.png?v=20261107155606">
-<link rel="shortcut icon" href="favicon.ico?v=20261107155606">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261107155606">
-<link rel="manifest" href="manifest.webmanifest?v=20261107155606">
+<meta name="build" content="20261107160409">
+<link rel="icon" type="image/png" href="icon-64.png?v=20261107160409">
+<link rel="shortcut icon" href="favicon.ico?v=20261107160409">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261107160409">
+<link rel="manifest" href="manifest.webmanifest?v=20261107160409">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
 <style>
@@ -333,7 +333,13 @@ body.hand{--font:'Patrick Hand','Comic Neue',cursive;--fs:16px}
 .npinfo{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}.npinfo b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.npinfo small{color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .npbar{height:5px;border-radius:3px;background:#0002;overflow:hidden;margin-top:4px}.npfill{display:block;height:100%;width:0;background:var(--ac)}
 .nptimes{display:flex;justify-content:space-between;font-size:11px;color:var(--muted)}.npchip{margin-left:4px;padding:0 5px;font-size:12px;line-height:1.3;border:1px solid currentColor;border-radius:9px;background:transparent;color:var(--ac);cursor:pointer;flex:none}.npcard.click{cursor:pointer}
-.plbox{max-width:340px;text-align:center}.npcard.big{flex-direction:column;text-align:center;background:none;border:0}.npcard.big .npart{width:200px;height:200px;border-radius:12px;box-shadow:0 6px 18px #0006}.npcard.big .npinfo{width:100%}
+.dock{flex:none;border-top:1px solid var(--line,#0003);background:var(--panel);padding:6px 8px}.dock[hidden]{display:none}
+.dockhd{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--muted);margin-bottom:4px}.dockbtns{display:flex;gap:4px}
+.dockbtn{padding:0 7px;min-width:24px;line-height:1.2;font-size:13px;background:transparent;color:inherit;border:1px solid currentColor;border-radius:3px;cursor:pointer}
+.dock .npart{width:56px;height:56px}.dockl{display:inline-block;margin-top:4px;font-size:12px}
+.dockmin{display:flex;align-items:center;gap:8px}.dockth{border-radius:4px;flex:none}.docktxt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}.docktxt small{color:var(--muted)}
+a.btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center}
+.npt{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:inherit}.npt:hover{color:var(--ac)}
 .npl{display:inline-block;margin-top:6px;font-size:13px}
 .pvgh{display:block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:8px 2px 4px;color:#444}
 .pvren{width:100%;box-sizing:border-box;font-size:11px;padding:1px 2px}
@@ -652,12 +658,13 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
         <label class="sr" for="awayIn">Away message</label>
         <input id="awayIn" maxlength="80" placeholder="Away message" hidden>
         <label class="sr" for="moodIn">Status</label>
-        <div class="moodrow"><textarea id="moodIn" rows="1" maxlength="60" placeholder="Set a status" spellcheck="false"></textarea><button id="npPlay" class="btn sm" type="button" aria-label="Open your player" title="Open your player" hidden>&#9654;</button><button id="npTog" class="btn sm" type="button" aria-label="Add what you are listening to" title="Add what you are listening to">♪</button></div>
+        <div class="moodrow"><textarea id="moodIn" rows="1" maxlength="60" placeholder="Set a status" spellcheck="false"></textarea><button id="npTog" class="btn sm" type="button" aria-label="Add what you are listening to" title="Add what you are listening to">♪</button></div>
         <label class="sr" for="npIn">Now playing</label>
         <input id="npIn" maxlength="160" placeholder="&#9834; What are we listening to?">
         <button id="editBtn" class="btn" type="button">Edit my profile</button>
       </div>
       <div id="buddies" class="scroll"></div>
+      <div id="dock" class="dock" hidden></div>
       <div class="foot"><button id="sndBtn" class="btn sm" type="button">Sound on</button><label class="sr" for="toneSel">Message sound</label><select id="toneSel" class="sm"></select><label class="sr" for="autoSel">Auto sign-off</label><select id="autoSel" class="sm" title="Sign off automatically after being away"><option value="0">Stay signed in</option><option value="10">Sign off after 10 min</option><option value="30">Sign off after 30 min</option><option value="60">Sign off after 1 hour</option></select><button id="plBtn" class="btn sm" type="button">Planner</button><button id="ntBtn" class="btn sm" type="button" title="Show a desktop notification when someone DMs or @mentions you and this tab is in the background">Alerts off</button><button id="npBtn" class="btn sm" type="button">Notepad</button><button id="logBtn" class="btn sm" type="button" hidden>Log</button><button id="offBtn" class="btn sm" type="button">Sign off</button></div>
     </section>
 
@@ -759,7 +766,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=20261107155606"></script>
+<script src="config.js?v=20261107160409"></script>
 <script>
 (() => {
 'use strict';
@@ -1054,7 +1061,7 @@ function renderMe() { setTimeout(checkRole, 0);
   const a = $('awayIn'); a.hidden = !p.awayOn;
   if (document.activeElement !== a) a.value = p.away;
   const mo = $('moodIn'); if (document.activeElement !== mo) { mo.value = p.mood; growMood(); }
-  $('npPlay').hidden = !S.np; const n = $('npIn'); if (document.activeElement !== n) n.value = p.song.title; n.hidden = !(n.value || S.npOpen || document.activeElement === n);
+  const n = $('npIn'); if (document.activeElement !== n) n.value = p.song.title; n.hidden = !(n.value || S.npOpen || document.activeElement === n);
   $('sndBtn').textContent = S.sound ? 'Sound on' : 'Sound off';
   $('toneSel').value = toneKey();
   $('logBtn').hidden = !isStaff(); $('logBtn').textContent = S.logUnread ? 'Log (' + S.logUnread + ')' : 'Log';
@@ -1617,8 +1624,8 @@ function renderProfile() {
   const liveNp = id === S.uid ? S.np : (S.online.has(id) && S.pmeta[id] && S.pmeta[id].st !== 'invis' ? S.pmeta[id].np : null);
   if (liveNp && liveNp.t && typeof liveNp.d === 'number') {
     const np = { t: clamp(String(liveNp.t), 80), a: clamp(String(liveNp.a || ''), 80), g: /^https:\/\/i\.scdn\.co\//.test(String(liveNp.g || '')) ? String(liveNp.g) : '', d: Math.max(0, +liveNp.d || 0), p: Math.max(0, +liveNp.p || 0), s: +liveNp.s || Date.now() };
-    const card = npCard(np), href = safeUrl(p.song && p.song.url); card.classList.add('click'); card.addEventListener('click', () => openPlayer(id));
-    body.append(h('div', { class: 'sec' }, h('h3', {}, 'Now playing'), card, href ? h('a', { class: 'npl', href, target: '_blank', rel: 'noopener noreferrer' }, 'Listen') : null)); setTimeout(npTick, 0);
+    const href = safeUrl(p.song && p.song.url), card = npCard(np, href);
+    body.append(h('div', { class: 'sec' }, h('h3', {}, 'Now playing'), card)); setTimeout(npTick, 0);
   } else if (p.song && p.song.title) {
     const href = safeUrl(p.song.url);
     body.append(h('div', { class: 'sec' }, h('h3', {}, 'Now playing'),
@@ -2180,7 +2187,7 @@ function subscribe() {
       else if (a === 'idle' && b === 'on') S.sys.push({ ts: Date.now(), text: nm + ' woke up.' });
     }
     if (!S.presLive) { S.presLive = true; setTimeout(() => { S.presSettled = true; }, 2500); }
-    renderBuddies(); renderLog(); renderProfile(); fetchMissing();
+    renderBuddies(); renderDock(); renderLog(); renderProfile(); fetchMissing();
   }).subscribe(async st => { if (st === 'SUBSCRIBED') { try { const st0 = S.invis ? 'invis' : myState(); S.lastTracked = st0 + '|' + (S.np ? S.np.u + S.np.t : ''); await S.presChan.track({ t: Date.now(), st: st0, np: S.invis ? null : S.np || null }); } catch {} } });
 }
 
@@ -2960,25 +2967,29 @@ async function spToken() {
 }
 const npOf = id => { const n = id === S.uid ? S.np : (S.online.has(id) && S.pmeta[id] && S.pmeta[id].st !== 'invis' ? S.pmeta[id].np : null); return n && n.t && typeof n.d === 'number' ? { t: clamp(String(n.t), 80), a: clamp(String(n.a || ''), 80), g: /^https:\/\/i\.scdn\.co\//.test(String(n.g || '')) ? String(n.g) : '', d: Math.max(0, +n.d || 0), p: Math.max(0, +n.p || 0), s: +n.s || Date.now() } : null; };
 const npChip = id => npOf(id) ? h('button', { type: 'button', class: 'npchip', title: 'Open the player', 'aria-label': 'Open the player', onclick: e => { e.stopPropagation(); openPlayer(id); } }, '\u266a') : null;
-function openPlayer(id) {
-  const np = npOf(id), p = profileOf(id); if (!np) return;
-  const prev = document.activeElement, done = () => { ov.remove(); if (prev && prev.focus) prev.focus(); };
-  const card = npCard(np), href = safeUrl(p && p.song && p.song.url);
-  card.classList.add('big');
-  const ov = h('div', { class: 'ovl', role: 'dialog', 'aria-modal': 'true', 'aria-label': (p ? p.sn : 'Their') + ' player', onclick: e => { if (e.target === ov) done(); } },
-    h('div', { class: 'ovbox plbox' }, h('small', { class: 'muted' }, (p ? p.sn : 'Someone') + ' is listening to'), card, h('div', { class: 'ovbtn' }, href ? h('a', { class: 'btn pri', href, target: '_blank', rel: 'noopener noreferrer' }, 'Listen') : null, h('button', { class: 'btn', type: 'button', onclick: done }, 'Close'))));
-  ov.addEventListener('keydown', e => { if (e.key === 'Escape') done(); });
-  document.body.append(ov); npTick(); ov.querySelector('button').focus();
+function openPlayer(id) { if (!npOf(id)) return; S.dockId = id; LS.set('am.dock', 'open'); renderDock(); if (isPhone()) setTab('buddies'); }
+function renderDock() {
+  const d = $('dock'); if (!d) return;
+  const id = S.dockId && npOf(S.dockId) ? S.dockId : (S.np ? S.uid : null), np = id ? npOf(id) : null;
+  if (!np) { d.hidden = true; d.replaceChildren(); return; }
+  const min = LS.get('am.dock') === 'min', p = profileOf(id), href = safeUrl(p && p.song && p.song.url), who = id === S.uid ? 'You are listening to' : (p ? p.sn : 'Someone') + ' is listening to';
+  d.hidden = false; d.className = 'dock' + (min ? ' min' : '');
+  const toggle = h('button', { type: 'button', class: 'dockbtn', 'aria-label': min ? 'Open the player' : 'Minimize the player', title: min ? 'Open' : 'Minimize', onclick: () => { LS.set('am.dock', min ? 'open' : 'min'); renderDock(); } }, min ? '\u25b4' : '_');
+  const close = id !== S.uid ? h('button', { type: 'button', class: 'dockbtn', 'aria-label': 'Back to my player', title: 'Back to mine', onclick: () => { S.dockId = null; renderDock(); } }, '\u00d7') : null;
+  if (min) { d.replaceChildren(h('div', { class: 'dockmin' }, np.g ? h('img', { class: 'dockth', src: np.g, alt: '', width: 28, height: 28 }) : null, h('span', { class: 'docktxt' }, h('b', {}, np.t), ' ', h('small', {}, np.a)), toggle)); return; }
+  const card = npCard(np, href);
+  d.replaceChildren(h('div', { class: 'dockhd' }, h('small', {}, who), h('span', { class: 'dockbtns' }, close, toggle)), card);
+  npTick();
 }
 let spBusy = false, spPause = 0;
-function spNp(n) { const prev = S.np; S.np = n; const same = (prev && prev.u + prev.t) === (n && n.u + n.t); if (!same) { S.lastTracked = ''; trackMe(); } if (!same || !n) { renderMe(); renderBuddies(); renderProfile(); } }
+function spNp(n) { const prev = S.np; S.np = n; const same = (prev && prev.u + prev.t) === (n && n.u + n.t); if (!same) { S.lastTracked = ''; trackMe(); } if (!same || !n) { renderMe(); renderBuddies(); renderProfile(); renderDock(); } }
 window.__spNp = spNp;
 const fmtT = ms => { const t = Math.max(0, Math.floor(ms / 1000)); return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0'); };
-function npCard(np) {
+function npCard(np, href) {
   const bar = h('i', { class: 'npfill' }), el = h('span', {}, '0:00'), tot = h('span', {}, fmtT(np.d));
   const card = h('div', { class: 'npcard', 'data-p': String(np.p), 'data-s': String(np.s), 'data-d': String(np.d) },
     np.g ? h('img', { class: 'npart', src: np.g, alt: '', width: 64, height: 64 }) : null,
-    h('div', { class: 'npinfo' }, h('b', {}, np.t), h('small', {}, np.a), h('div', { class: 'npbar' }, bar), h('div', { class: 'nptimes' }, el, tot)));
+    h('div', { class: 'npinfo' }, href ? h('a', { class: 'npt', href, target: '_blank', rel: 'noopener noreferrer', title: 'Open in Spotify' }, np.t) : h('b', {}, np.t), h('small', {}, np.a), h('div', { class: 'npbar' }, bar), h('div', { class: 'nptimes' }, el, tot)));
   card._f = [bar, el]; return card;
 }
 function npTick() { for (const c of document.querySelectorAll('.npcard')) { const d = +c.dataset.d, e = Math.min(d, +c.dataset.p + Date.now() - +c.dataset.s); if (!c._f) { const f = c.querySelector('.npfill'), t = c.querySelector('.nptimes span'); c._f = [f, t]; } c._f[0].style.width = (d ? Math.min(100, e / d * 100) : 0) + '%'; c._f[1].textContent = fmtT(e); } }
@@ -3075,7 +3086,6 @@ $('compose').addEventListener('submit', e => { e.preventDefault(); const i = $('
 $('stSel').addEventListener('change', setAway);
 $('awayIn').addEventListener('change', setAway);
 $('npIn').addEventListener('change', setNow);
-$('npPlay').addEventListener('click', () => openPlayer(S.uid));
 $('npTog').addEventListener('click', () => { const n = $('npIn'); S.npOpen = n.hidden; n.hidden = !S.npOpen; if (S.npOpen) n.focus(); });
 $('moodIn').addEventListener('change', setMood);
 $('moodIn').addEventListener('input', growMood);
