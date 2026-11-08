@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794105016">
-<link rel="icon" type="image/png" href="icon-64.png?v=1794105016">
-<link rel="shortcut icon" href="favicon.ico?v=1794105016">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1794105016">
-<link rel="manifest" href="manifest.webmanifest?v=1794105016">
+<meta name="build" content="1794105444">
+<link rel="icon" type="image/png" href="icon-64.png?v=1794105444">
+<link rel="shortcut icon" href="favicon.ico?v=1794105444">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1794105444">
+<link rel="manifest" href="manifest.webmanifest?v=1794105444">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
 <style>
@@ -778,7 +778,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=1794105016"></script>
+<script src="config.js?v=1794105444"></script>
 <script>
 (() => {
 'use strict';
@@ -1086,7 +1086,7 @@ function renderMe() { setTimeout(checkRole, 0);
   if (document.activeElement !== a) a.value = p.away;
   const mo = $('moodIn'); if (document.activeElement !== mo) { const x = moodSplit(p.mood); mo.value = x.t; S.moodE = x.e; growMood(); }
   const ch = $('moodChip'), me = S.moodE && emoImg(S.moodE.slice(1, -1), 'em sm'); ch.hidden = !me; ch.replaceChildren(...(me ? [me] : [])); placeChip(); mo.maxLength = 60 - (me ? S.moodE.length + 1 : 0);
-  const n = $('npIn'); if (document.activeElement !== n) n.value = p.song.title; n.hidden = !(n.value || S.npOpen || document.activeElement === n);
+  const n = $('npIn'); if (document.activeElement !== n) n.value = p.song.title; n.hidden = S.npOpen === false && document.activeElement !== n ? true : !(n.value || S.npOpen || document.activeElement === n);
   $('sndBtn').textContent = S.sound ? 'Sound on' : 'Sound off';
   $('toneSel').value = toneKey();
   $('logBtn').hidden = !isStaff(); $('logBtn').textContent = S.logUnread ? 'Log (' + S.logUnread + ')' : 'Log';
@@ -2591,19 +2591,13 @@ function wpUi() {
     const mx = h('select', { 'aria-label': 'Max viewers' }, [1, 2, 3, 4, 5, 6].map(n => h('option', { value: String(n) }, 'Max ' + n))); mx.value = String(S.wp.max);
     mx.addEventListener('change', () => { S.wp.max = Number(mx.value); S.lastTracked = ''; trackMe(); });
     const lk = h('button', { class: 'btn', type: 'button', onclick: () => { S.wp.locked = !S.wp.locked; lk.textContent = S.wp.locked ? 'Unlock room' : 'Lock room'; S.lastTracked = ''; trackMe(); } }, 'Lock room');
-    const mic = h('button', { class: 'btn', type: 'button', onclick: async () => {
-      if (!WP || !WP.micGain) return say('Mic is not available in this browser.');
-      if (!WP.micOn) {
-        if (!WP.micSrc) { try { WP.micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); WP.micSrc = WP.ac.createMediaStreamSource(WP.micStream); WP.micSrc.connect(WP.micGain); } catch { return say('Allow the microphone first.'); } }
-        WP.ac.resume().catch(() => {}); WP.micGain.gain.value = 1; WP.micOn = true;
-      } else { WP.micGain.gain.value = 0; WP.micOn = false; }
-      mic.textContent = WP.micOn ? 'Mic on' : 'Mic off';
-    } }, 'Mic off');
+    const mic = h('button', { class: 'btn', type: 'button', onclick: () => wpMicToggle(mic) }, 'Mic off');
     bar.append(mic, lk, mx);
   } else {
     const snd = h('button', { class: 'btn', type: 'button', onclick: () => { vid.muted = !vid.muted; snd.textContent = vid.muted ? 'Sound off' : 'Sound on'; if (!vid.paused) return; vid.play().catch(() => {}); } }, 'Sound on');
     const fs = h('button', { class: 'btn', type: 'button', onclick: () => { try { (vid.requestFullscreen || vid.webkitEnterFullscreen || (() => {})).call(vid); } catch {} } }, 'Full screen');
-    bar.append(snd, fs); WP.snd = snd;
+    const vmic = h('button', { class: 'btn', type: 'button', onclick: () => wpMicToggle(vmic) }, 'Mic off');
+    bar.append(vmic, snd, fs); WP.snd = snd;
   }
   bar.append(h('span', { class: 'grow' }));
   wpRoster();
@@ -2621,8 +2615,32 @@ function wpPeer(other) {
   pc.onconnectionstatechange = () => { if (WP && WP.isHost && (pc.connectionState === 'failed' || pc.connectionState === 'closed')) wpDrop(other); };
   return pc;
 }
+function wpMixFor(uid) {
+  const dv = WP.ac.createMediaStreamDestination(); WP.mix.set(uid, dv);
+  if (WP.dispNode) WP.dispNode.connect(dv);
+  WP.micGain.connect(dv);
+  for (const [id, n] of WP.vsrc) if (id !== uid) n.connect(dv);
+  return dv;
+}
+function wpViewerAudio(uid, e) {
+  if (!WP || !WP.ac) return;
+  const ms = new MediaStream([e.track]), a = new Audio(); a.srcObject = ms; a.muted = true; a.play().catch(() => {}); WP.keep.push(a);
+  const n = WP.ac.createMediaStreamSource(ms); WP.vsrc.set(uid, n);
+  for (const [id, dv] of WP.mix) if (id !== uid) n.connect(dv);
+  n.connect(WP.ac.destination);
+}
+async function wpMicToggle(btn) {
+  if (!WP || !WP.micGain) return say('Wait until you are connected, then try again.');
+  if (!WP.micOn) {
+    if (!WP.micSrc) { try { WP.micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); WP.micSrc = WP.ac.createMediaStreamSource(WP.micStream); WP.micSrc.connect(WP.micGain); } catch { return say('Allow the microphone first.'); } }
+    WP.ac.resume().catch(() => {}); WP.micGain.gain.value = 1; WP.micOn = true;
+  } else { WP.micGain.gain.value = 0; WP.micOn = false; }
+  btn.textContent = WP.micOn ? 'Mic on' : 'Mic off';
+}
 function wpDrop(id) {
-  if (!WP) return; const pc = WP.peers.get(id); if (pc) { try { pc.close(); } catch {} WP.peers.delete(id); }
+  if (!WP) return;
+  const vn = WP.vsrc && WP.vsrc.get(id); if (vn) { try { vn.disconnect(); } catch {} WP.vsrc.delete(id); }
+  if (WP.mix) WP.mix.delete(id); const pc = WP.peers.get(id); if (pc) { try { pc.close(); } catch {} WP.peers.delete(id); }
   if (WP.members.delete(id)) { wpRoster(); wpSend('roster', { list: [...WP.members] }); }
 }
 async function wpSig(p) {
@@ -2631,7 +2649,10 @@ async function wpSig(p) {
     if (p.t === 'join') {
       if (S.wp.locked || WP.peers.size >= S.wp.max) return wpSend('sig', { to: p.from, from: S.uid, t: 'full' });
       WP.peers.get(p.from) && wpDrop(p.from);
-      const pc = wpPeer(p.from); WP.stream.getTracks().forEach(t => pc.addTrack(t, WP.stream));
+      const pc = wpPeer(p.from);
+      const dv = WP.ac ? wpMixFor(p.from) : null, ms = dv ? new MediaStream([WP.vtrack, dv.stream.getAudioTracks()[0]]) : WP.stream;
+      ms.getTracks().forEach(t => pc.addTrack(t, ms));
+      pc.ontrack = e => { if (e.track.kind === 'audio') wpViewerAudio(p.from, e); };
       WP.members.add(p.from); wpRoster(); wpSend('roster', { list: [...WP.members] });
       const prof = profileOf(p.from); wpAddChat('', (prof ? prof.sn : 'Someone') + ' joined', true);
       await pc.setLocalDescription(await pc.createOffer());
@@ -2648,7 +2669,10 @@ async function wpSig(p) {
     clearTimeout(WP.tmo);
     const pc = WP.peers.get(WP.host) || wpPeer(WP.host);
     pc.ontrack = e => { WP.vid.srcObject = e.streams[0]; WP.vid.hidden = false; WP.msg.hidden = true; WP.vid.play().catch(() => { WP.vid.muted = true; if (WP.snd) WP.snd.textContent = 'Sound off'; WP.vid.play().catch(() => {}); }); };
-    await pc.setRemoteDescription(p.d); for (const c of pc.pend.splice(0)) try { await pc.addIceCandidate(c); } catch {}
+    if (!WP.ac) { try { WP.ac = new (window.AudioContext || window.webkitAudioContext)(); WP.vdest = WP.ac.createMediaStreamDestination(); WP.micGain = WP.ac.createGain(); WP.micGain.gain.value = 0; WP.micGain.connect(WP.vdest); } catch { WP.ac = null; WP.micGain = null; WP.vdest = null; } }
+    await pc.setRemoteDescription(p.d);
+    try { const tr = pc.getTransceivers().find(x => x.receiver.track && x.receiver.track.kind === 'audio'); if (tr && WP.vdest) { tr.direction = 'sendrecv'; await tr.sender.replaceTrack(WP.vdest.stream.getAudioTracks()[0]); } } catch {}
+    for (const c of pc.pend.splice(0)) try { await pc.addIceCandidate(c); } catch {}
     await pc.setLocalDescription(await pc.createAnswer());
     wpSend('sig', { to: WP.host, from: S.uid, t: 'answer', d: pc.localDescription.toJSON() });
   } else if (p.t === 'ice') { const pc = WP.peers.get(WP.host); if (pc && pc.remoteDescription) try { await pc.addIceCandidate(p.d); } catch {} else if (pc) pc.pend.push(p.d); }
@@ -2657,14 +2681,13 @@ async function wpStart() {
   if (WP) return;
   if (!canShare()) { S.extra = 'Sharing your screen needs a laptop browser (Chrome, Edge or Firefox).'; renderNote(); clearExtraSoon(); return; }
   let stream; try { stream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 30 }, audio: true }); } catch { return; }
-  let ac = null, micGain = null, out = stream;
+  let ac = null, micGain = null, dispNode = null;
   try {
     ac = new (window.AudioContext || window.webkitAudioContext)(); ac.resume().catch(() => {});
-    const dest = ac.createMediaStreamDestination(); micGain = ac.createGain(); micGain.gain.value = 0; micGain.connect(dest);
-    if (stream.getAudioTracks().length) ac.createMediaStreamSource(new MediaStream([stream.getAudioTracks()[0]])).connect(dest);
-    out = new MediaStream([stream.getVideoTracks()[0], dest.stream.getAudioTracks()[0]]);
-  } catch { out = stream; ac = null; micGain = null; }
-  WP = { isHost: true, host: S.uid, peers: new Map(), members: new Set([S.uid]), stream: out, raw: stream, ac, micGain };
+    micGain = ac.createGain(); micGain.gain.value = 0;
+    if (stream.getAudioTracks().length) dispNode = ac.createMediaStreamSource(new MediaStream([stream.getAudioTracks()[0]]));
+  } catch { ac = null; micGain = null; dispNode = null; }
+  WP = { isHost: true, host: S.uid, peers: new Map(), members: new Set([S.uid]), stream, raw: stream, vtrack: stream.getVideoTracks()[0], ac, micGain, dispNode, vsrc: new Map(), mix: new Map(), keep: [] };
   stream.getVideoTracks()[0].addEventListener('ended', () => wpLeave());
   S.wp = { max: 4, locked: false, k: Date.now() }; S.wpLive = false;
   wpUi(); WP.vid.srcObject = stream; WP.vid.muted = true; WP.vid.hidden = false; WP.msg.hidden = true; WP.vid.play().catch(() => {});
@@ -2684,6 +2707,7 @@ function wpLeave() {
   if (w.stream) w.stream.getTracks().forEach(t => t.stop());
   if (w.raw) w.raw.getTracks().forEach(t => t.stop());
   if (w.micStream) w.micStream.getTracks().forEach(t => t.stop());
+  if (w.keep) w.keep.forEach(a => { try { a.srcObject = null; } catch {} });
   try { if (w.ac) w.ac.close(); } catch {}
   try { sb.removeChannel(w.chan); } catch {}
   if (w.ov) w.ov.remove();
