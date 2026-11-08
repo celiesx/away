@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="20261108113818">
-<link rel="icon" type="image/png" href="icon-64.png?v=20261108113818">
-<link rel="shortcut icon" href="favicon.ico?v=20261108113818">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261108113818">
-<link rel="manifest" href="manifest.webmanifest?v=20261108113818">
+<meta name="build" content="20261108115039">
+<link rel="icon" type="image/png" href="icon-64.png?v=20261108115039">
+<link rel="shortcut icon" href="favicon.ico?v=20261108115039">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261108115039">
+<link rel="manifest" href="manifest.webmanifest?v=20261108115039">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
 <style>
@@ -618,11 +618,10 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 .plusbtn{width:38px;padding:0;font-size:24px;line-height:1;font-weight:400}.plusbtn span{display:block;transition:transform .22s ease}.plusbtn[aria-expanded=true] span{transform:rotate(45deg)}
 .plustray{position:absolute;left:8px;bottom:calc(100% + 6px);z-index:30;display:flex;flex-direction:column;gap:2px;min-width:190px;padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:var(--rad);box-shadow:0 6px 22px #0005;animation:trayin .18s ease both}.plustray[hidden]{display:none}.plustray button{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:0;background:transparent;padding:10px 12px;font-weight:700;cursor:pointer;border-radius:var(--rx)}.plustray button:hover,.plustray button:focus-visible{background:var(--panel2)}
 @keyframes trayin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}@media(prefers-reduced-motion:reduce){.plustray{animation:none}.plusbtn span{transition:none}}
-.strow #npTog,.strow #moodEm,.strow #watchBtn{width:30px;height:30px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:14px}.strow #watchBtn svg,.strow #npTog svg{width:16px;height:16px}.strow #moodEm img{width:16px;height:16px}
+.strow #setBtn,.strow #npTog,.strow #moodEm,.strow #watchBtn{width:30px;height:30px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:14px}.strow #watchBtn svg,.strow #npTog svg{width:16px;height:16px}.strow #moodEm img{width:16px;height:16px}
 .compose>#plusBtn,.compose>#emoBtn{width:38px;height:38px;padding:0;display:inline-flex;align-items:center;justify-content:center;font-size:20px;line-height:1}
-#profMax{margin-left:auto;margin-right:2px}#profMax+#profX{margin-left:0}.tb #profBack:not([hidden])+#profMax{margin-left:0}
-@media(max-width:900px){#profMax{display:none}}
-body.profmax #profWin{position:fixed;inset:12px;z-index:60;grid-column:auto;grid-row:auto;max-width:none;box-shadow:0 10px 50px #000a}body.profmax::after{content:'';position:fixed;inset:0;z-index:59;background:#0007}
+.setpanel{position:absolute;left:0;right:0;top:34px;bottom:0;z-index:25;background:var(--panel);overflow:auto;padding:10px 12px 14px;display:flex;flex-direction:column;gap:6px}.setpanel[hidden]{display:none}.setpanel h3{margin:10px 0 2px;font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}.setpanel h3:first-child{margin-top:0}.setpanel .btn,.setpanel select{width:100%;margin:0}.setpanel .btn:not(#setDone){padding:8px 10px;font-size:14px}.setpanel .sethead{display:flex;align-items:center;justify-content:space-between;font-weight:800}.setpanel .sethead button{width:auto}
+.win{position:relative}
 .pclose{position:sticky;top:0;float:right;z-index:3;width:26px;height:26px;padding:0;line-height:1;font-size:13px;border-radius:50%;cursor:pointer;margin:0 0 0 4px}
 .ptabs{display:flex;gap:4px;margin-bottom:6px;position:sticky;top:-8px;background:var(--panel);padding:4px 0 2px;z-index:1}
 .ptabs button{flex:1;border:1px solid var(--line);background:transparent;color:inherit;font:inherit;padding:5px;border-radius:8px;cursor:pointer}
@@ -706,7 +705,7 @@ body.profmax #profWin{position:fixed;inset:12px;z-index:60;grid-column:auto;grid
       <div class="mebox">
         <div class="me-row"><span id="meAv"></span><div class="grow"><div id="meSn" class="sn"></div>
           <label class="sr" for="stSel">Status</label>
-          <div class="strow"><select id="stSel"><option value="on">Available</option><option value="away">Away</option><option value="dnd">Busy</option><option value="invis">Invisible</option></select><span class="moodbtns tools"><button id="npTog" class="btn sm" type="button" aria-label="Add what you are listening to" title="Add what you are listening to">♪</button><button id="moodEm" class="btn sm" type="button" aria-label="Add an emote to your status" title="Add an emote to your status">🧸</button></span><button id="watchBtn" class="btn" type="button" aria-label="Start a watch party" title="Start a watch party"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M4 3h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-6v2.5h3.5V21h-11v-1.5H10V17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path fill="var(--panel2)" d="M7.5 13.5v-1.2A3.8 3.8 0 0 1 11.3 8.5H14V6.2l4 3.3-4 3.3v-2.1h-2.7a1.4 1.4 0 0 0-1.4 1.4v1.4z"/></svg></button></div></div></div>
+          <div class="strow"><select id="stSel"><option value="on">Available</option><option value="away">Away</option><option value="dnd">Busy</option><option value="invis">Invisible</option></select><span class="moodbtns tools"><button id="setBtn" class="btn sm" type="button" aria-label="Settings" aria-expanded="false" title="Settings">⚙</button><button id="npTog" class="btn sm" type="button" aria-label="Add what you are listening to" title="Add what you are listening to">♪</button><button id="moodEm" class="btn sm" type="button" aria-label="Add an emote to your status" title="Add an emote to your status">🧸</button></span><button id="watchBtn" class="btn" type="button" aria-label="Start a watch party" title="Start a watch party"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M4 3h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-6v2.5h3.5V21h-11v-1.5H10V17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path fill="var(--panel2)" d="M7.5 13.5v-1.2A3.8 3.8 0 0 1 11.3 8.5H14V6.2l4 3.3-4 3.3v-2.1h-2.7a1.4 1.4 0 0 0-1.4 1.4v1.4z"/></svg></button></div></div></div>
         <label class="sr" for="awayIn">Away message</label>
         <input id="awayIn" maxlength="80" placeholder="Away message" hidden>
         <label class="sr" for="moodIn">Status</label>
@@ -807,7 +806,7 @@ body.profmax #profWin{position:fixed;inset:12px;z-index:60;grid-column:auto;grid
     </section>
 
     <section id="profWin" class="win theme" aria-label="Profile">
-      <div class="tb"><span id="profTitle">profile</span><button id="profBack" class="tbx" type="button" hidden></button><button id="profMax" class="tbx" type="button" aria-label="Full screen" aria-pressed="false" title="Full screen">□</button><button id="profX" class="tbx" type="button" aria-label="Close profile">&times;</button></div>
+      <div class="tb"><span id="profTitle">profile</span><button id="profBack" class="tbx" type="button" hidden></button><button id="profX" class="tbx" type="button" aria-label="Close profile">&times;</button></div>
       <div id="profBody" class="pbody"></div>
       <div id="profPops" class="pops"></div>
       <div id="profBar" class="taskbar" hidden></div>
@@ -822,7 +821,7 @@ body.profmax #profWin{position:fixed;inset:12px;z-index:60;grid-column:auto;grid
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=20261108113818"></script>
+<script src="config.js?v=20261108115039"></script>
 <script>
 (() => {
 'use strict';
@@ -3628,10 +3627,7 @@ $('soInfo').addEventListener('click', () => soHelpSet(true));
 $('soHelpX').addEventListener('click', () => soHelpSet(false));
 $('soHelpOv').addEventListener('click', e => { if (e.target === $('soHelpOv')) soHelpSet(false); });
 addEventListener('keydown', e => { if (e.key === 'Escape') soHelpSet(false); });
-const profFull = on => { document.body.classList.toggle('profmax', on); const b = $('profMax'); b.setAttribute('aria-pressed', String(on)); b.textContent = on ? '\u2750' : '\u25a1'; b.title = b.ariaLabel = on ? 'Exit full screen' : 'Full screen'; };
-$('profMax').addEventListener('click', () => profFull(!document.body.classList.contains('profmax')));
-document.addEventListener('keydown', e => { if (e.key === 'Escape' && document.body.classList.contains('profmax')) profFull(false); });
-$('profX').addEventListener('click', () => { profFull(false); if (isPhone()) setTab('chat'); else document.body.classList.add('noprof'); });
+$('profX').addEventListener('click', () => { if (isPhone()) setTab('chat'); else document.body.classList.add('noprof'); });
 $('infoBtn').addEventListener('click', () => { if (S.editing) return; if (!isRoom(S.conv)) { S.showInfo = false; S.selected = S.conv; document.body.classList.remove('noprof'); renderProfile(); renderBuddies(); if (isPhone()) setTab('profile'); return; } S.showInfo = true; document.body.classList.remove('noprof'); renderProfile(); if (isPhone()) setTab('profile'); });
 $('newCh').addEventListener('click', () => { const f = $('chForm'); f.hidden = !f.hidden; if (!f.hidden) $('chName').focus(); });
 $('chForm').addEventListener('submit', makeChannel);
@@ -3862,17 +3858,32 @@ window.addEventListener('focus', () => { if (S.pings) { S.pings = 0; setBadge();
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '20261108113818' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '20261108115039' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '20261108113818') { if (newBuild !== m[1]) showPill('New version ready. Tap to update', () => $('updBtn').click()); newBuild = m[1]; $('updBar').hidden = false; }
+    if (m && m[1] !== BUILD && m[1] !== '20261108115039') { if (newBuild !== m[1]) showPill('New version ready. Tap to update', () => $('updBtn').click()); newBuild = m[1]; $('updBar').hidden = false; }
   } catch {}
 }
 $('updBtn').addEventListener('click', () => { location.replace(location.pathname + '?v=' + encodeURIComponent(newBuild || Date.now())); });
 setTimeout(checkUpdate, 4000); setInterval(checkUpdate, 600000);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) checkUpdate(); });
+{
+  const bw = $('buddyWin'), sb2 = $('setBtn');
+  const row = (...k) => h('div', { class: 'setrow' }, ...k);
+  const panel = h('div', { id: 'setPanel', class: 'setpanel', role: 'dialog', 'aria-label': 'Settings', hidden: true },
+    h('div', { class: 'sethead' }, 'Settings', h('button', { type: 'button', class: 'btn sm', id: 'setDone' }, 'Done')),
+    h('h3', {}, 'Profile'), $('editBtn'),
+    h('h3', {}, 'Sound and alerts'), $('sndBtn'), $('toneSel'), $('ntBtn'),
+    h('h3', {}, 'Privacy'), $('lockSel'), $('autoSel'));
+  bw.append(panel);
+  const set = on => { panel.hidden = !on; sb2.setAttribute('aria-expanded', String(on)); };
+  sb2.addEventListener('click', () => set(panel.hidden));
+  $('setDone').addEventListener('click', () => set(false));
+  $('editBtn').addEventListener('click', () => set(false));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !panel.hidden) set(false); });
+}
 setInterval(checkUpdate, 180000); addEventListener('focus', checkUpdate); addEventListener('pageshow', checkUpdate); setTimeout(checkUpdate, 4000);
 const hasStoredSession = () => { try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (/^sb-.*-auth-token$/.test(k)) return true; } } catch {} return false; };
 async function boot() {
