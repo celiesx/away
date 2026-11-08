@@ -181,7 +181,8 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .empty{margin:0;padding:14px;color:var(--muted)}
 .foot{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:8px 10px;border-top:1px solid var(--line)}
 .foot .btn,.foot select{width:100%;min-width:0}
-.foot #autoSel{grid-column:1/-1}
+.foot #autoSel,.foot #lockSel{grid-column:1/-1}
+.lockov{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:16px;background:var(--bg,#0c1b24);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}.lockov.on{display:flex}.lockbox{width:min(300px,100%);display:flex;flex-direction:column;gap:10px;text-align:center}.lockbox h2{margin:0;font-size:18px}.lockbox input{text-align:center;font-size:20px;letter-spacing:6px}.lockbox .err{min-height:16px;font-size:12px;color:#c33}.lockbox .lk2{background:none;border:0;font-size:12px;text-decoration:underline;cursor:pointer;color:var(--fg)}
 .crown{color:var(--ac);font-size:13px;margin-left:2px}
 .rchips{display:flex;gap:4px;margin-top:2px}
 .rchips .rolechip{margin-left:0}
@@ -701,7 +702,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
       </div>
       <div id="buddies" class="scroll"></div>
       <div id="dock" class="dock" hidden></div>
-      <div class="foot"><button id="sndBtn" class="btn sm" type="button">Sound on</button><label class="sr" for="toneSel">Message sound</label><select id="toneSel" class="sm"></select><label class="sr" for="autoSel">Auto sign-off</label><select id="autoSel" class="sm" title="Sign off automatically after being away"><option value="0">Stay signed in</option><option value="10">Sign off after 10 min</option><option value="30">Sign off after 30 min</option><option value="60">Sign off after 1 hour</option></select><button id="plBtn" class="btn sm" type="button">Planner</button><button id="ntBtn" class="btn sm" type="button" title="Show a desktop notification when someone DMs or @mentions you and this tab is in the background">Alerts off</button><button id="npBtn" class="btn sm" type="button">Notepad</button><button id="logBtn" class="btn sm" type="button" hidden>Log</button><button id="offBtn" class="btn sm" type="button">Sign off</button></div>
+      <div class="foot"><button id="sndBtn" class="btn sm" type="button">Sound on</button><label class="sr" for="toneSel">Message sound</label><select id="toneSel" class="sm"></select><label class="sr" for="autoSel">Auto sign-off</label><select id="autoSel" class="sm" title="Sign off automatically after being away"><option value="0">Stay signed in</option><option value="10">Sign off after 10 min</option><option value="30">Sign off after 30 min</option><option value="60">Sign off after 1 hour</option></select><label class="sr" for="lockSel">App lock</label><select id="lockSel" class="sm" title="Ask for a PIN when you come back to the app"><option value="off">No app lock</option><option value="1">PIN after 1 min away</option><option value="5">PIN after 5 min away</option><option value="0">PIN every time I leave</option></select><button id="plBtn" class="btn sm" type="button">Planner</button><button id="ntBtn" class="btn sm" type="button" title="Show a desktop notification when someone DMs or @mentions you and this tab is in the background">Alerts off</button><button id="npBtn" class="btn sm" type="button">Notepad</button><button id="logBtn" class="btn sm" type="button" hidden>Log</button><button id="offBtn" class="btn sm" type="button">Sign off</button></div>
     </section>
 
     <section id="chatWin" class="win" aria-label="Chat">
@@ -2531,7 +2532,54 @@ const wake = () => { if (!S.signedOn) return; if (autoExpired()) { signOff(AUTO_
 document.addEventListener('visibilitychange', () => { if (!document.hidden) wake(); });
 addEventListener('pageshow', wake); addEventListener('focus', () => { if (S.signedOn && autoExpired()) signOff(AUTO_MSG); });
 setInterval(trackMe, 15000);
-async function signOff(why) { try { wpLeave(); } catch {} sfx('close'); S.awayNote = typeof why === 'string' ? why : ''; try { await sb.auth.signOut(); } catch {} resetApp(); }
+
+// ---- app lock (PIN on this device) ----
+const lockCfg = () => { try { return JSON.parse(LS.get('am.lock') || 'null'); } catch { return null; } };
+const pinHash = async (pin, salt) => { const k = await crypto.subtle.importKey('raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveBits']); const b = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: new TextEncoder().encode(salt), iterations: 100000, hash: 'SHA-256' }, k, 256); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); };
+const lockOv = h('div', { class: 'lockov', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'App lock' });
+if (document.body) document.body.append(lockOv);
+// mode: 'unlock' | 'set' | 'verify'; resolves true when done, false when cancelled
+function lockAsk(mode) {
+  return new Promise(res => {
+    let tries = 0;
+    const p1 = h('input', { type: 'password', inputmode: 'numeric', pattern: '[0-9]*', autocomplete: 'off', maxlength: 8, 'aria-label': mode === 'set' ? 'New PIN' : 'PIN', placeholder: mode === 'set' ? 'new PIN' : 'PIN' });
+    const p2 = mode === 'set' ? h('input', { type: 'password', inputmode: 'numeric', pattern: '[0-9]*', autocomplete: 'off', maxlength: 8, 'aria-label': 'Repeat PIN', placeholder: 'repeat PIN' }) : null;
+    const err = h('div', { class: 'err', role: 'alert' });
+    const done = ok => { lockOv.classList.remove('on'); lockOv.replaceChildren(); res(ok); };
+    const go = async () => {
+      const v = p1.value.trim();
+      if (mode === 'set') {
+        if (!/^\d{4,8}$/.test(v)) { err.textContent = 'Use 4 to 8 numbers.'; return; }
+        if (v !== p2.value.trim()) { err.textContent = 'Those do not match.'; return; }
+        const salt = crypto.getRandomValues(new Uint32Array(4)).join('-');
+        LS.set('am.lock', JSON.stringify({ s: salt, h: await pinHash(v, salt), m: 1 }));
+        return done(true);
+      }
+      const c = lockCfg(); if (!c) return done(true);
+      if (await pinHash(v, c.s) === c.h) return done(true);
+      p1.value = ''; tries++;
+      if (tries >= 5) { done(false); LS.set('am.lock', ''); signOff(); return; }
+      err.textContent = 'Wrong PIN (' + (5 - tries) + ' left).';
+    };
+    const kids = [h('h2', null, mode === 'set' ? 'Choose a PIN' : mode === 'verify' ? 'Enter your PIN' : 'Away is locked'), p1, p2, err, h('button', { class: 'btn', type: 'button', onclick: go }, mode === 'set' ? 'Save PIN' : mode === 'verify' ? 'Turn off lock' : 'Unlock')];
+    if (mode !== 'unlock') kids.push(h('button', { class: 'lk2', type: 'button', onclick: () => done(false) }, 'Cancel'));
+    else kids.push(h('button', { class: 'lk2', type: 'button', onclick: () => { done(false); LS.set('am.lock', ''); signOff(); } }, 'Forgot PIN? Sign off'));
+    lockOv.replaceChildren(h('form', { class: 'lockbox', onsubmit: e => { e.preventDefault(); go(); } }, ...kids.filter(Boolean)));
+    lockOv.classList.add('on');
+    setTimeout(() => { try { p1.focus(); } catch {} }, 50);
+  });
+}
+let lockBusy = false;
+async function lockNow() { if (lockBusy || !lockCfg()) return; lockBusy = true; try { await lockAsk('unlock'); } finally { lockBusy = false; renderLock(); } }
+function renderLock() { const sel = $('lockSel'); if (!sel) return; const c = lockCfg(); sel.value = c ? String(c.m) : 'off'; }
+let lockHiddenAt = 0;
+document.addEventListener('visibilitychange', () => {
+  const c = lockCfg(); if (!c) return;
+  if (document.hidden) { lockHiddenAt = Date.now(); return; }
+  if (lockHiddenAt && Date.now() - lockHiddenAt >= c.m * 60000) lockNow();
+});
+if (lockCfg()) lockNow();
+async function signOff(why) { LS.set('am.lock', ''); try { wpLeave(); } catch {} sfx('close'); S.awayNote = typeof why === 'string' ? why : ''; try { await sb.auth.signOut(); } catch {} resetApp(); }
 const autoMs = () => { const v = LS.get('am.auto'); const n = v == null || v === '' ? 30 : Number(v); return n > 0 ? n * 60000 : 0; };
 const AUTO_MSG = 'You were signed off after being away. Sign back on when you are ready.';
 function autoExpired() { const ms = autoMs(); return !!(S.signedOn && ms && Date.now() - S.lastAct > ms); }
@@ -3643,6 +3691,14 @@ $('moodIn').addEventListener('input', growMood);
 $('moodIn').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } });
 $('editBtn').addEventListener('click', openEditor);
 $('offBtn').addEventListener('click', signOff);
+$('lockSel').addEventListener('change', async e => {
+  const v = e.target.value, c = lockCfg();
+  if (v === 'off') { if (c && !(await lockAsk('verify'))) return renderLock(); LS.set('am.lock', ''); return renderLock(); }
+  if (!c) { if (!(await lockAsk('set'))) return renderLock(); }
+  const n = lockCfg(); if (n) { n.m = Number(v); LS.set('am.lock', JSON.stringify(n)); }
+  renderLock();
+});
+renderLock();
 (() => { const au = $('autoSel'); au.value = String(autoMs() / 60000); au.addEventListener('change', () => { LS.set('am.auto', au.value); S.lastAct = Date.now(); }); })();
 (() => { const sel = $('toneSel'); for (const [k, t] of Object.entries(TONES)) sel.append(h('option', { value: k }, t.name)); sel.value = toneKey();
   sel.addEventListener('change', () => { S.tone = sel.value; LS.set('am.tone', S.tone); sfx('in', true); }); })();
