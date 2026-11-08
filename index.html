@@ -41,7 +41,7 @@ body{margin:0;background-color:var(--wall);color:var(--fg);font:var(--fs)/1.45 v
 [data-pat="stars"]{background-image:radial-gradient(color-mix(in srgb,var(--fg) 38%,transparent) 1px,transparent 1.8px),radial-gradient(color-mix(in srgb,var(--ac) 45%,transparent) 1px,transparent 1.8px);background-size:23px 23px,37px 37px;background-position:0 0,11px 17px}
 [data-pat="checks"]{background-image:conic-gradient(color-mix(in srgb,var(--fg) 9%,transparent) 25%,transparent 0 50%,color-mix(in srgb,var(--fg) 9%,transparent) 0 75%,transparent 0);background-size:30px 30px}
 [data-pat="scan"]{background-image:repeating-linear-gradient(0deg,color-mix(in srgb,var(--fg) 8%,transparent) 0 1px,transparent 1px 3px)}
-#app{height:100%;display:flex;flex-direction:column;gap:10px;padding-block:12px;min-width:0}
+#app{height:100%;display:flex;flex-direction:column;gap:10px;padding-block:12px;padding-bottom:max(12px,calc(env(safe-area-inset-bottom) + 10px));min-width:0}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .muted{color:var(--muted)}
 .grow{flex:1;min-width:0}
@@ -612,6 +612,8 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 .msgmenu .qrow button{border:0;padding:6px 7px;font-size:20px;line-height:1;border-radius:8px;text-align:center}
 .picker{position:fixed;z-index:70;width:min(300px,calc(100vw - 16px));max-height:min(440px,72vh);overflow:auto;background:var(--panel);border:2px solid var(--ac);border-radius:var(--rx);box-shadow:0 6px 18px #0009;padding:8px;color:var(--fg)}
 .picker h4{margin:6px 2px 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.typing{padding:2px 10px;font-size:12px;color:var(--muted)}.typing i{display:inline-block;animation:tdot 1.2s infinite;font-style:normal}.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}@keyframes tdot{0%,60%,100%{opacity:.25}30%{opacity:1}}@media(prefers-reduced-motion:reduce){.typing i{animation:none}}
+.pclose{position:sticky;top:0;float:right;z-index:3;width:26px;height:26px;padding:0;line-height:1;font-size:13px;border-radius:50%;cursor:pointer;margin:0 0 0 4px}
 .ptabs{display:flex;gap:4px;margin-bottom:6px;position:sticky;top:-8px;background:var(--panel);padding:4px 0 2px;z-index:1}
 .ptabs button{flex:1;border:1px solid var(--line);background:transparent;color:inherit;font:inherit;padding:5px;border-radius:8px;cursor:pointer}
 .ptabs button.on{background:var(--ac-soft);border-color:var(--ac)}
@@ -720,6 +722,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
       <div id="warnBar" class="warnbar" hidden></div>
       <div id="pinBar" class="pinbar" hidden></div>
       <div id="note" class="note" role="status" hidden></div>
+      <div id="typing" class="typing" role="status" aria-live="polite" hidden></div>
       <button id="jumpBtn" class="jumpbar" type="button" hidden>↓ New messages</button>
       <div id="log" class="log" role="log" aria-live="polite" aria-label="Messages"></div>
       <form id="compose" class="compose" autocomplete="off">
@@ -1347,7 +1350,15 @@ function renderNote() {
   if (S.extra) t = S.extra;
   else if (peer && peer.awayOn) t = peer.sn + ' is away: ' + (peer.away || 'be back later');
   else if (!S.rt && S.signedOn && S.rtTried) t = 'Live updates are not connecting. New messages will show up every few seconds.';
-  n.hidden = !t; n.textContent = t;
+  n.hidden = !t; n.textContent = t; renderTyping();
+}
+function renderTyping() {
+  const el = $('typing'); if (!el) return; const now = Date.now();
+  const ids = S.typ ? [...S.typ].filter(([k, ts]) => k.startsWith(S.conv + '|') && now - ts < 4500).map(([k]) => k.slice(S.conv.length + 1)) : [];
+  if (!ids.length) { el.hidden = true; el.replaceChildren(); return; }
+  const nm = id => (profileOf(id) || {}).sn || 'Someone';
+  const t = ids.length === 1 ? nm(ids[0]) + ' is typing' : ids.length === 2 ? nm(ids[0]) + ' and ' + nm(ids[1]) + ' are typing' : 'Several people are typing';
+  el.replaceChildren(t, h('i', {}, '.'), h('i', {}, '.'), h('i', {}, '.')); el.hidden = false;
 }
 const bmRow = r => ({ channel: String(r.channel), member: String(r.member), status: r.status === 'approved' ? 'approved' : 'pending' });
 const myBm = id => (S.bms.find(b => b.channel === id && b.member === S.uid) || {}).status || '';
@@ -1483,7 +1494,7 @@ function openPicker(x, y, onPick, canGif, onGif) {
   };
   const setTab = which => { [...tabs.children].forEach(b => b.classList.toggle('on', b.dataset.k === which)); (which === 'gif' ? showGif : showEmoji)(); };
   if (canGif) tabs.append(h('button', { type: 'button', 'data-k': 'emoji', onclick: () => setTab('emoji') }, 'Emoji'), h('button', { type: 'button', 'data-k': 'gif', onclick: () => setTab('gif') }, 'GIFs'));
-  pickEl = h('div', { class: 'picker', role: 'dialog', 'aria-label': 'Pick an emoji' }, canGif ? tabs : null, body);
+  pickEl = h('div', { class: 'picker', role: 'dialog', 'aria-label': 'Pick an emoji' }, h('button', { type: 'button', class: 'pclose', 'aria-label': 'Close emotes', onclick: () => closePicker() }, '\u2715'), canGif ? tabs : null, body);
   document.body.append(pickEl); keepFocus(pickEl);
   canGif ? setTab('emoji') : showEmoji();
   const r = pickEl.getBoundingClientRect();
@@ -1945,6 +1956,7 @@ function addMsg(r, live) {
   if (live) {
     const c = convOf(m);
     if (m.uid !== S.uid) {
+      if (S.typ) { S.typ.delete(convOf(m) + '|' + m.uid); renderTyping(); }
       const me = mine(), ping = !isRoom(c) || (!!me && !!m.text && new RegExp('(^|\\W)@' + me.sn.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?!\\w)', 'i').test(m.text));
       if (ping && !tabMuted(c)) sfx('in');
       const viewing = c === S.conv && (S.tab === 'chat' || !isPhone()) && !document.hidden;
@@ -2359,6 +2371,9 @@ function subscribe() {
       refreshUi();
     })
     .subscribe(st => { S.rtTried = true; S.rt = st === 'SUBSCRIBED'; renderNote(); });
+  S.typ = new Map(); S.typAt = 0;
+  S.typChan = sb.channel('am-typing');
+  S.typChan.on('broadcast', { event: 't' }, msg => { const p = (msg && msg.payload) || {}; if (typeof p.u !== 'string' || typeof p.c !== 'string' || p.u === S.uid) return; if (!isRoom(p.c) && p.c !== S.uid) return; S.typ.set((p.c === S.uid ? p.u : p.c) + '|' + p.u, Date.now()); renderTyping(); setTimeout(renderTyping, 4700); }).subscribe();
   S.presChan = sb.channel('am-presence', { config: { presence: { key: S.uid } } });
   S.presChan.on('presence', { event: 'sync' }, () => {
     const ps0 = S.presChan.presenceState(), isInv = u => { const e = ps0[u] && ps0[u][ps0[u].length - 1]; return !!e && e.st === 'invis'; };
@@ -3696,7 +3711,7 @@ $('photoIn').addEventListener('change', e => { const f = e.target.files && e.tar
 $('log').addEventListener('scroll', () => { if (nearBottom()) S.newBelow = false; updateJump(); }, { passive: true });
 $('jumpBtn').addEventListener('click', () => { const l = $('log'); l.scrollTop = l.scrollHeight; S.newBelow = false; updateJump(); });
 const growMsg = () => { const i = $('msg'); if (!i.value) { i.style.height = '38px'; return; } i.style.height = 'auto'; i.style.height = Math.min(124, Math.max(38, i.scrollHeight + 2)) + 'px'; };
-$('msg').addEventListener('input', growMsg); growMsg();
+$('msg').addEventListener('input', () => { growMsg(); const v = $('msg').value; if (S.typChan && S.signedOn && !S.invis && v && v[0] !== '/' && Date.now() - S.typAt > 2500) { S.typAt = Date.now(); try { S.typChan.send({ type: 'broadcast', event: 't', payload: { u: S.uid, c: S.conv } }); } catch {} } }); growMsg();
 // Enter sends on a computer (Shift+Enter = new line); on a phone Return is a new line and the Send button sends
 $('msg').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && !matchMedia('(pointer: coarse)').matches) { e.preventDefault(); $('compose').requestSubmit(); } });
 $('compose').addEventListener('submit', e => { e.preventDefault(); const i = $('msg'); const had = document.activeElement === i; const v = i.value; i.value = ''; growMsg(); send(v); if (had) i.focus(); });
@@ -3778,7 +3793,7 @@ async function pushOff() {
 function renderNt() { const b = $('ntBtn'); if (!b) return; const ok = window.Notification && Notification.permission === 'granted' && LS.get('am.notif') === '1'; b.textContent = ok ? 'Alerts on' : 'Alerts off'; b.hidden = !window.Notification && !isIos; }
 $('ntBtn').addEventListener('click', async () => {
   const say = t => showPill(t, () => {});
-  if (isIos && !isStandalone()) return say('On iPhone: tap Share, then Add to Home Screen, then open Away from your home screen and turn Alerts on there.');
+  if (isIos && !isStandalone()) return say('Phone alerts need Away on your Home Screen. Tap Share, then Add to Home Screen, and turn Alerts on from there.');
   if (!window.Notification) return;
   if (LS.get('am.notif') === '1') { LS.set('am.notif', '0'); await pushOff(); renderNt(); return; }
   let perm = Notification.permission;
