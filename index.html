@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794099598">
-<link rel="icon" type="image/png" href="icon-64.png?v=1794099598">
-<link rel="shortcut icon" href="favicon.ico?v=1794099598">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1794099598">
-<link rel="manifest" href="manifest.webmanifest?v=1794099598">
+<meta name="build" content="1794099925">
+<link rel="icon" type="image/png" href="icon-64.png?v=1794099925">
+<link rel="shortcut icon" href="favicon.ico?v=1794099925">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1794099925">
+<link rel="manifest" href="manifest.webmanifest?v=1794099925">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
 <style>
@@ -146,7 +146,7 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .psn .rolechip{font-size:11px;font-weight:400;vertical-align:middle;letter-spacing:.05em}
 .moodrow{display:flex;gap:6px;align-items:flex-start}
 .moodrow textarea{flex:1;min-width:0}
-#npTog{padding:3px 9px}
+#npTog,#moodEm{padding:3px 9px}
 .mebox textarea{resize:none;overflow:hidden;line-height:1.3;padding:8px 9px;min-height:40px}
 .mebox input,.mebox textarea,.mebox select,.foot select{font-size:14px}
 .foot .btn{font-size:13px;padding:6px 8px}
@@ -327,7 +327,7 @@ body.hand{--font:'Patrick Hand','Comic Neue',cursive;--fs:16px}
 .pvit.drag{opacity:.4}
 .pvit.over{outline:2px dashed #1a1a1a}
 .pvdot{display:inline-block;width:10px;height:10px;border-radius:50%;border:1px solid #1a1a1a;margin-right:5px;vertical-align:-1px}
-.pvpal{padding:8px 14px;background:#f4f2ee;border-bottom:1px solid #1a1a1a;font-size:12px;color:#1a1a1a}.pvpm{display:flex;gap:6px;margin-bottom:6px}.pvsw{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}.pvsb{width:26px;height:26px;border-radius:50%;border:1px solid #1a1a1a55;cursor:pointer;padding:0}.pvsb.on{outline:3px solid #1a1a1a;outline-offset:2px;transform:scale(1.15);box-shadow:0 0 0 2px #fff inset}.pvprev{padding:6px 10px;margin-bottom:6px;background:#fff;border:1px solid #1a1a1a55;font-size:16px;font-weight:bold}.pvprev span{padding:0 4px}
+.pvpal{padding:8px 14px;background:#f4f2ee;border-bottom:1px solid #1a1a1a;font-size:12px;color:#1a1a1a}.pvpm{display:flex;gap:6px;margin-bottom:6px}.pvpm .cbtn{border:2px solid transparent}.pvpm .cbtn.on{background:#1a1a1a;color:#fff;border-color:#1a1a1a}.pvpm .cbtn.on::before{content:'\2713 '}.pvsw{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}.pvsb{width:26px;height:26px;border-radius:50%;border:1px solid #1a1a1a55;cursor:pointer;padding:0}.pvsb.on{outline:3px solid #1a1a1a;outline-offset:2px;transform:scale(1.15);box-shadow:0 0 0 2px #fff inset}.pvprev{padding:6px 10px;margin-bottom:6px;background:#fff;border:1px solid #1a1a1a55;font-size:16px;font-weight:bold}.pvprev span{padding:0 4px}
 .pvn.hl{mix-blend-mode:multiply;padding:0 2px;border-radius:2px}
 .pvhelp{padding:8px 14px;background:#f4f2ee;border-bottom:1px solid #1a1a1a;font-size:13px;color:#1a1a1a}.pvhelp ul{margin:4px 0 8px;padding-left:18px}.pvhelp li{margin:2px 0}
 .chl{display:inline-flex;align-items:center;gap:3px}.chic{flex:none;vertical-align:-3px}
@@ -580,7 +580,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 .rx{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
 .rx button{display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border:1px solid var(--line);border-radius:999px;background:var(--panel2);color:var(--fg);font:inherit;font-size:13px;cursor:pointer;line-height:1.5}
 .rx button.me{border-color:var(--ac);background:var(--ac-soft)}
-.rx img,.em{width:26px;height:26px;vertical-align:-8px;object-fit:contain}
+.em.sm{width:16px;height:16px;vertical-align:-3px}.rx img,.em{width:26px;height:26px;vertical-align:-8px;object-fit:contain}
 .rx img{width:16px;height:16px;vertical-align:-3px}
 .msgmenu,.picker{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .qrow{display:flex;gap:2px;padding:6px;border-bottom:1px solid var(--line)}
@@ -662,7 +662,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
         <label class="sr" for="awayIn">Away message</label>
         <input id="awayIn" maxlength="80" placeholder="Away message" hidden>
         <label class="sr" for="moodIn">Status</label>
-        <div class="moodrow"><textarea id="moodIn" rows="1" maxlength="60" placeholder="Set a status" spellcheck="false"></textarea><button id="npTog" class="btn sm" type="button" aria-label="Add what you are listening to" title="Add what you are listening to">♪</button></div>
+        <div class="moodrow"><textarea id="moodIn" rows="1" maxlength="60" placeholder="Set a status" spellcheck="false"></textarea><button id="npTog" class="btn sm" type="button" aria-label="Add what you are listening to" title="Add what you are listening to">♪</button><button id="moodEm" class="btn sm" type="button" aria-label="Add an emote to your status" title="Add an emote to your status">🧸</button></div>
         <label class="sr" for="npIn">Now playing</label>
         <input id="npIn" maxlength="160" placeholder="&#9834; What are we listening to?">
         <button id="editBtn" class="btn" type="button">Edit my profile</button>
@@ -770,7 +770,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=1794099598"></script>
+<script src="config.js?v=1794099925"></script>
 <script>
 (() => {
 'use strict';
@@ -982,10 +982,10 @@ const EMOJI = '\u{1F600} \u{1F602} \u{1F923} \u{1F60A} \u{1F60D} \u{1F970} \u{1F
 const QUICK = ['\u2764\uFE0F', '\u{1F602}', '\u{1F44D}', '\u{1F62E}', '\u{1F62D}', '\u{1F525}'];
 const EMRE = /:([a-z0-9_]{2,20}):/g;
 function emoImg(name, cls) { const e = S.emotes && S.emotes.get(name); return e && /^data:image\//.test(e.data) ? h('img', { class: cls || 'em', src: e.data, alt: ':' + name + ':', title: ':' + name + ':' }) : null; }
-function emoText(str) {
+function emoText(str, cls) {
   const out = []; let last = 0;
   for (const m of str.matchAll(EMRE)) {
-    const img = emoImg(m[1]); if (!img) continue;
+    const img = emoImg(m[1], cls); if (!img) continue;
     if (m.index > last) out.push(str.slice(last, m.index));
     out.push(img); last = m.index + m[0].length;
   }
@@ -1128,7 +1128,7 @@ function renderBuddies() {
       box.append(h('div', { class: 'brow' + (S.selected === id ? ' cur' : '') + (tabMuted(id) ? ' faint' : '') },
         h('button', { class: 'buddy', type: 'button', onclick: () => { selectProfile(id); if (isPhone()) setTab('profile'); } },
           avatar(p, 30),
-          h('span', { class: 'grow' }, h('span', { class: 'nm' }, h('span', { class: 'dot ' + (S.presLive ? st.cls : (p.awayOn ? 'away' : '')), 'aria-hidden': 'true', title: p.awayOn ? (p.away || 'Away') : null }), fr ? heartImg(12) : null, p.sn, npChip(id), ld ? h('small', { class: 'when' }, ' ' + ago(ld.ts).replace(/ ago$/, '')) : null), sub ? h('div', { class: 'sub' }, sub) : null)),
+          h('span', { class: 'grow' }, h('span', { class: 'nm' }, h('span', { class: 'dot ' + (S.presLive ? st.cls : (p.awayOn ? 'away' : '')), 'aria-hidden': 'true', title: p.awayOn ? (p.away || 'Away') : null }), fr ? heartImg(12) : null, p.sn, npChip(id), ld ? h('small', { class: 'when' }, ' ' + ago(ld.ts).replace(/ ago$/, '')) : null), sub ? h('div', { class: 'sub' }, emoText(sub, 'em sm')) : null)),
         h('button', { class: 'btn sm dmb', type: 'button', 'aria-label': 'Message ' + p.sn, onclick: () => openConv(id) }, 'DM', n ? h('span', { class: 'pip' }, n > 9 ? '9+' : n) : null),
         fr ? h('span', { class: 'bxs', 'aria-hidden': 'true', style: 'visibility:hidden' }, '×') : h('button', { class: 'bx', type: 'button', 'aria-label': 'Remove ' + p.sn + ' from this list', title: 'Hide from list', onclick: () => { S.hid.add(id); LS.set('am.hid', JSON.stringify([...S.hid])); renderBuddies(); } }, '×')));
     }
@@ -1504,7 +1504,7 @@ function renderInfo() {
   const isOn = id2 => S.presLive ? S.online.has(id2) : false;
   const on = all.filter(([i]) => isOn(i)), off = all.filter(([i]) => !isOn(i)).sort((a, b) => (b[1].lastSeen || 0) - (a[1].lastSeen || 0)).slice(0, 12);
   const row = ([i, p], sub) => { const st = statusOf(i, p); return h('button', { class: 'buddy', type: 'button', onclick: () => { selectProfile(i); if (isPhone()) setTab('profile'); } },
-    avatar(p, 30), h('span', { class: 'grow' }, h('span', { class: 'nm' }, h('span', { class: 'dot ' + st.cls, 'aria-hidden': 'true' }), p.sn, p.role === 'admin' || p.role === 'mod' ? h('span', { class: 'rolechip' }, p.role) : null, ch && ch.by === i ? h('span', { class: 'crown', title: 'Made this board', 'aria-label': 'Made this board' }, '\u2737') : null), sub ? h('div', { class: 'sub' }, sub) : null)); };
+    avatar(p, 30), h('span', { class: 'grow' }, h('span', { class: 'nm' }, h('span', { class: 'dot ' + st.cls, 'aria-hidden': 'true' }), p.sn, p.role === 'admin' || p.role === 'mod' ? h('span', { class: 'rolechip' }, p.role) : null, ch && ch.by === i ? h('span', { class: 'crown', title: 'Made this board', 'aria-label': 'Made this board' }, '\u2737') : null), sub ? h('div', { class: 'sub' }, emoText(sub, 'em sm')) : null)); };
   if (on.length) body.append(h('div', { class: 'sec' }, h('h3', {}, 'Here now \u2014 ' + on.length), on.map(x => row(x, subOf(x[1])))));
   if (off.length) body.append(h('div', { class: 'sec' }, h('h3', {}, 'Recently around'), off.map(x => row(x, 'last seen ' + ago(x[1].lastSeen)))));
 }
@@ -1615,7 +1615,7 @@ function renderProfile() {
   body.append(h('div', { class: 'phead' }, (S.editing ? avatar : avBtn)({ sn: p.sn || '?', avatar: p.avatar, theme: t }, 84),
     h('div', { class: 'grow' }, h('h2', { class: 'psn' }, away ? h('span', { class: 'dot away' + (tipOn ? ' tip' : ''), 'aria-hidden': tipOn ? null : 'true', role: tipOn ? 'button' : null, tabindex: tipOn ? '0' : null, title: st.text || 'Away', onclick: tipOn ? e => { if (thoughtEl && thoughtEl.dataset.of === st.text) closeThought(); else { thought(e.currentTarget, st.text); thoughtEl.dataset.of = st.text; } } : null }) : null, p.sn || '...'),
       !away && st.text ? h('div', { class: 'pst' }, h('span', { class: 'dot ' + (st.cls || ''), 'aria-hidden': 'true' }), st.text) : null,
-      p.mood ? h('div', { class: 'pmood' }, p.mood) : null,
+      p.mood ? h('div', { class: 'pmood' }, emoText(p.mood, 'em sm')) : null,
       !S.editing && tagLine(id, 4) ? h('div', { class: 'ptags' }, ...tagEls(id, 4)) : null,
       h('div', { class: 'pstars', title: (p.stars || 0) + (p.stars === 1 ? ' star' : ' stars') }, h('img', { src: STAR, alt: '', width: 16, height: 16 }), h('span', {}, String(p.stars || 0)), h('span', { class: 'dn', title: (p.downs || 0) + ' thumbs down' }, '\u{1F44E} ' + (p.downs || 0))))));
   { const bb = $('profBack'), canBack = !S.editing && (S.hist.length || isRoom(S.conv)); bb.hidden = !canBack;
@@ -3120,6 +3120,7 @@ $('awayIn').addEventListener('change', setAway);
 $('npIn').addEventListener('change', setNow);
 $('npTog').addEventListener('click', () => { const n = $('npIn'); S.npOpen = n.hidden; n.hidden = !S.npOpen; if (S.npOpen) n.focus(); });
 $('moodIn').addEventListener('change', setMood);
+$('moodEm').addEventListener('click', e => { if (pickEl) return closePicker(); const b = e.currentTarget.getBoundingClientRect(); openPicker(Math.max(8, b.left - 200), b.bottom + 6, v => { const m = $('moodIn'); const t = (m.value.trim() + ' ' + v).trim(); if (t.length > 60) { S.extra = 'Status is full. Make some room first.'; renderNote(); clearExtraSoon(); return; } m.value = t; growMood(); setMood(); }, false); });
 $('moodIn').addEventListener('input', growMood);
 $('moodIn').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } });
 $('editBtn').addEventListener('click', openEditor);
