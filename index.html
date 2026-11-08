@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="20261107161729">
-<link rel="icon" type="image/png" href="icon-64.png?v=20261107161729">
-<link rel="shortcut icon" href="favicon.ico?v=20261107161729">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261107161729">
-<link rel="manifest" href="manifest.webmanifest?v=20261107161729">
+<meta name="build" content="20261107164603">
+<link rel="icon" type="image/png" href="icon-64.png?v=20261107164603">
+<link rel="shortcut icon" href="favicon.ico?v=20261107164603">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261107164603">
+<link rel="manifest" href="manifest.webmanifest?v=20261107164603">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
 <style>
@@ -326,6 +326,9 @@ body.hand{--font:'Patrick Hand','Comic Neue',cursive;--fs:16px}
 .pvadd{font-size:14px;padding:0 6px}
 .pvit.drag{opacity:.4}
 .pvit.over{outline:2px dashed #1a1a1a}
+.pvdot{display:inline-block;width:10px;height:10px;border-radius:50%;border:1px solid #1a1a1a;margin-right:5px;vertical-align:-1px}
+.pvpal{padding:8px 14px;background:#f4f2ee;border-bottom:1px solid #1a1a1a;font-size:12px;color:#1a1a1a}.pvpm{display:flex;gap:6px;margin-bottom:6px}.pvsw{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px}.pvsb{width:26px;height:26px;border-radius:50%;border:1px solid #1a1a1a55;cursor:pointer;padding:0}.pvsb.on{outline:2px solid #1a1a1a;outline-offset:1px}
+.pvn.hl{mix-blend-mode:multiply;padding:0 2px;border-radius:2px}
 .pvhelp{padding:8px 14px;background:#f4f2ee;border-bottom:1px solid #1a1a1a;font-size:13px;color:#1a1a1a}.pvhelp ul{margin:4px 0 8px;padding-left:18px}.pvhelp li{margin:2px 0}
 .chl{display:inline-flex;align-items:center;gap:3px}.chic{flex:none;vertical-align:-3px}
 .npcard{display:flex;gap:10px;align-items:center;padding:8px;border:1px solid var(--line,#0003);border-radius:var(--rs,6px);background:#00000014}
@@ -767,7 +770,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=20261107161729"></script>
+<script src="config.js?v=20261107164603"></script>
 <script>
 (() => {
 'use strict';
@@ -2706,6 +2709,7 @@ function drawPlanner() {
 /* ---------- planner pdf viewer ---------- */
 let pvEl = null, pv = null, pvTimer = null;
 const PDFJS = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/';
+const PV_PAL = ['#1d2a5c', '#222222', '#A9685F', '#C29672', '#7E5D40', '#7D7F88', '#E1A8AF', '#EDD4D0', '#EAE1CE', '#C7B6C8', '#F4D9C1', '#EBDCC1', '#EEDEA5', '#DFDBD7', '#B9D7D7', '#DDE8EA', '#C4D4D1', '#AECDAE', '#A7B3B6', '#BCB4A2', '#E9C8D8', '#DED9C6'];
 const PV_GROUPS = [['Monthly pages', [[6, 'Five rows'], [7, 'Five rows grid'], [8, 'Five rows lined'], [9, 'Six rows'], [10, 'Six rows grid'], [11, 'Six rows lined'], [12, 'Reflection V1'], [13, 'Reflection V2']]], ['Weekly pages', [[14, 'Overview'], [15, 'Classic'], [16, 'Boxes'], [17, 'Hourly'], [18, 'Half hourly'], [19, 'Tasks'], [20, 'Work week'], [21, 'Horizontal']]], ['Daily pages', [[22, 'Agenda V1 hourly'], [23, 'Agenda V2 half hourly'], [24, 'Agenda V3 fill-in'], [25, 'Daily journal']]], ['Notes', [[26, 'Grid V1'], [27, 'Grid V2'], [28, 'Lined V1'], [29, 'Lined V2']]]];
 const PV_TPL = [[14, 'Weekly overview'], [15, 'Weekly overview (list)'], [17, 'Weekly schedule'], [19, 'Weekly tasks'], [20, 'Work week'], [22, 'Daily agenda'], [25, 'Daily journal'], [6, 'Monthly overview'], [12, 'Monthly reflection'], [26, 'Notes']];
 function loadPdfJs() {
@@ -2832,6 +2836,7 @@ async function pvRender() {
   if (!pv || my !== pv.tok) return;
   const custom = pv.key[0] === 'u' ? pv.notes._pages.find(c => 'u' + c.id === pv.key) : null;
   const head = h('div', { class: 'calhead pvhead' },  h('button', { class: 'cbtn' + (pv.help ? ' on' : ''), type: 'button', 'aria-label': 'How this planner works', title: 'How this planner works', onclick: () => { pv.help = !pv.help; pvRender(); } }, 'i'), STK ? h('button', { class: 'cbtn' + (pv.tray ? ' on' : ''), type: 'button', onclick: () => { pv.tray = !pv.tray; pvRender(); } }, 'Stickers') : null, h('button', { class: 'cbtn' + (!pv.tick ? ' on' : ''), type: 'button', 'aria-pressed': String(!pv.tick), title: 'Tap the page to type', onclick: () => { pv.tick = false; pvRender(); } }, 'Text'), h('button', { class: 'cbtn' + (pv.tick ? ' on' : ''), type: 'button', 'aria-pressed': String(!!pv.tick), title: 'Tap a box to tick it', onclick: () => { pv.tick = true; pvRender(); } }, '\u2713 Tick'),
+    h('button', { class: 'cbtn' + (pv.pal ? ' on' : ''), type: 'button', 'aria-label': 'Pen and highlighter colors', title: 'Pen and highlighter colors', onclick: () => { pv.pal = !pv.pal; pvRender(); } }, h('i', { class: 'pvdot', style: 'background:' + (pv.notes._pen || PV_PAL[0]) + (pv.notes._hl ? ';opacity:.6' : '') }), 'Colors'),
     h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Smaller text', title: 'Smaller text', onclick: () => { pv.notes._fs = Math.max(0.6, Math.round(((pv.notes._fs || 1) - 0.15) * 100) / 100); pvSave(); pvRender(); } }, 'A\u2212'), h('button', { class: 'cbtn', type: 'button', 'aria-label': 'Bigger text', title: 'Bigger text', onclick: () => { pv.notes._fs = Math.min(2, Math.round(((pv.notes._fs || 1) + 0.15) * 100) / 100); pvSave(); pvRender(); } }, 'A+'),
     (!custom && pv.key[0] !== 'u' && pv.page > 1 && pv.page < pv.doc.numPages) ? h('button', { class: 'cbtn', type: 'button', title: 'Copy this page into My pages', onclick: () => { const t = (PV_GROUPS.flatMap(g => g[1]).find(x => x[0] === pv.page) || [])[1] || ({ 2: 'Title page', 3: 'Index', 4: 'This week' })[pv.page] || 'Page ' + pv.page; pvAddPage(pv.page, t); } }, '+ Add to My pages') : null,
     h('b', { class: 'caltitle' }, custom ? custom.label : 'Page ' + pv.page + ' of ' + pv.doc.numPages),
@@ -2846,6 +2851,7 @@ async function pvRender() {
       pv.cdoc.getPage(i).then(p => { const v = p.getViewport({ scale: 110 / p.getViewport({ scale: 1 }).width }); cnv.width = v.width; cnv.height = v.height; return p.render({ canvasContext: cnv.getContext('2d'), viewport: v }).promise; }).catch(() => {});
     }
   }
+  const palBox = pv.pal ? h('div', { class: 'pvpal' }, h('div', { class: 'pvpm' }, ['Pen', 'Highlighter'].map((l, i) => h('button', { type: 'button', class: 'cbtn' + ((!!pv.notes._hl) === !!i ? ' on' : ''), onclick: () => { pv.notes._hl = i ? 1 : 0; pvSave(); pvRender(); } }, l))), h('div', { class: 'pvsw' }, PV_PAL.map(c => h('button', { type: 'button', class: 'pvsb' + ((pv.notes._pen || PV_PAL[0]) === c ? ' on' : ''), style: 'background:' + c, 'aria-label': 'Color ' + c, title: c, onclick: () => { pv.notes._pen = c; pvSave(); pvRender(); } }))), h('small', {}, 'Pick pen or highlighter and a color, then tap the page to type. It applies to new notes and check marks.')) : null;
   const helpBox = pv.help ? h('div', { class: 'pvhelp' }, h('b', {}, 'How this works'), h('ul', {}, [
     'Add a page: open Templates or All pages, then tap the + on a layout. Or open any page and tap + Add to My pages up top.',
     'Right-click a page in My pages to rename it, change its week, archive it, or archive the whole week. Archived pages live in Archive.',
@@ -2856,7 +2862,7 @@ async function pvRender() {
     'Your cover is the first thing in My pages. Tap it to pick another. Only you can see your pages.'].map(t => h('li', {}, t))), h('button', { class: 'cbtn', type: 'button', onclick: () => { pv.help = false; pvRender(); } }, 'Got it')) : null;
   const body = h('div', { class: 'calbody pvbody' });
   const side = pvSide(custom); const tray = pv.tray ? h('div', { class: 'pvtray' }) : null;
-  box.replaceChildren(...[head, helpBox, form, cstrip, h('div', { class: 'pvmain' }, side, body, pv.tray && STK ? tray : null)].filter(Boolean));
+  box.replaceChildren(...[head, palBox, helpBox, form, cstrip, h('div', { class: 'pvmain' }, side, body, pv.tray && STK ? tray : null)].filter(Boolean));
   const base = pg.getViewport({ scale: 1 }), availW = Math.max(300, body.clientWidth - 16), availH = Math.max(240, body.clientHeight - 16), sc = Math.min(availW / base.width, availH / base.height), dpr = Math.min(window.devicePixelRatio || 1, 2);
   const css = pg.getViewport({ scale: sc }), cv = pg.getViewport({ scale: sc * dpr });
   const canvas = h('canvas', { class: 'pvcv' }); canvas.width = Math.floor(cv.width); canvas.height = Math.floor(cv.height); canvas.style.width = css.width + 'px'; canvas.style.height = css.height + 'px';
@@ -2864,7 +2870,7 @@ async function pvRender() {
   body.append(stage);
   const fs = Math.max(11, 17 * sc) * (pv.notes._fs || 1), mcv = document.createElement('canvas').getContext('2d');
   const addNote = n => {
-    const ta = h('textarea', { class: 'pvn', rows: '1', maxlength: '300', 'aria-label': 'Note', style: 'font-size:' + fs + 'px' }); ta.value = n.t;
+    const nc = n.c && HEX.test(n.c) ? n.c : '', ta = h('textarea', { class: 'pvn' + (nc && n.h ? ' hl' : ''), rows: '1', maxlength: '300', 'aria-label': 'Note', style: 'font-size:' + fs + 'px' + (nc ? (n.h ? ';background-color:' + nc + ';color:#1d2a5c' : ';color:' + nc) : '') }); ta.value = n.t;
     const grip = h('span', { class: 'pvgrip', title: 'Drag to move', 'aria-label': 'Move note' }, '\u2807');
     const wrap = h('div', { class: 'pvnw', style: 'left:' + n.x * 100 + '%;top:' + n.y * 100 + '%' }, grip, ta);
     const fitW = () => { mcv.font = '700 ' + fs + 'px ' + (getComputedStyle(ta).fontFamily || 'sans-serif'); const w = Math.max(...ta.value.split('\n').map(l => mcv.measureText(l || ' ').width)) + fs * 1.2, mx = Math.max(70, (1 - n.x) * css.width - 6); wrap.style.width = Math.max(48, Math.min(w, mx)) + 'px'; };
@@ -2879,7 +2885,7 @@ async function pvRender() {
     layer.append(wrap); fit(); return ta;
   };
   const addTick = n => {
-    const t = h('button', { class: 'pvtick', type: 'button', 'aria-label': 'Check mark, tap to remove', title: 'Tap to remove', style: 'left:' + n.x * 100 + '%;top:' + n.y * 100 + '%;font-size:' + (fs * 1.5) + 'px', onclick: e => { e.stopPropagation(); const l = pv.notes[pv.key]; if (l) pv.notes[pv.key] = l.filter(x => x !== n); pvSave(); t.remove(); } }, '\u2713');
+    const t = h('button', { class: 'pvtick', type: 'button', 'aria-label': 'Check mark, tap to remove', title: 'Tap to remove', style: 'left:' + n.x * 100 + '%;top:' + n.y * 100 + '%;font-size:' + (fs * 1.5) + 'px' + (n.c && HEX.test(n.c) ? ';color:' + n.c : ''), onclick: e => { e.stopPropagation(); const l = pv.notes[pv.key]; if (l) pv.notes[pv.key] = l.filter(x => x !== n); pvSave(); t.remove(); } }, '\u2713');
     layer.append(t);
   };
   const addSticker = n => {
@@ -2916,6 +2922,7 @@ async function pvRender() {
     for (const o of layer.querySelectorAll('.pvst.sel')) o.classList.remove('sel');
     const list = pv.notes[pv.key] || (pv.notes[pv.key] = []); if (list.length >= 40) return;
     const r = layer.getBoundingClientRect(), n = { x: Math.round((e.clientX - r.left) / r.width * 1000) / 1000, y: Math.round((e.clientY - r.top) / r.height * 1000) / 1000, t: '' };
+    const pen = pv.notes._pen; if (pen && HEX.test(pen) && pen !== PV_PAL[0]) { n.c = pen; if (pv.notes._hl && !pv.tick) n.h = 1; }
     if (pv.tick) { n.k = 1; n.t = '\u2713'; n.x = Math.max(0, n.x - 0.008); n.y = Math.max(0, n.y - 0.018); list.push(n); pvSave(); addTick(n); return; }
     list.push(n); addNote(n).focus();
   });
