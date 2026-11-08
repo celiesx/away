@@ -3676,8 +3676,8 @@ $('micBtn').addEventListener('click', micToggle);
 $('photoIn').addEventListener('change', e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (f) sendPhoto(f); });
 $('log').addEventListener('scroll', () => { if (nearBottom()) S.newBelow = false; updateJump(); }, { passive: true });
 $('jumpBtn').addEventListener('click', () => { const l = $('log'); l.scrollTop = l.scrollHeight; S.newBelow = false; updateJump(); });
-const growMsg = () => { const i = $('msg'); i.style.height = 'auto'; i.style.height = Math.min(124, Math.max(38, i.scrollHeight + 2)) + 'px'; };
-$('msg').addEventListener('input', growMsg);
+const growMsg = () => { const i = $('msg'); if (!i.value) { i.style.height = '38px'; return; } i.style.height = 'auto'; i.style.height = Math.min(124, Math.max(38, i.scrollHeight + 2)) + 'px'; };
+$('msg').addEventListener('input', growMsg); growMsg();
 // Enter sends on a computer (Shift+Enter = new line); on a phone Return is a new line and the Send button sends
 $('msg').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && !matchMedia('(pointer: coarse)').matches) { e.preventDefault(); $('compose').requestSubmit(); } });
 $('compose').addEventListener('submit', e => { e.preventDefault(); const i = $('msg'); const had = document.activeElement === i; const v = i.value; i.value = ''; growMsg(); send(v); if (had) i.focus(); });
