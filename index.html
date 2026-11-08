@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794107989">
-<link rel="icon" type="image/png" href="icon-64.png?v=1794107989">
-<link rel="shortcut icon" href="favicon.ico?v=1794107989">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1794107989">
-<link rel="manifest" href="manifest.webmanifest?v=1794107989">
+<meta name="build" content="1794108845">
+<link rel="icon" type="image/png" href="icon-64.png?v=1794108845">
+<link rel="shortcut icon" href="favicon.ico?v=1794108845">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1794108845">
+<link rel="manifest" href="manifest.webmanifest?v=1794108845">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
 <style>
@@ -637,13 +637,13 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
         <h1 class="logo">Away<br><span>Message</span></h1>
         <div id="soHelp" class="sohelp" hidden>
           <h3>How this works</h3>
-          <p><b>Your email</b> is only used to sign you in. Other people on here can't see it. The person who runs the site (that's Monica) can see the list of emails, the same way any site's owner can. Nothing gets emailed to you.</p>
+          <p><b>Your email</b> is only used to sign you in. Other people on here can't see it. The person who runs the site (that's Monica) can see the list of emails, the same way any site's owner can. The only email you ever get is a password reset, and only if you ask for one.</p>
           <p><b>Discord:</b> if you sign on with Discord, your email is whatever your Discord account uses. If you sign on with email too, use that same email, or you will end up with two separate accounts.</p>
           <p><b>Your password</b> is stored scrambled, so nobody can read it, not even the owner.</p>
           <p><b>Messages</b> disappear after a day, and photos and files after 6 hours. DMs are only between you and the other person, but the owner could technically see them in the site's admin dashboard, so don't send anything you wouldn't want an admin to see. <i>*Monica is too lazy and overstimulated to even try to find where to look.</i></p>
           <p><b>Auto sign-off:</b> if you're away for a while (30 minutes by default) you get signed off so nobody can snoop on your phone. You can change it in the footer after you sign on.</p>
           <p><b>Your profile</b> (name, bio, song, status) is only visible to people who got in with the room code.</p>
-          <p><b>Forgot your password?</b> There's no reset yet. Ask the owner to help.</p>
+          <p><b>Forgot your password?</b> Type your email on the sign on screen and tap Forgot password. A reset link is emailed to you. If it never shows up, check spam, or ask the owner.</p>
           <p><b>Room code</b> is what keeps strangers out. Ask whoever invited you.</p>
         </div>
         <p id="soMsg" class="muted" style="margin:6px 0 6px"></p>
@@ -655,6 +655,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
         <button id="soBtn" class="btn pri" type="submit">Sign On</button>
         <button id="soDisc" class="btn disc" type="button" hidden>Continue with Discord</button>
         <p id="soDiscNote" class="fine" hidden>Using Discord? Use the same email as your Discord account when you sign in with email, or it will be a separate account.</p>
+        <button id="soForgot" class="btn sm swap" type="button">Forgot password?</button>
         <button id="soSwap" class="btn sm swap" type="button"></button>
       </div>
     </form>
@@ -778,7 +779,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=1794107989"></script>
+<script src="config.js?v=1794108845"></script>
 <script>
 (() => {
 'use strict';
@@ -797,6 +798,7 @@ const h = (t, a, ...k) => {
 };
 const LS = { get(k) { try { return localStorage.getItem(k); } catch { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch {} try { if (syncKey(k)) syncPush(); } catch {} } };
 try { const q = new URLSearchParams(location.search); if (q.get('state') && q.get('state') === LS.get('am.sp.state')) { if (q.get('code')) LS.set('am.sp.code', q.get('code')); else LS.set('am.sp.err', '1'); LS.set('am.sp.state', ''); history.replaceState(null, '', location.pathname + location.hash); } } catch { /* ok */ }
+const RECOVERY = /(^|[#&?])type=recovery/.test(location.hash + location.search), LINKBAD = /error_code=otp_expired|error=access_denied/.test(location.hash + location.search);
 const clamp = (s, n) => typeof s === 'string' ? s.slice(0, n) : '';
 const fire = b => { try { return Promise.resolve(b).catch(() => {}); } catch { return Promise.resolve(); } };
 
@@ -1054,16 +1056,18 @@ function renderTabs() {
 
 function renderSignon() {
   const m = S.mode, ok = !!sb, resuming = S.busy && !!S.session && !S.signedOn;
-  $('fEmail').hidden = $('fPass').hidden = (m === 'setup');
-  $('fSn').hidden = $('fCode').hidden = (m === 'login');
-  $('pwIn').setAttribute('autocomplete', m === 'signup' ? 'new-password' : 'current-password');
-  $('soBtn').textContent = m === 'signup' ? 'Create Account' : m === 'setup' ? 'Finish' : 'Sign On';
+  $('fEmail').hidden = (m === 'setup' || m === 'reset'); $('fPass').hidden = (m === 'setup'); $('soForgot').hidden = !(m === 'login' && ok);
+  $('fPass').querySelector('label').textContent = m === 'reset' ? 'New password' : 'Password';
+  $('fSn').hidden = $('fCode').hidden = (m === 'login' || m === 'reset');
+  $('pwIn').setAttribute('autocomplete', m === 'signup' || m === 'reset' ? 'new-password' : 'current-password');
+  $('soBtn').textContent = m === 'signup' ? 'Create Account' : m === 'setup' ? 'Finish' : m === 'reset' ? 'Save new password' : 'Sign On';
   $('soSwap').textContent = m === 'login' ? 'New here? Make an account' : m === 'signup' ? 'Have an account? Sign on' : 'Use a different account';
-  $('soSwap').hidden = !ok; $('soDisc').hidden = !(ok && CFG.discord && m !== 'setup'); $('soDisc').disabled = S.busy; $('soDiscNote').hidden = $('soDisc').hidden;
+  $('soSwap').hidden = !ok || m === 'reset'; $('soDisc').hidden = !(ok && CFG.discord && m !== 'setup' && m !== 'reset'); $('soDisc').disabled = S.busy; $('soDiscNote').hidden = $('soDisc').hidden;
   $('soBtn').disabled = !ok || S.busy;
   $('soMsg').textContent = !ok ? 'This site is not connected to its room yet. If you run it, check config.js.'
     : resuming ? 'Signing you back on...'
     : m === 'signup' ? 'Make an account. You need the room code from whoever runs this.'
+    : m === 'reset' ? 'Pick a new password (at least 6 characters).'
     : m === 'setup' ? 'Almost there. Pick a screen name and enter the room code.'
     : (S.awayNote || splash());
 }
@@ -2245,6 +2249,7 @@ function subscribe() {
 function friendly(e) {
   const m = (e && e.message) || '';
   if (m === '__sn') return 'Screen name needs 2 to 20 letters, numbers, dots, dashes or underscores.';
+  if (m === '__pw') return 'Pick a password of at least 6 characters.';
   if (m === '__email') return 'Enter your email and a password of at least 6 characters.';
   if (m === '__confirm') return 'This room still asks for email confirmation. Whoever runs it needs to turn that off in Supabase.';
   if (/bad_code/.test(m)) return 'That room code is not right.';
@@ -2343,7 +2348,13 @@ async function onSignon(ev) {
   showSoErr(''); S.busy = true; renderSignon();
   try {
     const email = $('emIn').value.trim().toLowerCase(), password = $('pwIn').value;
-    if (S.mode === 'login') {
+    if (S.mode === 'reset') {
+      if (password.length < 6) throw { message: '__pw' };
+      const { error } = await sb.auth.updateUser({ password });
+      if (error) throw error;
+      try { history.replaceState(null, '', location.pathname); } catch {}
+      S.mode = 'login'; S.recovering = false; await afterAuth();
+    } else if (S.mode === 'login') {
       if (!email || !password) throw { message: '__email' };
       const { data, error } = await sb.auth.signInWithPassword({ email, password });
       if (error) throw error;
@@ -2366,6 +2377,15 @@ async function onSignon(ev) {
   } finally {
     S.busy = false; $('pwIn').value = ''; renderAll();
   }
+}
+async function forgotPw() {
+  if (!sb || S.busy) return;
+  const email = $('emIn').value.trim().toLowerCase();
+  if (!email.includes('@')) return showSoErr('Type your email in the box above first, then tap Forgot password.');
+  if (S.fgAt && Date.now() - S.fgAt < 60000) return showSoErr('Wait a minute before asking again.');
+  S.fgAt = Date.now(); showSoErr('');
+  try { await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + location.pathname }); } catch {}
+  $('soMsg').textContent = 'If that email has an account, a reset link is on its way. Check your spam folder too.';
 }
 function swapMode() {
   showSoErr('');
@@ -3373,6 +3393,7 @@ $('soSwap').addEventListener('click', swapMode);
 wireSp();
 $('soDisc').addEventListener('click', async () => { if (!sb || S.busy) return; showSoErr(''); const { error } = await sb.auth.signInWithOAuth({ provider: 'discord', options: { redirectTo: location.origin + location.pathname } }); if (error) showSoErr('Discord sign on is not available right now.'); });
 $('soMsg').addEventListener('click', splashTap);
+$('soForgot').addEventListener('click', forgotPw);
 $('soInfo').addEventListener('click', () => { const x = $('soHelp'); x.hidden = !x.hidden; $('soInfo').setAttribute('aria-expanded', String(!x.hidden)); });
 $('profX').addEventListener('click', () => { if (isPhone()) setTab('chat'); else document.body.classList.add('noprof'); });
 $('infoBtn').addEventListener('click', () => { if (S.editing) return; if (!isRoom(S.conv)) { S.showInfo = false; S.selected = S.conv; document.body.classList.remove('noprof'); renderProfile(); renderBuddies(); if (isPhone()) setTab('profile'); return; } S.showInfo = true; document.body.classList.remove('noprof'); renderProfile(); if (isPhone()) setTab('profile'); });
@@ -3552,7 +3573,10 @@ async function boot() {
   try {
     const { data } = await sb.auth.getSession();
     sb.auth.onAuthStateChange(ev => { if (ev === 'SIGNED_OUT' && S.signedOn) setTimeout(resetApp, 0); });
-    if (data && data.session) {
+    if (RECOVERY && data && data.session) { S.session = data.session; S.mode = 'reset'; S.recovering = true; }
+    else if (LINKBAD) showSoErr('That reset link has expired. Ask for a new one.');
+    if (S.recovering) { /* wait for the new password */ }
+    else if (data && data.session) {
       S.session = data.session; S.busy = true;
       try { await afterAuth(); } catch (e) { showSoErr(friendly(e)); }
       S.busy = false;
