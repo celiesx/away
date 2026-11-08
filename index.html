@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794102993">
-<link rel="icon" type="image/png" href="icon-64.png?v=1794102993">
-<link rel="shortcut icon" href="favicon.ico?v=1794102993">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1794102993">
-<link rel="manifest" href="manifest.webmanifest?v=1794102993">
+<meta name="build" content="1794103547">
+<link rel="icon" type="image/png" href="icon-64.png?v=1794103547">
+<link rel="shortcut icon" href="favicon.ico?v=1794103547">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1794103547">
+<link rel="manifest" href="manifest.webmanifest?v=1794103547">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
 <style>
@@ -588,7 +588,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 .wpc{display:flex;flex-direction:column;border-left:1px solid var(--line);min-height:0;background:var(--panel)}.wplog{flex:1;overflow:auto;padding:8px;overflow-wrap:anywhere}.wplog div{margin-bottom:4px}
 .wpin{display:flex;gap:6px;padding:8px}.wpin input{flex:1;min-width:0}
 @media(max-width:800px){.wpov{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,45%) minmax(0,1fr)}.wpl{display:none}.wpc{border-left:0;border-top:1px solid var(--line)}}
-.stkem{display:inline-block;background-repeat:no-repeat}.pgrid button .stkem{width:30px;height:30px}.em.sm{width:22px;height:22px;vertical-align:-6px}.zimg{display:block;max-width:94vw;max-height:88vh;object-fit:contain;border-radius:8px}.rx img{width:26px;height:26px;vertical-align:-8px;object-fit:contain}.em{width:34px;height:34px;vertical-align:-11px;object-fit:contain}
+.voice{display:block;margin-top:4px;width:260px;max-width:100%}#micBtn.rec{background:#c0392b;color:#fff}.stkem{display:inline-block;background-repeat:no-repeat}.pgrid button .stkem{width:30px;height:30px}.em.sm{width:22px;height:22px;vertical-align:-6px}.zimg{display:block;max-width:94vw;max-height:88vh;object-fit:contain;border-radius:8px}.rx img{width:26px;height:26px;vertical-align:-8px;object-fit:contain}.em{width:34px;height:34px;vertical-align:-11px;object-fit:contain}
 .rx img{width:16px;height:16px;vertical-align:-3px}
 .msgmenu,.picker{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 .qrow{display:flex;gap:2px;padding:6px;border-bottom:1px solid var(--line)}
@@ -670,7 +670,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
         <label class="sr" for="awayIn">Away message</label>
         <input id="awayIn" maxlength="80" placeholder="Away message" hidden>
         <label class="sr" for="moodIn">Status</label>
-        <div class="moodrow"><div class="moodwrap"><textarea id="moodIn" rows="1" maxlength="60" placeholder="Set a status" spellcheck="false"></textarea><button id="moodChip" class="moodchip" type="button" hidden aria-label="Remove status emote" title="Tap to remove"></button></div><span class="moodbtns"><button id="npTog" class="btn sm" type="button" aria-label="Add what you are listening to" title="Add what you are listening to">♪</button><button id="moodEm" class="btn sm" type="button" aria-label="Add an emote to your status" title="Add an emote to your status">🧸</button><button id="watchBtn" class="btn sm" type="button" aria-label="Start a watch party" title="Start a watch party">📺</button></span></div>
+        <div class="moodrow"><div class="moodwrap"><textarea id="moodIn" rows="1" maxlength="60" placeholder="Set a status" spellcheck="false"></textarea><button id="moodChip" class="moodchip" type="button" hidden aria-label="Remove status emote" title="Tap to remove"></button></div><span class="moodbtns"><button id="npTog" class="btn sm" type="button" aria-label="Add what you are listening to" title="Add what you are listening to">♪</button><button id="moodEm" class="btn sm" type="button" aria-label="Add an emote to your status" title="Add an emote to your status">🧸</button><button id="watchBtn" class="btn sm" type="button" aria-label="Start a watch party" title="Start a watch party"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M4 3h16a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-6v2.5h3.5V21h-11v-1.5H10V17H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path fill="var(--panel2)" d="M7.5 13.5v-1.2A3.8 3.8 0 0 1 11.3 8.5H14V6.2l4 3.3-4 3.3v-2.1h-2.7a1.4 1.4 0 0 0-1.4 1.4v1.4z"/></svg></button></span></div>
         <label class="sr" for="npIn">Now playing</label>
         <input id="npIn" maxlength="160" placeholder="&#9834; What are we listening to?">
         <button id="editBtn" class="btn" type="button">Edit my profile</button>
@@ -699,7 +699,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
         <label class="sr" for="msg">Message</label>
         <input id="msg" maxlength="300" autocomplete="off" placeholder="Message (try /me or @name)">
         <button id="emoBtn" class="btn" type="button" aria-label="Emoji and emotes">🧸ྀི</button>
-        <button id="photoBtn" class="btn" type="button" aria-label="Send a file, photo or GIF">File</button><input id="photoIn" type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf" hidden>
+        <button id="photoBtn" class="btn" type="button" aria-label="Send a file, photo or GIF">File</button><button id="micBtn" class="btn" type="button" aria-label="Record a voice message" title="Voice message (up to 60 seconds)">🎤</button><input id="photoIn" type="file" accept="image/jpeg,image/png,image/gif,image/webp,application/pdf" hidden>
         <button id="sendBtn" class="btn pri" type="submit">Send</button>
       </form>
     </section>
@@ -778,7 +778,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=1794102993"></script>
+<script src="config.js?v=1794103547"></script>
 <script>
 (() => {
 'use strict';
@@ -1238,12 +1238,14 @@ async function askJoin() { const c = curCh(); if (!c) return; await sb.rpc('requ
 async function answerJoin(ch, member, ok) { await sb.rpc('answer_join', { p_channel: ch, p_member: member, p_ok: ok }); await loadBms(); }
 function renderComposer() {
   const muted = isMuted(), can = S.signedOn && !!mine() && canRead(curCh()) && !muted;
-  $('msg').disabled = !can; $('sendBtn').disabled = !can; $('photoBtn').disabled = !can;
+  $('msg').disabled = !can; $('sendBtn').disabled = !can; $('photoBtn').disabled = !can; $('micBtn').disabled = !can;
   $('msg').placeholder = muted ? 'You are in the corner until ' + fmtTime(mine().mutedUntil) + '. Back soon!' : 'Message (try /me or @name)';
 }
 
 const IMG_H = 6;
-const expired = m => m.ts < Date.now() - (m.image ? IMG_H : S.ttlH) * 3600000;
+const VOICE_H = 2;
+const isVoice = m => !!m.image && /\.(webm|m4a|ogg|mp3|aac)$/i.test(m.image);
+const expired = m => m.ts < Date.now() - (isVoice(m) ? VOICE_H : m.image ? IMG_H : S.ttlH) * 3600000;
 const urlCache = new Map();
 async function mediaUrl(path) {
   const c = urlCache.get(path);
@@ -1428,7 +1430,7 @@ function renderLog() {
         cont ? h('span') : avBtn(p || { sn: '?', theme: { ac } }, 40),
         h('div', { class: 'body' },
           cont ? null : h('div', { class: 'hd' }, h('button', { class: 'chip', type: 'button', style: sty, onclick: open }, sn), h('time', {}, fmtTime(m.ts))),
-          h('div', { class: 'tx' }, r.nodes, m.image ? (isFile(m) ? fileEl(m) : picEl(m.image)) : null), r.cards, reactBar(m),
+          h('div', { class: 'tx' }, r.nodes, m.image ? (isFile(m) ? fileEl(m) : isVoice(m) ? voiceEl(m.image) : picEl(m.image)) : null), r.cards, reactBar(m),
           h('button', { class: 'more', type: 'button', 'aria-label': 'Message options', onclick: e => { const b = e.currentTarget.getBoundingClientRect(); openMenu(b.right - 150, b.bottom, m); } }, '\u22EF'),
           h('div', { class: 'macts' },
             h('button', { class: 'pinb rxb', type: 'button', 'aria-label': 'Add a reaction', onclick: e => { if (pickEl) return closePicker(); const b = e.currentTarget.getBoundingClientRect(); openPicker(b.left, b.bottom + 4, em => toggleReact(m, em)); } }, 'react'),
@@ -1506,7 +1508,7 @@ function renderInfo() {
     return;
   }
   if (S.infoTab === 'media') {
-    const ms = roomMsgs.filter(m => m.image && !isFile(m));
+    const ms = roomMsgs.filter(m => m.image && !isFile(m) && !isVoice(m));
     body.append(h('div', { class: 'sec' }, ms.length ? h('div', { class: 'fgrid2' }, ms.slice(0, 30).map(m => card(m, picEl(m.image), /\.gif$/.test(m.image) ? 'GIF' : 'Photo', ''))) : h('p', { class: 'muted' }, 'No photos in here right now.')));
     return;
   }
@@ -2561,7 +2563,15 @@ function wpUi() {
     const mx = h('select', { 'aria-label': 'Max viewers' }, [1, 2, 3, 4, 5, 6].map(n => h('option', { value: String(n) }, 'Max ' + n))); mx.value = String(S.wp.max);
     mx.addEventListener('change', () => { S.wp.max = Number(mx.value); S.lastTracked = ''; trackMe(); });
     const lk = h('button', { class: 'btn', type: 'button', onclick: () => { S.wp.locked = !S.wp.locked; lk.textContent = S.wp.locked ? 'Unlock room' : 'Lock room'; S.lastTracked = ''; trackMe(); } }, 'Lock room');
-    bar.append(lk, mx);
+    const mic = h('button', { class: 'btn', type: 'button', onclick: async () => {
+      if (!WP || !WP.micGain) return say('Mic is not available in this browser.');
+      if (!WP.micOn) {
+        if (!WP.micSrc) { try { WP.micStream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); WP.micSrc = WP.ac.createMediaStreamSource(WP.micStream); WP.micSrc.connect(WP.micGain); } catch { return say('Allow the microphone first.'); } }
+        WP.ac.resume().catch(() => {}); WP.micGain.gain.value = 1; WP.micOn = true;
+      } else { WP.micGain.gain.value = 0; WP.micOn = false; }
+      mic.textContent = WP.micOn ? 'Mic on' : 'Mic off';
+    } }, 'Mic off');
+    bar.append(mic, lk, mx);
   } else {
     const snd = h('button', { class: 'btn', type: 'button', onclick: () => { vid.muted = !vid.muted; snd.textContent = vid.muted ? 'Sound off' : 'Sound on'; if (!vid.paused) return; vid.play().catch(() => {}); } }, 'Sound on');
     const fs = h('button', { class: 'btn', type: 'button', onclick: () => { try { (vid.requestFullscreen || vid.webkitEnterFullscreen || (() => {})).call(vid); } catch {} } }, 'Full screen');
@@ -2619,10 +2629,17 @@ async function wpStart() {
   if (WP) return;
   if (!canShare()) { S.extra = 'Sharing your screen needs a laptop browser (Chrome, Edge or Firefox).'; renderNote(); clearExtraSoon(); return; }
   let stream; try { stream = await navigator.mediaDevices.getDisplayMedia({ video: { frameRate: 30 }, audio: true }); } catch { return; }
-  WP = { isHost: true, host: S.uid, peers: new Map(), members: new Set([S.uid]), stream };
+  let ac = null, micGain = null, out = stream;
+  try {
+    ac = new (window.AudioContext || window.webkitAudioContext)(); ac.resume().catch(() => {});
+    const dest = ac.createMediaStreamDestination(); micGain = ac.createGain(); micGain.gain.value = 0; micGain.connect(dest);
+    if (stream.getAudioTracks().length) ac.createMediaStreamSource(new MediaStream([stream.getAudioTracks()[0]])).connect(dest);
+    out = new MediaStream([stream.getVideoTracks()[0], dest.stream.getAudioTracks()[0]]);
+  } catch { out = stream; ac = null; micGain = null; }
+  WP = { isHost: true, host: S.uid, peers: new Map(), members: new Set([S.uid]), stream: out, raw: stream, ac, micGain };
   stream.getVideoTracks()[0].addEventListener('ended', () => wpLeave());
   wpUi(); WP.vid.srcObject = stream; WP.vid.muted = true; WP.vid.hidden = false; WP.msg.hidden = true; WP.vid.play().catch(() => {});
-  wpChanOpen(S.uid, () => { S.wp = { max: 4, locked: false, k: Date.now() }; S.lastTracked = ''; trackMe(); wpAddChat('', 'You are sharing. Friends get a ▶ button next to your name.', true); });
+  wpChanOpen(S.uid, () => { S.wp = { max: 4, locked: false, k: Date.now() }; S.lastTracked = ''; trackMe(); wpAddChat('', 'You are sharing. Friends get a ▶ button next to your name.', true); if (!stream.getAudioTracks().length) wpAddChat('', 'No sound is being shared. To include it, stop and pick a Chrome tab, then tick Also share tab audio.', true); });
 }
 function wpJoin(hostId) {
   if (WP) return;
@@ -2636,6 +2653,9 @@ function wpLeave() {
   clearTimeout(w.tmo);
   w.peers.forEach(pc => { try { pc.close(); } catch {} });
   if (w.stream) w.stream.getTracks().forEach(t => t.stop());
+  if (w.raw) w.raw.getTracks().forEach(t => t.stop());
+  if (w.micStream) w.micStream.getTracks().forEach(t => t.stop());
+  try { if (w.ac) w.ac.close(); } catch {}
   try { sb.removeChannel(w.chan); } catch {}
   if (w.ov) w.ov.remove();
   if (w.isHost) { S.wp = null; S.lastTracked = ''; trackMe(); }
@@ -3282,6 +3302,59 @@ $('newCh').addEventListener('click', () => { const f = $('chForm'); f.hidden = !
 $('chForm').addEventListener('submit', makeChannel);
 $('chCancel').addEventListener('click', () => { $('chForm').hidden = true; });
 $('photoBtn').addEventListener('click', () => $('photoIn').click());
+function voiceEl(path) {
+  const a = h('audio', { class: 'voice', controls: '', preload: 'metadata' });
+  const set = u => { if (u) a.src = u; else a.replaceWith(h('span', { class: 'muted' }, 'voice message expired')); };
+  const c = urlCache.get(path); if (c && c.exp > Date.now()) set(c.url); else mediaUrl(path).then(set);
+  return a;
+}
+let REC = null;
+async function micToggle() {
+  const btn = $('micBtn');
+  if (REC) return REC.stop();
+  if (!navigator.mediaDevices || !window.MediaRecorder) return say('Voice messages need a newer browser.');
+  let st; try { st = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch { return say('Allow the microphone to record.'); }
+  const mt = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'].find(t => MediaRecorder.isTypeSupported(t)) || '';
+  const rec = new MediaRecorder(st, mt ? { mimeType: mt } : {}), chunks = [], t0 = Date.now();
+  rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+  const tick = setInterval(() => { const n = Math.floor((Date.now() - t0) / 1000); btn.textContent = '■ ' + n + 's'; if (n >= 60) rec.stop(); }, 250);
+  rec.onstop = () => {
+    clearInterval(tick); st.getTracks().forEach(t => t.stop()); REC = null; btn.textContent = '\u{1F3A4}'; btn.classList.remove('rec');
+    const blob = new Blob(chunks, { type: rec.mimeType || mt || 'audio/webm' });
+    if (Date.now() - t0 < 700 || blob.size < 500) return;
+    fire(sendVoice(blob));
+  };
+  rec.start(); btn.textContent = '■ 0s'; btn.classList.add('rec'); REC = { stop: () => { try { rec.stop(); } catch {} } };
+}
+function confirmVoice(blob) {
+  return new Promise(res => {
+    const url = URL.createObjectURL(blob), prev = document.activeElement;
+    let dest = 'the lounge';
+    if (S.conv.startsWith('c:')) { const c = S.channels.get(S.conv.slice(2)); dest = c ? '#' + c.name : dest; }
+    else if (!isRoom(S.conv)) { const p = profileOf(S.conv); dest = p ? p.sn : 'them'; }
+    const done = ok => { URL.revokeObjectURL(url); ov.remove(); document.removeEventListener('keydown', key); if (prev && prev.focus) prev.focus(); res(ok); };
+    const key = e => { if (e.key === 'Escape') done(false); };
+    const go = h('button', { class: 'btn pri', type: 'button', onclick: () => done(true) }, 'Send');
+    const ov = h('div', { class: 'ovl', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Send this voice message?' },
+      h('div', { class: 'ovbox' }, h('p', {}, 'Send this voice message to ' + dest + '? It disappears after ' + VOICE_H + ' hours.'), h('audio', { controls: '', src: url, style: 'width:100%' }),
+        h('div', { class: 'ovbtn' }, h('button', { class: 'btn', type: 'button', onclick: () => done(false) }, 'Cancel'), go)));
+    document.body.append(ov); document.addEventListener('keydown', key); go.focus();
+  });
+}
+async function sendVoice(blob) {
+  if (!S.signedOn || !mine()) return;
+  if (blob.size > 3 * 1024 * 1024) return say('That recording is too big.');
+  if (!(await confirmVoice(blob))) return;
+  const ty = (blob.type || 'audio/webm').split(';')[0], ext = /mp4|aac/.test(ty) ? 'm4a' : /ogg/.test(ty) ? 'ogg' : 'webm';
+  const path = S.uid + '/' + crypto.randomUUID() + '.' + ext; sfx('out');
+  const up = await sb.storage.from('media').upload(path, blob, { contentType: ext === 'm4a' ? 'audio/mp4' : ty, upsert: false });
+  if (up.error) return say('Upload did not go through. Try again.');
+  const { data, error } = await sb.from('messages').insert({ ...target(), kind: 'msg', body: '', image: path }).select(MSG_COLS).single();
+  if (error) { fire(sb.storage.from('media').remove([path])); return say('That did not go through. Try again in a moment.'); }
+  if (addMsg(data, false)) { renderLog(); renderConvs(); }
+}
+$('micBtn').addEventListener('click', micToggle);
+
 $('photoIn').addEventListener('change', e => { const f = e.target.files && e.target.files[0]; e.target.value = ''; if (f) sendPhoto(f); });
 $('log').addEventListener('scroll', () => { if (nearBottom()) S.newBelow = false; updateJump(); }, { passive: true });
 $('jumpBtn').addEventListener('click', () => { const l = $('log'); l.scrollTop = l.scrollHeight; S.newBelow = false; updateJump(); });
