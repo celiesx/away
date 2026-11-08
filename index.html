@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794103914">
-<link rel="icon" type="image/png" href="icon-64.png?v=1794103914">
-<link rel="shortcut icon" href="favicon.ico?v=1794103914">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1794103914">
-<link rel="manifest" href="manifest.webmanifest?v=1794103914">
+<meta name="build" content="1794104174">
+<link rel="icon" type="image/png" href="icon-64.png?v=1794104174">
+<link rel="shortcut icon" href="favicon.ico?v=1794104174">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1794104174">
+<link rel="manifest" href="manifest.webmanifest?v=1794104174">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
 <style>
@@ -435,7 +435,7 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center;justify-conten
 .avbig .av{font-size:min(120px,30vw);border:3px solid var(--ac);border-radius:var(--rs);image-rendering:auto}
 .avname{margin-top:10px;font-weight:800;color:#fff;text-shadow:0 1px 4px #000}
 .jumpbar{border:0;border-bottom:1px solid var(--line);background:var(--ac-soft);color:var(--fg);font:inherit;font-size:12px;font-weight:700;padding:5px 10px;cursor:pointer;text-align:center}
-.compose{display:flex;gap:8px;padding:8px;border-top:2px solid var(--line)}
+.compose{display:flex;gap:8px;padding:8px;border-top:2px solid var(--line)}.compose.recording>:not(.recbar){display:none}.recbar{flex:1;display:flex;align-items:center;gap:10px;min-width:0;padding:4px 6px;background:var(--panel2);border:1px solid var(--line);border-radius:var(--rs,8px)}.recx,.recsend{border:0;cursor:pointer;line-height:1;font-size:18px;padding:8px 10px;border-radius:var(--rs,8px);background:transparent;color:var(--fg)}.recsend{background:var(--ac);color:var(--on-ac)}.recdot{width:9px;height:9px;border-radius:50%;background:#e5484d;animation:recp 1s infinite}@keyframes recp{50%{opacity:.3}}.rect{font-variant-numeric:tabular-nums}.recwave{flex:1;display:flex;align-items:center;justify-content:flex-end;gap:3px;min-width:0;overflow:hidden}.recwave i{display:block;width:3px;height:3px;border-radius:2px;background:var(--fg);flex:none;opacity:.8}
 
 /* profile */
 .pbody{flex:1;min-height:0;overflow:auto;padding:14px;background-color:var(--bg);color:var(--fg);font-family:var(--font);font-size:var(--fs)}
@@ -778,7 +778,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=1794103914"></script>
+<script src="config.js?v=1794104174"></script>
 <script>
 (() => {
 'use strict';
@@ -3310,21 +3310,36 @@ function voiceEl(path) {
 }
 let REC = null; const MIC_ICON = $('micBtn').firstElementChild.cloneNode(true);
 async function micToggle() {
-  const btn = $('micBtn');
-  if (REC) return REC.stop();
+  if (REC) return;
   if (!navigator.mediaDevices || !window.MediaRecorder) return say('Voice messages need a newer browser.');
   let st; try { st = await navigator.mediaDevices.getUserMedia({ audio: true }); } catch { return say('Allow the microphone to record.'); }
   const mt = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg'].find(t => MediaRecorder.isTypeSupported(t)) || '';
   const rec = new MediaRecorder(st, mt ? { mimeType: mt } : {}), chunks = [], t0 = Date.now();
+  let keep = false, ac = null, an = null, buf = null;
+  try { ac = new (window.AudioContext || window.webkitAudioContext)(); an = ac.createAnalyser(); an.fftSize = 256; ac.createMediaStreamSource(st).connect(an); buf = new Uint8Array(an.fftSize); } catch { ac = null; }
+  const dots = Array.from({ length: 28 }, () => h('i', {}));
+  const tm = h('span', { class: 'rect' }, '0:00');
+  const bar = h('div', { class: 'recbar' },
+    h('button', { class: 'recx', type: 'button', 'aria-label': 'Throw this recording away', title: 'Throw away', onclick: () => { keep = false; try { rec.stop(); } catch {} } }, '\u{1F5D1}️'),
+    h('span', { class: 'recdot' }), tm, h('span', { class: 'recwave', 'aria-hidden': 'true' }, dots),
+    h('button', { class: 'recsend', type: 'button', 'aria-label': 'Send this voice message', title: 'Send', onclick: () => { keep = true; try { rec.stop(); } catch {} } }, '➤'));
+  $('compose').classList.add('recording'); $('compose').append(bar);
+  const lv = new Array(28).fill(0);
+  const tick = setInterval(() => {
+    const n = Math.floor((Date.now() - t0) / 1000); tm.textContent = Math.floor(n / 60) + ':' + String(n % 60).padStart(2, '0');
+    let v = 0; if (an) { an.getByteTimeDomainData(buf); for (const x of buf) v = Math.max(v, Math.abs(x - 128)); v = Math.min(1, v / 60); }
+    lv.push(v); lv.shift(); dots.forEach((d, k) => { d.style.height = (3 + lv[k] * 16) + 'px'; });
+    if (n >= 60) { keep = true; try { rec.stop(); } catch {} }
+  }, 100);
   rec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
-  const tick = setInterval(() => { const n = Math.floor((Date.now() - t0) / 1000); btn.textContent = '■ ' + n + 's'; if (n >= 60) rec.stop(); }, 250);
   rec.onstop = () => {
-    clearInterval(tick); st.getTracks().forEach(t => t.stop()); REC = null; btn.replaceChildren(MIC_ICON.cloneNode(true)); btn.classList.remove('rec');
+    clearInterval(tick); st.getTracks().forEach(t => t.stop()); try { if (ac) ac.close(); } catch {} REC = null;
+    bar.remove(); $('compose').classList.remove('recording');
     const blob = new Blob(chunks, { type: rec.mimeType || mt || 'audio/webm' });
-    if (Date.now() - t0 < 700 || blob.size < 500) return;
-    fire(sendVoice(blob));
+    if (!keep || Date.now() - t0 < 700 || blob.size < 500) return;
+    fire(sendVoice(blob, true));
   };
-  rec.start(); btn.textContent = '■ 0s'; btn.classList.add('rec'); REC = { stop: () => { try { rec.stop(); } catch {} } };
+  rec.start(); REC = { stop: () => { try { rec.stop(); } catch {} } };
 }
 function confirmVoice(blob) {
   return new Promise(res => {
@@ -3341,10 +3356,10 @@ function confirmVoice(blob) {
     document.body.append(ov); document.addEventListener('keydown', key); go.focus();
   });
 }
-async function sendVoice(blob) {
+async function sendVoice(blob, direct) {
   if (!S.signedOn || !mine()) return;
   if (blob.size > 3 * 1024 * 1024) return say('That recording is too big.');
-  if (!(await confirmVoice(blob))) return;
+  if (!direct && !(await confirmVoice(blob))) return;
   const ty = (blob.type || 'audio/webm').split(';')[0], ext = /mp4|aac/.test(ty) ? 'm4a' : /ogg/.test(ty) ? 'ogg' : 'webm';
   const path = S.uid + '/' + crypto.randomUUID() + '.' + ext; sfx('out');
   const up = await sb.storage.from('media').upload(path, blob, { contentType: ext === 'm4a' ? 'audio/mp4' : ty, upsert: false });
