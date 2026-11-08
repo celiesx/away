@@ -1920,14 +1920,18 @@ function setBadge() {
 }
 const BASE_TITLE = document.title, BASE_ICON = (document.querySelector('link[rel="icon"]') || {}).href || '';
 const actLast = new Map(); let actAny = 0, actEl = null, actT = null;
-function actPill(m, c) {
+function actPill(m, c, ping) {
   const now = Date.now();
-  if (now - actAny < 15000 || now - (actLast.get(c) || 0) < 90000) return;
+  if (!ping && (now - actAny < 15000 || now - (actLast.get(c) || 0) < 90000)) return;
   actAny = now; actLast.set(c, now);
   const p = profileOf(m.uid), who = p ? p.sn : 'Someone';
-  const txt = !isRoom(c) ? who + ' sent you a DM' : c === 'lounge' ? who + ' is chatting in the lounge' : who + ' posted in #' + ((S.channels.get(c.slice(2)) || {}).name || 'a board');
+  const where = c === 'lounge' ? 'the lounge' : '#' + ((S.channels.get(c.slice(2)) || {}).name || 'a board');
+  const txt = !isRoom(c) ? who + ' sent you a DM' : ping ? who + ' mentioned you in ' + where : c === 'lounge' ? who + ' is chatting in the lounge' : who + ' posted in ' + where;
+  showPill(txt, () => { if (S.tab !== 'chat') setTab('chat'); openConv(c); });
+}
+function showPill(txt, go) {
   if (actEl) actEl.remove(); clearTimeout(actT);
-  actEl = h('button', { type: 'button', class: 'actpill', onclick: () => { if (actEl) actEl.remove(); actEl = null; if (S.tab !== 'chat') setTab('chat'); openConv(c); } }, h('span', { class: 'pip soft', 'aria-hidden': 'true' }), txt);
+  actEl = h('button', { type: 'button', class: 'actpill', onclick: () => { if (actEl) actEl.remove(); actEl = null; go(); } }, h('span', { class: 'pip soft', 'aria-hidden': 'true' }), txt);
   actEl.setAttribute('role', 'status');
   document.body.append(actEl);
   actT = setTimeout(() => { if (actEl) { actEl.classList.add('out'); const e = actEl; setTimeout(() => e.remove(), 400); actEl = null; } }, 3800);
@@ -1944,7 +1948,7 @@ function addMsg(r, live) {
       const me = mine(), ping = !isRoom(c) || (!!me && !!m.text && new RegExp('(^|\\W)@' + me.sn.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?!\\w)', 'i').test(m.text));
       if (ping && !tabMuted(c)) sfx('in');
       const viewing = c === S.conv && (S.tab === 'chat' || !isPhone()) && !document.hidden;
-      if (!viewing) { S.unread[c] = (S.unread[c] || 0) + 1; if (!document.hidden && !tabMuted(c)) if (!(LS.get('am.push') === '1' && ping)) actPill(m, c); }
+      if (!viewing) { S.unread[c] = (S.unread[c] || 0) + 1; if (!document.hidden && !tabMuted(c)) if (!(LS.get('am.push') === '1' && !isRoom(c))) actPill(m, c, ping); }
       if (ping && (document.hidden || !viewing) && !tabMuted(c)) pingTab(m, c);
       else if (c === S.conv && !nearBottom()) S.newBelow = true;
       if (!isRoom(c)) { S.opened.add(c); if (S.closedDms.delete(c)) LS.set('am.closed', JSON.stringify([...S.closedDms])); }
@@ -3822,7 +3826,7 @@ async function checkUpdate() {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '__BUILD__') { newBuild = m[1]; $('updBar').hidden = false; }
+    if (m && m[1] !== BUILD && m[1] !== '__BUILD__') { if (newBuild !== m[1]) showPill('New version ready. Tap to update', () => $('updBtn').click()); newBuild = m[1]; $('updBar').hidden = false; }
   } catch {}
 }
 $('updBtn').addEventListener('click', () => { location.replace(location.pathname + '?v=' + encodeURIComponent(newBuild || Date.now())); });
