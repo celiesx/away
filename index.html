@@ -613,6 +613,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 .picker{position:fixed;z-index:70;width:min(300px,calc(100vw - 16px));max-height:min(440px,72vh);overflow:auto;background:var(--panel);border:2px solid var(--ac);border-radius:var(--rx);box-shadow:0 6px 18px #0009;padding:8px;color:var(--fg)}
 .picker h4{margin:6px 2px 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .typing{padding:2px 10px;font-size:12px;color:var(--muted)}.typing i{display:inline-block;animation:tdot 1.2s infinite;font-style:normal}.typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}@keyframes tdot{0%,60%,100%{opacity:.25}30%{opacity:1}}@media(prefers-reduced-motion:reduce){.typing i{animation:none}}
+.pnone{display:block;margin:0 0 6px}.moodchip::after{content:'\u2715';position:absolute;top:-5px;right:-5px;width:13px;height:13px;border-radius:50%;background:var(--panel2);border:1px solid var(--line);font-size:8px;line-height:11px;text-align:center;color:var(--fg)}
 .pclose{position:sticky;top:0;float:right;z-index:3;width:26px;height:26px;padding:0;line-height:1;font-size:13px;border-radius:50%;cursor:pointer;margin:0 0 0 4px}
 .ptabs{display:flex;gap:4px;margin-bottom:6px;position:sticky;top:-8px;background:var(--panel);padding:4px 0 2px;z-index:1}
 .ptabs button{flex:1;border:1px solid var(--line);background:transparent;color:inherit;font:inherit;padding:5px;border-radius:8px;cursor:pointer}
@@ -1460,6 +1461,7 @@ let pickEl = null;
 function closePicker() { if (pickEl) { pickEl.remove(); pickEl = null; } }
 function gifOk(u) { try { const x = new URL(u); return x.protocol === 'https:' && /^(media\d*|i)\.giphy\.com$/.test(x.hostname) && /\.gif$/i.test(x.pathname); } catch { return false; } }
 function openPicker(x, y, onPick, canGif, onGif) {
+  const forMood = !!S.pickMood; S.pickMood = false;
   closePicker(); closeMenu();
   const cell = (label, node, val) => h('button', { type: 'button', 'aria-label': label, onclick: () => { closePicker(); onPick(val); } }, node);
   const mineE = [...S.emotes].filter(([, v]) => v.owner === S.uid), others = [...S.emotes].filter(([, v]) => v.owner !== S.uid);
@@ -1494,7 +1496,7 @@ function openPicker(x, y, onPick, canGif, onGif) {
   };
   const setTab = which => { [...tabs.children].forEach(b => b.classList.toggle('on', b.dataset.k === which)); (which === 'gif' ? showGif : showEmoji)(); };
   if (canGif) tabs.append(h('button', { type: 'button', 'data-k': 'emoji', onclick: () => setTab('emoji') }, 'Emoji'), h('button', { type: 'button', 'data-k': 'gif', onclick: () => setTab('gif') }, 'GIFs'));
-  pickEl = h('div', { class: 'picker', role: 'dialog', 'aria-label': 'Pick an emoji' }, h('button', { type: 'button', class: 'pclose', 'aria-label': 'Close emotes', onclick: () => closePicker() }, '\u2715'), canGif ? tabs : null, body);
+  pickEl = h('div', { class: 'picker', role: 'dialog', 'aria-label': 'Pick an emoji' }, h('button', { type: 'button', class: 'pclose', 'aria-label': 'Close emotes', onclick: () => closePicker() }, '\u2715'), canGif ? tabs : null, forMood && S.moodE ? h('button', { type: 'button', class: 'btn sm pnone', onclick: () => { closePicker(); S.moodE = ''; setMood(); } }, '\u2715 Remove my status emote') : null, body);
   document.body.append(pickEl); keepFocus(pickEl);
   canGif ? setTab('emoji') : showEmoji();
   const r = pickEl.getBoundingClientRect();
@@ -3720,7 +3722,7 @@ $('awayIn').addEventListener('change', setAway);
 $('npIn').addEventListener('change', setNow);
 $('npTog').addEventListener('click', () => { const n = $('npIn'); S.npOpen = n.hidden; n.hidden = !S.npOpen; if (S.npOpen && !matchMedia('(pointer: coarse)').matches) n.focus(); });
 $('moodIn').addEventListener('change', setMood);
-$('moodEm').addEventListener('click', e => { if (pickEl) return closePicker(); const b = e.currentTarget.getBoundingClientRect(); openPicker(Math.max(8, b.left - 200), b.bottom + 6, v => { const m = $('moodIn'); if (/^:[a-z0-9_]{2,20}:$/.test(v)) { S.moodE = v; if (m.value.length > 60 - v.length - 1) m.value = m.value.slice(0, 60 - v.length - 1).trim(); } else { const t = (m.value.trim() + ' ' + v).trim(); if (t.length + (S.moodE ? S.moodE.length + 1 : 0) > 60) { S.extra = 'Status is full. Make some room first.'; renderNote(); clearExtraSoon(); return; } m.value = t; } growMood(); setMood(); }, false); });
+$('moodEm').addEventListener('click', e => { if (pickEl) return closePicker(); S.pickMood = true; const b = e.currentTarget.getBoundingClientRect(); openPicker(Math.max(8, b.left - 200), b.bottom + 6, v => { const m = $('moodIn'); if (/^:[a-z0-9_]{2,20}:$/.test(v)) { S.moodE = v; if (m.value.length > 60 - v.length - 1) m.value = m.value.slice(0, 60 - v.length - 1).trim(); } else { const t = (m.value.trim() + ' ' + v).trim(); if (t.length + (S.moodE ? S.moodE.length + 1 : 0) > 60) { S.extra = 'Status is full. Make some room first.'; renderNote(); clearExtraSoon(); return; } m.value = t; } growMood(); setMood(); }, false); });
 $('moodChip').addEventListener('click', () => { S.moodE = ''; setMood(); });
 $('moodIn').addEventListener('input', growMood);
 $('moodIn').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); e.target.blur(); } });
