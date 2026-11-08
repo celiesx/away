@@ -3804,8 +3804,7 @@ $('ntBtn').addEventListener('click', async () => {
   if (perm === 'default') { try { perm = await Notification.requestPermission(); } catch { perm = 'denied'; } }
   if (perm !== 'granted') { say('Your browser blocked alerts. Allow notifications for this site in its settings.'); renderNt(); return; }
   LS.set('am.notif', '1');
-  if (canPush() && S.uid) { try { await pushOn(); say('Alerts are on. You will get DMs and @mentions even when Away is closed.'); } catch { say('Alerts are on while this page is open, but phone alerts could not be set up.'); } }
-  else { try { new Notification('Alerts are on', { body: 'You will see DMs and @mentions here when this tab is in the background.' }); } catch { /* ok */ } }
+  if (canPush() && S.uid) { try { await pushOn(); } catch { /* falls back to in-tab alerts */ } }
   renderNt();
 });
 // keep this device subscribed after signing in, and clear delivered banners when you come back
