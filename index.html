@@ -1948,8 +1948,7 @@ function addMsg(r, live) {
       const me = mine(), ping = !isRoom(c) || (!!me && !!m.text && new RegExp('(^|\\W)@' + me.sn.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?!\\w)', 'i').test(m.text));
       if (ping && !tabMuted(c)) sfx('in');
       const viewing = c === S.conv && (S.tab === 'chat' || !isPhone()) && !document.hidden;
-      if (isRoom(c)) { const a = (actBurst.get(c) || []).filter(t => Date.now() - t < 120000); a.push(Date.now()); actBurst.set(c, a); if (a.length >= 4 && LS.get('am.push') !== '1' && !viewing && !document.hidden && !tabMuted(c) && Date.now() - (actHot.get(c) || 0) > 600000) { actHot.set(c, Date.now()); const where = c === 'lounge' ? 'the lounge' : '#' + ((S.channels.get(c.slice(2)) || {}).name || 'a board'); showPill(where + ' is active right now', () => { if (S.tab !== 'chat') setTab('chat'); openConv(c); }); actAny = Date.now(); } }
-      if (!viewing) { S.unread[c] = (S.unread[c] || 0) + 1; if (!document.hidden && !tabMuted(c)) if (LS.get('am.push') !== '1') actPill(m, c, ping); }
+      if (!viewing) { S.unread[c] = (S.unread[c] || 0) + 1; }
       if (ping && (document.hidden || !viewing) && !tabMuted(c)) pingTab(m, c);
       else if (c === S.conv && !nearBottom()) S.newBelow = true;
       if (!isRoom(c)) { S.opened.add(c); if (S.closedDms.delete(c)) LS.set('am.closed', JSON.stringify([...S.closedDms])); }
@@ -2365,7 +2364,7 @@ function subscribe() {
     const ps0 = S.presChan.presenceState(), isInv = u => { const e = ps0[u] && ps0[u][ps0[u].length - 1]; return !!e && e.st === 'invis'; };
     const now = new Set(Object.keys(ps0).filter(u => !isInv(u)));
     if (S.presSettled) {
-      for (const u of now) if (!S.online.has(u) && u !== S.uid) { const p = profileOf(u); S.sys.push({ ts: Date.now(), text: (p ? p.sn : 'Someone') + ' has signed on.' }); if (p && !document.hidden && !S.dnd && Date.now() - actAny > 8000) { actAny = Date.now(); showPill(p.sn + ' just signed on', () => { if (S.tab !== 'chat') setTab('chat'); }); } }
+      for (const u of now) if (!S.online.has(u) && u !== S.uid) { const p = profileOf(u); S.sys.push({ ts: Date.now(), text: (p ? p.sn : 'Someone') + ' has signed on.' }); }
       S.grace = S.grace || new Map();
       for (const u of now) S.grace.delete(u);
       for (const u of S.online) if (!now.has(u) && u !== S.uid && !S.grace.has(u)) { if (isInv(u)) { const p = profileOf(u); S.sys.push({ ts: Date.now(), text: (p ? p.sn : 'Someone') + ' has signed off.' }); } else S.grace.set(u, Date.now()); }
