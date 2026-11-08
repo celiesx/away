@@ -183,7 +183,7 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .foot .btn,.foot select{width:100%;min-width:0}
 .foot #autoSel,.foot #lockSel{grid-column:1/-1}
 .actpill{position:fixed;top:max(10px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);z-index:90;display:flex;align-items:center;gap:8px;max-width:calc(100vw - 32px);padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;cursor:pointer;background:var(--panel);border:1px solid var(--line);box-shadow:0 4px 18px #0005;animation:actin .3s ease both;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.actpill.out{opacity:0;transition:opacity .4s}.actpill .pip{position:static;flex:none}@keyframes actin{from{opacity:0;transform:translate(-50%,-12px)}to{opacity:1;transform:translate(-50%,0)}}@media(prefers-reduced-motion:reduce){.actpill{animation:none}}
-@media(min-width:901px){#lockSel{display:none}}
+#lockSel{display:none}html.inapp #lockSel{display:block}@media(min-width:901px){html.inapp #lockSel{display:none}}
 .lockov{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:16px;background:var(--bg,#0c1b24);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}.lockov.on{display:flex}.lockbox{width:min(300px,100%);display:flex;flex-direction:column;gap:10px;text-align:center}.lockbox h2{margin:0;font-size:18px}.lockbox input{text-align:center;font-size:20px;letter-spacing:6px}.lockbox .err{min-height:16px;font-size:12px;color:#c33}.lockbox .lk2{background:none;border:0;font-size:12px;text-decoration:underline;cursor:pointer;color:var(--fg)}
 .crown{color:var(--ac);font-size:13px;margin-left:2px}
 .rchips{display:flex;gap:4px;margin-top:2px}
@@ -2549,7 +2549,8 @@ addEventListener('pageshow', wake); addEventListener('focus', () => { if (S.sign
 setInterval(trackMe, 15000);
 
 // ---- app lock (PIN on this device) ----
-const lockCfg = () => { if (!isPhone()) return null; try { return JSON.parse(LS.get('am.lock') || 'null'); } catch { return null; } };
+const inApp = () => !!navigator.standalone || matchMedia('(display-mode: standalone)').matches;
+const lockCfg = () => { if (!isPhone() || !inApp()) return null; try { return JSON.parse(LS.get('am.lock') || 'null'); } catch { return null; } };
 const pinHash = async (pin, salt) => { const k = await crypto.subtle.importKey('raw', new TextEncoder().encode(pin), 'PBKDF2', false, ['deriveBits']); const b = await crypto.subtle.deriveBits({ name: 'PBKDF2', salt: new TextEncoder().encode(salt), iterations: 100000, hash: 'SHA-256' }, k, 256); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); };
 const lockOv = h('div', { class: 'lockov', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'App lock' });
 if (document.body) document.body.append(lockOv);
@@ -3713,6 +3714,7 @@ $('lockSel').addEventListener('change', async e => {
   const n = lockCfg(); if (n) { n.m = Number(v); LS.set('am.lock', JSON.stringify(n)); }
   renderLock();
 });
+if (inApp()) document.documentElement.classList.add('inapp');
 renderLock();
 (() => { const au = $('autoSel'); au.value = String(autoMs() / 60000); au.addEventListener('change', () => { LS.set('am.auto', au.value); S.lastAct = Date.now(); }); })();
 (() => { const sel = $('toneSel'); for (const [k, t] of Object.entries(TONES)) sel.append(h('option', { value: k }, t.name)); sel.value = toneKey();
