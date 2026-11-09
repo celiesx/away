@@ -9,7 +9,7 @@ self.addEventListener('push', e => {
     let seen = false;
     try {
       const all = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
-      const asks = all.filter(c => c.visibilityState === 'visible').map(c => new Promise(res => {
+      const asks = all.map(c => new Promise(res => {
         const ch = new MessageChannel(); const t = setTimeout(() => res(false), 500);
         ch.port1.onmessage = ev => { clearTimeout(t); res(ev.data === true); };
         try { c.postMessage({ type: 'viewing', tag: d.tag || '' }, [ch.port2]); } catch (x) { clearTimeout(t); res(false); }
