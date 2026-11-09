@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="20261108215606">
-<link rel="icon" type="image/png" href="icon-64.png?v=20261108215606">
-<link rel="shortcut icon" href="favicon.ico?v=20261108215606">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261108215606">
-<link rel="manifest" href="manifest.webmanifest?v=20261108215606">
+<meta name="build" content="20261108215950">
+<link rel="icon" type="image/png" href="icon-64.png?v=20261108215950">
+<link rel="shortcut icon" href="favicon.ico?v=20261108215950">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261108215950">
+<link rel="manifest" href="manifest.webmanifest?v=20261108215950">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
 <style>
@@ -600,6 +600,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 .macts:focus-within{opacity:.9;pointer-events:auto}
 .m,.act{-webkit-touch-callout:none}
 .more{display:none}
+.replybar{display:flex;align-items:center;gap:8px;padding:5px 12px;font-size:12px;color:var(--muted);border-top:1px solid var(--line);background:var(--panel2)}.replybar[hidden]{display:none}.replybar span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.replybar button{border:0;background:none;color:var(--fg);cursor:pointer;font-size:14px}
 @media (pointer:coarse){
   #log .m,#log .act{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
   .more{display:inline-flex;position:absolute;right:0;top:0;border:0;background:none;color:var(--muted);font:inherit;font-size:18px;line-height:1;padding:2px 8px;cursor:pointer}
@@ -832,7 +833,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=20261108215606"></script>
+<script src="config.js?v=20261108215950"></script>
 <script>
 (() => {
 'use strict';
@@ -1403,7 +1404,7 @@ function renderComposer() {
   $('msg').placeholder = muted ? 'You are in the corner until ' + fmtTime(mine().mutedUntil) + '. Back soon!' : (isPhone() ? 'Message' : 'Message (try /me or @name)');
 }
 
-const IMG_H = 24;
+const IMG_H = 6;
 const VOICE_H = 2;
 const isVoice = m => !!m.image && /\.(webm|m4a|ogg|mp3|aac)$/i.test(m.image);
 const expired = m => m.ts < Date.now() - (isVoice(m) ? VOICE_H : m.image ? IMG_H : S.ttlH) * 3600000;
@@ -1430,11 +1431,15 @@ function fileEl(m) {
   };
   return b;
 }
+const picMemo = new Map();
 function picEl(path) {
+  if (picMemo.has(path)) return picMemo.get(path);
+  if (picMemo.size > 80) picMemo.delete(picMemo.keys().next().value);
   const im = h('img', { class: 'pic ld', alt: 'photo', loading: 'lazy' });
   const c = urlCache.get(path);
   const set = u => { if (u) { im.src = u; im.onload = () => { im.classList.remove('ld'); const l = $('log'); if (l.dataset.stick) l.scrollTop = l.scrollHeight; }; im.onclick = () => zoomImg(u, 'photo'); } else im.alt = 'photo expired'; };
   if (c && c.exp > Date.now()) set(c.url); else mediaUrl(path).then(set);
+  picMemo.set(path, im);
   return im;
 }
 function pruneMsgs() {
@@ -1527,9 +1532,18 @@ function openPicker(x, y, onPick, canGif, onGif) {
 }
 document.addEventListener('pointerdown', e => { if (pickEl && !pickEl.contains(e.target) && !e.target.closest('#emoBtn,#moodEm,.rxb')) closePicker(); });
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closePicker(); });
+function startReply(m) {
+  const p = profileOf(m.uid), snip = (m.text || (m.image ? 'a photo' : '')).replace(/\s+/g, ' ').slice(0, 60);
+  S.reply = { sn: p ? p.sn : 'someone', snip };
+  let bar = $('replyBar');
+  if (!bar) { bar = h('div', { id: 'replyBar', class: 'replybar' }); $('compose').before(bar); }
+  bar.replaceChildren(h('span', {}, 'Replying to ', h('b', {}, S.reply.sn), ': ' + snip), h('button', { type: 'button', 'aria-label': 'Cancel reply', onclick: clearReply }, '\u2715'));
+  bar.hidden = false; $('msg').focus();
+}
+function clearReply() { S.reply = null; const b = $('replyBar'); if (b) b.hidden = true; }
 function openMenu(x, y, m, touch) {
   closeMenu();
-  const items = [];
+  const items = [['Reply', () => startReply(m)]];
   if (isRoom(S.conv) && (m.text || (m.image && !isFile(m)))) items.push(['Pin', () => pinMsg(m)]);
   if (m.text) items.push(['Copy text', () => { try { navigator.clipboard.writeText(m.text); } catch {} }]);
   if (m.uid === S.uid || (isStaff() && isRoom(S.conv))) items.push(['Delete', () => delMsg(m)]);
@@ -1552,6 +1566,7 @@ function attachMsgMenu(row, m) {
   row.addEventListener('touchend', cancel); row.addEventListener('touchcancel', cancel);
   row.addEventListener('touchmove', e => { const tt = e.touches[0]; if (Math.abs(tt.clientX - sx) > 8 || Math.abs(tt.clientY - sy) > 8) cancel(); }, { passive: true });
 }
+const richMemo = new Map();
 function renderLog() {
   const log = $('log');
   renderPin();
@@ -1580,7 +1595,7 @@ function renderLog() {
     if (it.s) { log.append(h('div', { class: 'sys' }, it.s.text)); prev = null; continue; }
     const m = it.m, p = profileOf(m.uid), sn = p ? p.sn : 'unknown', ac = p ? p.theme.ac : '#888888';
     const sty = '--c:' + ac + ';--oc:' + readable(ac);
-    const r = rich(m.text || '');
+    const rk = m.id + '|' + (m.text || ''); let r = (m.text && m.text.includes('http')) ? richMemo.get(rk) : null; if (!r) { r = rich(m.text || ''); if (m.text && m.text.includes('http')) { if (richMemo.size > 80) richMemo.delete(richMemo.keys().next().value); richMemo.set(rk, r); } }
     const open = () => { selectProfile(m.uid); if (isPhone()) setTab('profile'); };
     let row;
     if (m.kind === 'me') {
@@ -1593,7 +1608,6 @@ function renderLog() {
         h('div', { class: 'body' },
           cont ? null : h('div', { class: 'hd' }, h('button', { class: 'chip', type: 'button', style: sty, onclick: open }, sn), h('time', {}, fmtTime(m.ts))),
           h('div', { class: 'tx' }, r.nodes, m.image ? (isFile(m) ? fileEl(m) : isVoice(m) ? voiceEl(m.image) : picEl(m.image)) : null), r.cards, reactBar(m),
-          h('button', { class: 'more', type: 'button', 'aria-label': 'Message options', onclick: e => { const b = e.currentTarget.getBoundingClientRect(); openMenu(b.right - 150, b.bottom, m); } }, '\u22EF'),
           h('div', { class: 'macts' },
             h('button', { class: 'pinb rxb', type: 'button', 'aria-label': 'Add a reaction', onclick: e => { if (pickEl) return closePicker(); const b = e.currentTarget.getBoundingClientRect(); openPicker(b.left, b.bottom + 4, em => toggleReact(m, em)); } }, 'react'),
             isRoom(S.conv) && (m.text || (m.image && !isFile(m))) ? h('button', { class: 'pinb', type: 'button', 'aria-label': 'Pin this message', onclick: () => pinMsg(m) }, 'pin') : null,
@@ -3748,7 +3762,7 @@ const growMsg = () => { const i = $('msg'); if (!i.value) { i.style.height = '38
 $('msg').addEventListener('input', () => { growMsg(); const v = $('msg').value; if (S.typChan && S.signedOn && !S.invis && v && v[0] !== '/' && Date.now() - S.typAt > 2500) { S.typAt = Date.now(); S.dbgTry = (S.dbgTry || 0) + 1; try { const r = S.typChan.send({ type: 'broadcast', event: 't', payload: { u: S.uid, c: S.conv } }); S.dbgSent = (S.dbgSent || 0) + 1; if (r && r.then) r.then(x => { S.dbgRes = String(x); }).catch(e => { S.dbgErr = String(e && e.message || e); }); } catch (e) { S.dbgErr = String(e && e.message || e); } } }); growMsg();
 // Enter sends on a computer (Shift+Enter = new line); on a phone Return is a new line and the Send button sends
 $('msg').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey && !e.isComposing && !matchMedia('(pointer: coarse)').matches) { e.preventDefault(); $('compose').requestSubmit(); } });
-$('compose').addEventListener('submit', e => { e.preventDefault(); const i = $('msg'); const had = document.activeElement === i; const v = i.value; i.value = ''; growMsg(); send(v); if (had) i.focus(); });
+$('compose').addEventListener('submit', e => { e.preventDefault(); const i = $('msg'); const had = document.activeElement === i; let v = i.value; i.value = ''; growMsg(); if (S.reply && v.trim() && v[0] !== '/') v = '\u21AA ' + S.reply.sn + ': ' + S.reply.snip + '\n' + v; clearReply(); send(v); if (had) i.focus(); });
 $('stSel').addEventListener('change', setAway);
 $('awayIn').addEventListener('change', setAway);
 $('npIn').addEventListener('change', setNow);
@@ -3870,12 +3884,12 @@ window.addEventListener('focus', () => { if (S.pings) { S.pings = 0; setBadge();
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '20261108215606' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '20261108215950' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '20261108215606') { newBuild = m[1]; $('updBar').hidden = false; }
+    if (m && m[1] !== BUILD && m[1] !== '20261108215950') { newBuild = m[1]; $('updBar').hidden = false; }
   } catch {}
 }
 $('updBtn').addEventListener('click', () => { location.replace(location.pathname + '?v=' + encodeURIComponent(newBuild || Date.now())); });
