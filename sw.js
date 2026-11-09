@@ -1,4 +1,4 @@
-// Away Message service worker v2: push notifications for DMs and @mentions, hides them while you are looking at that chat, and always loads the newest page.
+// Away Message service worker v2: push notifications for DMs and @mentions, hides them while the app is open (except streams), and always loads the newest page.
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
 self.addEventListener('push', e => {
