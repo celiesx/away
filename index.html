@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="20261109130915">
-<link rel="icon" type="image/png" href="icon-64.png?v=20261109130915">
-<link rel="shortcut icon" href="favicon.ico?v=20261109130915">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261109130915">
-<link rel="manifest" href="manifest.webmanifest?v=20261109130915">
+<meta name="build" content="20261109135510">
+<link rel="icon" type="image/png" href="icon-64.png?v=20261109135510">
+<link rel="shortcut icon" href="favicon.ico?v=20261109135510">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261109135510">
+<link rel="manifest" href="manifest.webmanifest?v=20261109135510">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
 <style>
@@ -894,7 +894,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=20261109130915"></script>
+<script src="config.js?v=20261109135510"></script>
 <script>
 (() => {
 'use strict';
@@ -3500,6 +3500,15 @@ async function pvRender() {
     'Stickers: tap one to place it. Drag to move, pull the corner to resize, use the slider to make it see-through. Right-click a sticker in the tray to move it to another group (only you see that).',
     'Your cover is the first thing in My pages. Tap it to pick another. Only you can see your pages.'].map(t => h('li', {}, t))), h('button', { class: 'cbtn', type: 'button', onclick: () => { pv.help = false; pvRender(); } }, 'Got it')) : null;
   const body = h('div', { class: 'calbody pvbody' });
+  body.addEventListener('wheel', e => {
+    if (e.ctrlKey) return;
+    const dy = e.deltaY, dx = e.deltaX, vert = Math.abs(dy) >= Math.abs(dx), d = vert ? dy : dx;
+    const atEnd = vert ? (d > 0 ? body.scrollTop + body.clientHeight >= body.scrollHeight - 2 : body.scrollTop <= 0) : (d > 0 ? body.scrollLeft + body.clientWidth >= body.scrollWidth - 2 : body.scrollLeft <= 0);
+    if (!atEnd) return;
+    e.preventDefault(); if (pv.wheelLock) return;
+    pv.wheelAcc = (pv.wheelAcc || 0) + d;
+    if (Math.abs(pv.wheelAcc) > 120) { const dir = pv.wheelAcc > 0 ? 1 : -1; pv.wheelAcc = 0; pv.wheelLock = true; setTimeout(() => { if (pv) pv.wheelLock = false; }, 450); pvStep(dir); }
+  }, { passive: false });
   const side = pvSide(custom); const tray = pv.tray ? h('div', { class: 'pvtray' }) : null;
   box.replaceChildren(...[head, palBox, helpBox, form, cstrip, h('div', { class: 'pvmain' }, side, body, pv.tray && STK ? tray : null)].filter(Boolean));
   const base = pg.getViewport({ scale: 1 }), availW = Math.max(300, body.clientWidth - 16), availH = Math.max(240, body.clientHeight - 16), sc = pv.wide ? Math.min(availW, 1100) / base.width : Math.min(availW / base.width, availH / base.height), dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -4019,12 +4028,12 @@ window.addEventListener('focus', () => { if (S.pings) { S.pings = 0; setBadge();
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '20261109130915' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '20261109135510' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '20261109130915') { newBuild = m[1]; updFlag(); }
+    if (m && m[1] !== BUILD && m[1] !== '20261109135510') { newBuild = m[1]; updFlag(); }
   } catch {}
 }
 function updFlag() {
