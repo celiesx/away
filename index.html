@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="20261108220401">
-<link rel="icon" type="image/png" href="icon-64.png?v=20261108220401">
-<link rel="shortcut icon" href="favicon.ico?v=20261108220401">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261108220401">
-<link rel="manifest" href="manifest.webmanifest?v=20261108220401">
+<meta name="build" content="20261108221139">
+<link rel="icon" type="image/png" href="icon-64.png?v=20261108221139">
+<link rel="shortcut icon" href="favicon.ico?v=20261108221139">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261108221139">
+<link rel="manifest" href="manifest.webmanifest?v=20261108221139">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
 <style>
@@ -833,7 +833,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=20261108220401"></script>
+<script src="config.js?v=20261108221139"></script>
 <script>
 (() => {
 'use strict';
@@ -2646,14 +2646,15 @@ function lockAsk(mode) {
 let lockBusy = false;
 async function lockNow() { if (lockBusy || !lockCfg()) return; lockBusy = true; try { await lockAsk('unlock'); } finally { lockBusy = false; renderLock(); } }
 function renderLock() { const sel = $('lockSel'); if (!sel) return; const c = lockCfg(); sel.value = c ? String(c.m) : 'off'; }
+const lockHasSession = () => { try { for (let i = 0; i < localStorage.length; i++) if (/^sb-.*-auth-token$/.test(localStorage.key(i))) return true; } catch {} return false; };
 let lockHiddenAt = 0;
 document.addEventListener('visibilitychange', () => {
-  const c = lockCfg(); if (!c) return;
+  const c = lockCfg(); if (!c || !lockHasSession()) return;
   if (document.hidden) { lockHiddenAt = Date.now(); return; }
   if (lockHiddenAt && Date.now() - lockHiddenAt >= c.m * 60000) lockNow();
 });
-if (lockCfg()) lockNow();
-async function signOff(why) { LS.set('am.lock', ''); try { wpLeave(); } catch {} sfx('close'); S.awayNote = typeof why === 'string' ? why : ''; try { await sb.auth.signOut(); } catch {} resetApp(); }
+if (lockCfg() && lockHasSession()) lockNow();
+async function signOff(why) { try { wpLeave(); } catch {} sfx('close'); S.awayNote = typeof why === 'string' ? why : ''; try { await sb.auth.signOut(); } catch {} resetApp(); }
 const autoMs = () => { if (isPhone()) return 0; const v = LS.get('am.auto'); const n = v == null || v === '' ? 30 : Number(v); return n > 0 ? n * 60000 : 0; };
 const AUTO_MSG = 'You were signed off after being away. Sign back on when you are ready.';
 function autoExpired() { const ms = autoMs(); return !!(S.signedOn && ms && Date.now() - S.lastAct > ms); }
@@ -2812,7 +2813,7 @@ async function addEmote() {
   S.emotes.set(name, { id: String(row.id), owner: S.uid, data }); $('emFile').value = ''; $('emName').value = ''; renderEmotes();
 }
 $('emAdd').addEventListener('click', addEmote);
-$('emoBtn').addEventListener('click', e => { if (pickEl) return closePicker(); const b = e.currentTarget.getBoundingClientRect(); openPicker(b.left, Math.max(8, b.top - 460), v => { const i = $('msg'), a = i.selectionStart == null ? i.value.length : i.selectionStart; i.value = (i.value.slice(0, a) + v + ' ' + i.value.slice(i.selectionEnd == null ? a : i.selectionEnd)).slice(0, 300); i.focus(); }, !!$('msg') && !$('msg').disabled, u => send(u)); });
+$('emoBtn').addEventListener('click', e => { if (pickEl) return closePicker(); const b = e.currentTarget.getBoundingClientRect(); openPicker(b.left, Math.max(8, b.top - 460), v => { const i = $('msg'), had = document.activeElement === i, a = i.selectionStart == null ? i.value.length : i.selectionStart; i.value = (i.value.slice(0, a) + v + ' ' + i.value.slice(i.selectionEnd == null ? a : i.selectionEnd)).slice(0, 300); if (had || !isPhone()) i.focus(); growMsg(); }, !!$('msg') && !$('msg').disabled, u => send(u)); });
 const keepFocus = el => { ['mousedown', 'pointerdown'].forEach(ev => el.addEventListener(ev, e => { if (e.target.closest('input,textarea,select')) return; e.preventDefault(); })); };
 keepFocus($('emoBtn')); keepFocus($('sendBtn'));
 ['emoBtn', 'sendBtn'].forEach(id => { const b = $(id); b.addEventListener('touchstart', e => { e.preventDefault(); }, { passive: false }); b.addEventListener('touchend', e => { e.preventDefault(); b.click(); }); });
@@ -3884,12 +3885,12 @@ window.addEventListener('focus', () => { if (S.pings) { S.pings = 0; setBadge();
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '20261108220401' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '20261108221139' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '20261108220401') { newBuild = m[1]; $('updBar').hidden = false; }
+    if (m && m[1] !== BUILD && m[1] !== '20261108221139') { newBuild = m[1]; $('updBar').hidden = false; }
   } catch {}
 }
 $('updBtn').addEventListener('click', () => { location.replace(location.pathname + '?v=' + encodeURIComponent(newBuild || Date.now())); });
