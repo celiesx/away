@@ -1,6 +1,7 @@
 // Away Message service worker v2: push notifications for DMs and @mentions, hides them while the app is open (except streams), and always loads the newest page.
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+let skipped = 0;
 self.addEventListener('push', e => {
   let d = {}; try { d = e.data ? e.data.json() : {}; } catch (x) { d = {}; }
   e.waitUntil((async () => {
@@ -15,10 +16,13 @@ self.addEventListener('push', e => {
       }));
       seen = (await Promise.all(asks)).some(Boolean);
     } catch (x) { seen = false; }
+    // iPhone can drop the push subscription if too many pushes in a row show nothing, so every third one is still shown (and closed).
+    if (seen && skipped < 2) { skipped++; return; }
+    if (!seen) skipped = 0;
     await self.registration.showNotification(d.title || 'Away Message', {
       body: d.body || '', icon: 'icon-192.png', tag: d.tag || 'am', renotify: !seen, silent: seen, data: { url: './' }
     });
-    if (seen) { try { const ns = await self.registration.getNotifications({ tag: d.tag || 'am' }); ns.forEach(n => n.close()); } catch (x) { /* ignore */ } }
+    if (seen) { skipped = 0; try { const ns = await self.registration.getNotifications({ tag: d.tag || 'am' }); ns.forEach(n => n.close()); } catch (x) { /* ignore */ } }
   })());
 });
 self.addEventListener('notificationclick', e => {
