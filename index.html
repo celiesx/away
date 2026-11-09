@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="20261108225136">
-<link rel="icon" type="image/png" href="icon-64.png?v=20261108225136">
-<link rel="shortcut icon" href="favicon.ico?v=20261108225136">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261108225136">
-<link rel="manifest" href="manifest.webmanifest?v=20261108225136">
+<meta name="build" content="20261108231635">
+<link rel="icon" type="image/png" href="icon-64.png?v=20261108231635">
+<link rel="shortcut icon" href="favicon.ico?v=20261108231635">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261108231635">
+<link rel="manifest" href="manifest.webmanifest?v=20261108231635">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
 <style>
@@ -40,6 +40,10 @@ body{margin:0;background-color:var(--wall);color:var(--fg);font:var(--fs)/1.45 v
   padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 [data-pat="stars"]{background-image:radial-gradient(color-mix(in srgb,var(--fg) 38%,transparent) 1px,transparent 1.8px),radial-gradient(color-mix(in srgb,var(--ac) 45%,transparent) 1px,transparent 1.8px);background-size:23px 23px,37px 37px;background-position:0 0,11px 17px}
 [data-pat="checks"]{background-image:conic-gradient(color-mix(in srgb,var(--fg) 9%,transparent) 25%,transparent 0 50%,color-mix(in srgb,var(--fg) 9%,transparent) 0 75%,transparent 0);background-size:30px 30px}
+[data-pat="gingham"]{background-image:linear-gradient(90deg,color-mix(in srgb,var(--ac) 22%,transparent) 50%,transparent 50%),linear-gradient(color-mix(in srgb,var(--ac) 22%,transparent) 50%,transparent 50%);background-size:30px 30px}
+[data-pat="dots"]{background-image:radial-gradient(color-mix(in srgb,var(--ac) 32%,transparent) 3px,transparent 3.6px);background-size:22px 22px}
+[data-pat="grid"]{background-image:linear-gradient(color-mix(in srgb,var(--fg) 9%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--fg) 9%,transparent) 1px,transparent 1px);background-size:24px 24px}
+[data-pat="stripes"]{background-image:repeating-linear-gradient(90deg,color-mix(in srgb,var(--ac) 14%,transparent) 0 12px,transparent 12px 24px)}
 [data-pat="scan"]{background-image:repeating-linear-gradient(0deg,color-mix(in srgb,var(--fg) 8%,transparent) 0 1px,transparent 1px 3px)}
 #app{height:100%;display:flex;flex-direction:column;gap:10px;padding-block:12px;padding-bottom:max(12px,calc(env(safe-area-inset-bottom) + 10px));min-width:0}
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
@@ -666,9 +670,9 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 .pmsg{margin-top:14px;width:100%;padding:8px}
 #npIn{font-size:13px}
 
-.rq{display:block;margin:0 0 3px 14px;padding:0;border:0;background:none;font:inherit;font-size:12px;font-style:italic;color:var(--muted);text-align:left;cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.rq::before{content:"\21AA ";color:var(--ac);font-style:normal;font-weight:800}
-.rq b{color:var(--ac);font-style:normal}
+.rq{display:block;margin:2px 0 5px;padding:1px 0 1px 8px;border:0;border-left:3px solid var(--c,var(--ac));background:none;font:inherit;font-size:12px;color:var(--muted);text-align:left;cursor:pointer;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rq b{color:var(--fg);font-weight:700}
+.pbody.hasw .sec,.pbody.hasw .grow,.pbody.hasw .pbio{text-shadow:0 1px 3px #000}
 .m.flash,.act.flash{animation:flsh 1.4s ease-out}
 @keyframes flsh{0%,50%{background:var(--ac-soft)}100%{background:transparent}}
 .compose{margin:6px 10px calc(10px + env(safe-area-inset-bottom,0px));padding:4px 4px 4px 4px;border:0!important;border-radius:24px;background:var(--panel2);align-items:flex-end;gap:0}
@@ -681,6 +685,13 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 @media(max-width:900px){.tbx.rf{display:inline-flex;align-items:center;justify-content:center;line-height:1;padding:0 0 2px;font-size:16px;margin-left:auto;margin-right:6px}.tb .rf+.tbx{margin-left:0!important}.tbx.rf.new{background:#ffd84a;color:#000;animation:rfb 1s ease-in-out infinite}}
 @keyframes rfp{50%{box-shadow:0 0 0 4px #ffd84a88}}
 .updbar{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom,0px) + 84px);z-index:80;border-radius:999px;padding:8px 8px 8px 16px;box-shadow:0 4px 14px #0007;background:var(--ac);color:var(--on-ac);font-weight:700;font-size:13px}.updbar[hidden]{display:none}
+#eWpPrev{position:relative;display:none;width:96px;height:144px;border:2px solid var(--line);background-size:cover;background-position:center;flex:none;overflow:hidden}#eWpPrev.has{display:block}#eWpPrev::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,var(--wd,.6))}#eWpPrev::before{content:"Your text";position:absolute;z-index:1;left:6px;top:6px;color:#fff;font-size:11px;font-weight:700;text-shadow:0 1px 3px #000}
+@media(max-width:900px){
+ #app{padding-inline:6px!important;padding-top:max(6px,env(safe-area-inset-top))!important;padding-bottom:max(6px,env(safe-area-inset-bottom))!important}
+ .win{border-radius:34px!important;overflow:hidden}
+ #tabs{padding-left:20px!important;width:calc(100% - 118px)!important}
+ .win>.tb{padding-right:16px!important}
+}
 </style>
 </head>
 <body>
@@ -813,6 +824,11 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
           <label for="eFont">Font</label><select id="eFont"></select>
           <label class="chk"><input type="checkbox" id="eHand"> Handwriting font everywhere (only on this device)</label>
           <label for="ePat">Wallpaper</label><select id="ePat"></select>
+          <label for="eWp">Or use your own picture (shows instead of the pattern)</label>
+          <div class="avrow"><span id="eWpPrev"></span><input id="eWp" type="file" accept="image/*" aria-label="Wallpaper picture"><button id="eWpRm" class="btn sm" type="button">Remove picture</button></div>
+          <label for="eWd">Picture dimming (keeps your text easy to read)</label>
+          <input id="eWd" type="range" min="0" max="90" step="5" value="60" aria-label="Wallpaper dimming">
+          <p class="muted">Pictures shrink to fit. The little preview shows how dark it will look. Nothing changes until you save.</p>
           <p id="eHint" class="warn" hidden></p>
         </details>
         <details class="esec"><summary>Links</summary>
@@ -850,7 +866,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=20261108225136"></script>
+<script src="config.js?v=20261108231635"></script>
 <script>
 (() => {
 'use strict';
@@ -913,7 +929,7 @@ const FONTS = {
   pixel:   ['Pixel', 'VT323,"Courier New",monospace'],
   comic:   ['Comic', '"Comic Neue","Comic Sans MS","Chalkboard SE",cursive']
 };
-const PATS = { none: 'Plain', stars: 'Stars', checks: 'Checkers', scan: 'Scanlines' };
+const PATS = { none: 'Plain', stars: 'Stars', checks: 'Checkers', scan: 'Scanlines', gingham: 'Gingham', dots: 'Polka dots', grid: 'Grid', stripes: 'Stripes' };
 const STYLES = {
   flat:    { '--rad': '0', '--rx': '0', '--rs': '0', '--bw': '2px', '--bs': 'solid', '--sh': '5px 5px 0 var(--line)', '--tb': 'var(--ac)', '--tbsize': '100% 100%', '--glow': 'none' },
   xp:      { '--rad': '10px 10px 3px 3px', '--rx': '3px', '--rs': '3px', '--bw': '3px', '--bs': 'solid', '--sh': '0 6px 18px rgba(0,0,0,.3)', '--tb': 'linear-gradient(180deg,color-mix(in srgb,var(--ac) 62%,#fff),var(--ac) 42%,color-mix(in srgb,var(--ac) 80%,#000))', '--tbsize': '100% 100%', '--glow': 'none' },
@@ -938,6 +954,7 @@ function applyViewer(t) { applyTheme(document.documentElement, t); document.body
 /* ---------- profiles ---------- */
 const safeUrl = u => { try { const x = new URL(String(u).trim()); return (x.protocol === 'https:' || x.protocol === 'http:') ? x.href : null; } catch { return null; } };
 const okBanner = a => (typeof a === 'string' && a.length < 70000 && /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(a)) ? a : '';
+const okWall = a => (typeof a === 'string' && a.length < 120000 && /^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(a)) ? a : '';
 const okAvatar = a => (typeof a === 'string' && (/^data:image\/gif;base64,/.test(a) ? a.length < 200000 : a.length < 40000) && /^data:image\/(jpeg|png|gif);base64,[A-Za-z0-9+/=]+$/.test(a)) ? a : '';
 function fromRow(r) {
   r = r && typeof r === 'object' ? r : {};
@@ -948,10 +965,10 @@ function fromRow(r) {
     song: { title: clamp(r.song_title, 60), url: clamp(r.song_url, 300) },
     links: links.slice(0, 3).map(l => ({ label: clamp(l && l.label, 24), url: clamp(l && l.url, 300) })),
     top: (Array.isArray(r.top) ? r.top : []).filter(x => typeof x === 'string').slice(0, 4),
-    theme: cleanTheme(r.theme), avatar: okAvatar(r.avatar), banner: okBanner(r.banner), created: r.created_at ? (Date.parse(r.created_at) || 0) : 0, lastSeen: r.last_seen ? (Date.parse(r.last_seen) || 0) : 0, role: r.role === 'admin' || r.role === 'mod' ? r.role : 'member', roleSeen: r.role_seen === 'admin' || r.role_seen === 'mod' ? r.role_seen : 'member', stars: Math.max(0, Number(r.stars) || 0), downs: Math.max(0, Number(r.downs) || 0), mutedUntil: r.muted_until ? (Date.parse(r.muted_until) || 0) : 0, dmFriends: !!r.dm_friends_only
+    theme: cleanTheme(r.theme), avatar: okAvatar(r.avatar), banner: okBanner(r.banner), wallpaper: okWall(r.wallpaper), wallDim: Number.isFinite(+r.wall_dim) ? Math.max(0, Math.min(90, +r.wall_dim)) : 60, created: r.created_at ? (Date.parse(r.created_at) || 0) : 0, lastSeen: r.last_seen ? (Date.parse(r.last_seen) || 0) : 0, role: r.role === 'admin' || r.role === 'mod' ? r.role : 'member', roleSeen: r.role_seen === 'admin' || r.role_seen === 'mod' ? r.role_seen : 'member', stars: Math.max(0, Number(r.stars) || 0), downs: Math.max(0, Number(r.downs) || 0), mutedUntil: r.muted_until ? (Date.parse(r.muted_until) || 0) : 0, dmFriends: !!r.dm_friends_only
   };
 }
-const toRow = p => ({ sn: p.sn, bio: p.bio, away: p.away, away_on: p.awayOn, mood: p.mood, song_title: p.song.title, song_url: p.song.url, links: p.links, top: p.top, theme: p.theme, avatar: p.avatar, banner: p.banner || '', dm_friends_only: !!p.dmFriends });
+const toRow = p => ({ sn: p.sn, bio: p.bio, away: p.away, away_on: p.awayOn, mood: p.mood, song_title: p.song.title, song_url: p.song.url, links: p.links, top: p.top, theme: p.theme, avatar: p.avatar, banner: p.banner || '', wallpaper: p.wallpaper || '', wall_dim: p.wallDim == null ? 60 : p.wallDim, dm_friends_only: !!p.dmFriends });
 
 /* ---------- state ---------- */
 const S = {
@@ -1620,7 +1637,7 @@ function renderLog() {
     const m = it.m, p = profileOf(m.uid), sn = p ? p.sn : 'unknown', ac = p ? p.theme.ac : '#888888';
     const sty = '--c:' + ac + ';--oc:' + readable(ac);
     let bodyTxt = m.text || '', rqEl = null;
-    if (bodyTxt.startsWith('\u21AA ')) { const nl = bodyTxt.indexOf('\n'), first = nl < 0 ? bodyTxt.slice(2) : bodyTxt.slice(2, nl), ci = first.indexOf(': '); bodyTxt = nl < 0 ? '' : bodyTxt.slice(nl + 1); if (ci > 0) rqEl = h('button', { class: 'rq', type: 'button', 'aria-label': 'Go to the message you replied to', onclick: () => jumpToReply(first.slice(0, ci), first.slice(ci + 2)) }, h('b', {}, first.slice(0, ci)), ' ' + first.slice(ci + 2)); }
+    if (bodyTxt.startsWith('\u21AA ')) { const nl = bodyTxt.indexOf('\n'), first = nl < 0 ? bodyTxt.slice(2) : bodyTxt.slice(2, nl), ci = first.indexOf(': '); bodyTxt = nl < 0 ? '' : bodyTxt.slice(nl + 1); if (ci > 0) rqEl = h('button', { class: 'rq', type: 'button', style: '--c:' + (((bySnMap.get(first.slice(0, ci).toLowerCase()) || [])[1] || { theme: { ac: '#888888' } }).theme.ac), 'aria-label': 'Go to the message you replied to', onclick: () => jumpToReply(first.slice(0, ci), first.slice(ci + 2)) }, h('b', {}, first.slice(0, ci)), ' ' + first.slice(ci + 2)); }
     const rk = m.id + '|' + bodyTxt; let r = bodyTxt.includes('http') ? richMemo.get(rk) : null; if (!r) { r = rich(bodyTxt); if (bodyTxt.includes('http')) { if (richMemo.size > 80) richMemo.delete(richMemo.keys().next().value); richMemo.set(rk, r); } }
     const open = () => { selectProfile(m.uid); if (isPhone()) setTab('profile'); };
     let row;
@@ -1835,6 +1852,7 @@ function renderProfile() {
   if (!p) { $('profTitle').textContent = 'profile'; body.append(h('p', { class: 'muted' }, 'Pick someone from the buddy list to see their page.')); return; }
   const t = cleanTheme(p.theme);
   applyTheme(win, t); body.dataset.pat = t.pat;
+  { const d = (p.wallDim == null ? 60 : p.wallDim) / 100; body.classList.toggle('hasw', !!p.wallpaper); body.style.backgroundImage = p.wallpaper ? 'linear-gradient(rgba(0,0,0,' + d + '),rgba(0,0,0,' + d + ')),url(' + p.wallpaper + ')' : ''; }
   const id = S.editing ? S.uid : S.selected;
   $('profTitle').textContent = (p.sn || 'profile') + "'s page";
   const st = S.editing ? { cls: '', text: 'Preview. This is how your page looks.' } : statusOf(id, p);
@@ -2429,6 +2447,7 @@ function subscribe() {
         const id = String(p.new.id), old = S.profiles.get(id), np = fromRow(p.new);
         if (old && !('avatar' in p.new)) np.avatar = old.avatar;
         if (old && !('banner' in p.new)) np.banner = old.banner;
+        if (old && !('wallpaper' in p.new)) np.wallpaper = old.wallpaper;
         if (p.eventType === 'INSERT' && !old && S.presSettled && id !== S.uid) { S.sys.push({ ts: Date.now(), text: np.sn + ' just joined for the first time.' }); sfx('open'); }
         if (old && S.presSettled && id !== S.uid && old.awayOn !== np.awayOn) S.sys.push({ ts: Date.now(), text: np.sn + (np.awayOn ? ' went to sleep' + (np.away ? ': ' + np.away : '.') : ' woke up.') });
         S.profiles.set(id, np);
@@ -2710,7 +2729,7 @@ function fillEditor() {
   const d = S.draft; fire(renderSp());
   $('eDm').value = d.dmFriends ? 'friends' : 'all'; $('eFontBox').hidden = !isAdmin(); if (isAdmin()) fire(showUploads()); $('eSn').value = d.sn; $('eBio').value = d.bio; $('eSongT').value = d.song.title; $('eSongU').value = d.song.url;
   for (let i = 0; i < 3; i++) { const l = d.links[i] || { label: '', url: '' }; $('eL' + i + 'n').value = l.label; $('eL' + i + 'u').value = l.url; }
-  syncLook(); fillTop(); showBnPrev(); $('eAvPrev').replaceChildren(avatar(d, 44)); $('eErr').hidden = true;
+  syncLook(); fillTop(); showBnPrev(); showWpPrev(); $('eAvPrev').replaceChildren(avatar(d, 44)); $('eErr').hidden = true;
 }
 function syncLook() {
   const t = S.draft.theme;
@@ -2772,6 +2791,26 @@ function pickBanner(file) {
       for (const q of [.72, .55, .4]) { out = okBanner(c.toDataURL('image/jpeg', q)); if (out) break; }
       if (!out) { const e = $('eErr'); e.textContent = 'That banner is too detailed. Try another picture.'; e.hidden = false; return; }
       S.draft.banner = out; showBnPrev(); renderProfile();
+    };
+    img.onerror = () => { const e = $('eErr'); e.textContent = 'That file could not be read as a picture.'; e.hidden = false; };
+    img.src = fr.result;
+  };
+  fr.readAsDataURL(file);
+}
+function showWpPrev() { const el = $('eWpPrev'); if (!el || !S.draft) return; el.style.backgroundImage = S.draft.wallpaper ? 'url(' + S.draft.wallpaper + ')' : ''; el.style.setProperty('--wd', String((S.draft.wallDim == null ? 60 : S.draft.wallDim) / 100)); el.classList.toggle('has', !!S.draft.wallpaper); const w = $('eWd'); if (w) w.value = S.draft.wallDim == null ? 60 : S.draft.wallDim; }
+function pickWall(file) {
+  if (!file) return;
+  const fr = new FileReader();
+  fr.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const W = 600, H = 900, c = document.createElement('canvas'); c.width = W; c.height = H;
+      const sc = Math.max(W / img.width, H / img.height), sw = W / sc, sh = H / sc;
+      c.getContext('2d').drawImage(img, (img.width - sw) / 2, (img.height - sh) / 2, sw, sh, 0, 0, W, H);
+      let out = '';
+      for (const q of [.6, .5, .4, .3]) { out = okWall(c.toDataURL('image/jpeg', q)); if (out) break; }
+      if (!out) { const e = $('eErr'); e.textContent = 'That wallpaper is too detailed. Try another picture.'; e.hidden = false; return; }
+      S.draft.wallpaper = out; showWpPrev(); renderProfile();
     };
     img.onerror = () => { const e = $('eErr'); e.textContent = 'That file could not be read as a picture.'; e.hidden = false; };
     img.src = fr.result;
@@ -3896,6 +3935,9 @@ $('editForm').addEventListener('submit', saveEditor);
 $('editForm').addEventListener('input', e => { if (e.target.type === 'file' || e.target.type === 'checkbox') return; livePreview(); });
 $('editForm').addEventListener('change', e => { if (e.target.id === 'eAv') pickAvatar(e.target.files[0]); });
 $('eBn').addEventListener('change', e => { pickBanner(e.target.files && e.target.files[0]); e.target.value = ''; });
+$('eWp').addEventListener('change', e => { pickWall(e.target.files && e.target.files[0]); e.target.value = ''; });
+$('eWpRm').addEventListener('click', () => { S.draft.wallpaper = ''; showWpPrev(); renderProfile(); });
+$('eWd').addEventListener('input', e => { S.draft.wallDim = +e.target.value; showWpPrev(); renderProfile(); });
 $('eBnRm').addEventListener('click', () => { S.draft.banner = ''; showBnPrev(); renderProfile(); });
 $('eAvRm').addEventListener('click', () => { S.draft.avatar = ''; $('eAv').value = ''; $('eAvPrev').replaceChildren(avatar(S.draft, 44)); renderProfile(); });
 $('ePre').addEventListener('click', e => {
@@ -3917,12 +3959,12 @@ window.addEventListener('focus', () => { if (S.pings) { S.pings = 0; setBadge();
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '20261108225136' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '20261108231635' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '20261108225136') { newBuild = m[1]; updFlag(); }
+    if (m && m[1] !== BUILD && m[1] !== '20261108231635') { newBuild = m[1]; updFlag(); }
   } catch {}
 }
 function updFlag() {
