@@ -1,11 +1,25 @@
-// Away Message service worker v2: push notifications for DMs and @mentions, and always loads the newest page.
+// Away Message service worker v2: push notifications for DMs and @mentions, hides them while you are looking at that chat, and always loads the newest page.
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
 self.addEventListener('push', e => {
   let d = {}; try { d = e.data ? e.data.json() : {}; } catch (x) { d = {}; }
-  e.waitUntil(self.registration.showNotification(d.title || 'Away Message', {
-    body: d.body || '', icon: 'icon-192.png', tag: d.tag || 'am', renotify: true, data: { url: './' }
-  }));
+  e.waitUntil((async () => {
+    // If the person is already looking at that chat, show it silently and drop it right away.
+    let seen = false;
+    try {
+      const all = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+      const asks = all.filter(c => c.visibilityState === 'visible').map(c => new Promise(res => {
+        const ch = new MessageChannel(); const t = setTimeout(() => res(false), 500);
+        ch.port1.onmessage = ev => { clearTimeout(t); res(ev.data === true); };
+        try { c.postMessage({ type: 'viewing', tag: d.tag || '' }, [ch.port2]); } catch (x) { clearTimeout(t); res(false); }
+      }));
+      seen = (await Promise.all(asks)).some(Boolean);
+    } catch (x) { seen = false; }
+    await self.registration.showNotification(d.title || 'Away Message', {
+      body: d.body || '', icon: 'icon-192.png', tag: d.tag || 'am', renotify: !seen, silent: seen, data: { url: './' }
+    });
+    if (seen) { try { const ns = await self.registration.getNotifications({ tag: d.tag || 'am' }); ns.forEach(n => n.close()); } catch (x) { /* ignore */ } }
+  })());
 });
 self.addEventListener('notificationclick', e => {
   e.notification.close();
