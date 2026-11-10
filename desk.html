@@ -1946,13 +1946,13 @@ function play(i){audio();if(AC.state==='suspended')AC.resume();tr=i??tr;stop(tru
 function stop(silent){playing=false;clearInterval(timer);try{crackSrc&&crackSrc.stop();rainSrc&&rainSrc.stop()}catch(e){}crackSrc=rainSrc=null;if(!silent)ui()}
 function fmt(t){t=Math.max(0,Math.floor(t));return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')}
 let songT0=0;const SONGLEN=[127];
-let src='away';const ARTIST=['Away Tunes'],SPOT={t:'Nocturne',a:'江崎文武',len:242};let spotT=63,spotPlay=false;
+let src='away';const ARTIST=['Away Tunes'],SPOT={t:'Spotify',a:'connect in settings',len:1,img:''};let spotT=63,spotPlay=false;
 const SPOTICO=svgUrl('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7.5" fill="#1db954"/><path d="M4 6c2.5-1 5.5-1 8 .5M4.5 8.5c2-.8 4.5-.7 6.5.4M5 10.8c1.6-.5 3.4-.4 4.8.3" stroke="#000" stroke-width="1.3" fill="none" stroke-linecap="round"/></svg>');
 function ui(){const sp=src==='spotify';$('musBtn').textContent=sp?(spotPlay?'♪ '+SPOT.t:'♪'):(playing?'♪ '+TRACKS[tr].n:'♪');const w=wins.music;if(!w)return;
  const t=sp?SPOT.t:TRACKS[tr].n,a=sp?SPOT.a:ARTIST[tr],on=sp?spotPlay:playing;
  w.querySelector('#m98t').textContent=t.toUpperCase()+'*';w.querySelector('#m98a').textContent=a.toUpperCase()+'*';
  w.querySelector('.wt b').textContent=sp?'Spotify':'Away Tunes';w.querySelector('.wt img').src=sp?SPOTICO:IMG.cd;if(w._tb){w._tb.querySelector('img').src=sp?SPOTICO:IMG.cd;w._tb.querySelector('.tbl').textContent=sp?'Spotify':'Away Tunes'}
- w.querySelector('#m98img').src=sp?IMG.me:EXT.cozy;
+ w.querySelector('#m98img').src=sp?(SPOT.img||SPOTICO):EXT.cozy;
  w.querySelector('#mPlay').innerHTML=on?'<svg viewBox="0 0 12 14"><path d="M1 1h3v12H1zM8 1h3v12H8z"/></svg>':'<svg viewBox="0 0 12 14"><path d="M1 1v12l10-6z"/></svg>';
  w.querySelectorAll('.m98q [data-i]').forEach(d=>d.classList.toggle('on',!sp&&+d.dataset.i===tr));w.querySelector('#mSpot').classList.toggle('on',sp)}
 setInterval(()=>{const w=wins.music;if(!w)return;let L,t;if(src==='spotify'){if(spotPlay)spotT=(spotT+.25)%SPOT.len;L=SPOT.len;t=spotT}else{L=SONGLEN[tr];t=playing&&AC?((AC.currentTime-songT0)%L):0}w.querySelector('#m98c').textContent=fmt(t);w.querySelector('#m98l').textContent='-'+fmt(L-t);w.querySelector('#m98k').style.left=(t/L*100)+'%';const f=w.querySelector('#m98f');if(f)f.style.width=(t/L*100)+'%'},250);
@@ -1963,16 +1963,16 @@ function openMusic(){if(wins.music){show('music');return}
  w.classList.add('w98');const mx=w.querySelector('[data-max]');mx.textContent='▾';mx.title='Mini player';
  mx.onclick=e=>{e.stopPropagation();const m=w.classList.toggle('mini');mx.textContent=m?'▴':'▾';mx.title=m?'Big player':'Mini player';w.style.height=m?'214px':'540px'};
  const isSp=()=>src==='spotify';
- w.querySelector('#mPlay').onclick=()=>{if(isSp()){spotPlay=!spotPlay;ui();return}playing?stop():play()};
- w.querySelector('#mNext').onclick=()=>{if(isSp()){spotT=0;tip('Next song on your Spotify');return}play((tr+1)%TRACKS.length)};
- w.querySelector('#mPrev').onclick=()=>{if(isSp()){spotT=0;return}play((tr+TRACKS.length-1)%TRACKS.length)};
+ w.querySelector('#mPlay').onclick=()=>{if(isSp()){spCmd(spotPlay?'pause':'play');spotPlay=!spotPlay;ui();return}playing?stop():play()};
+ w.querySelector('#mNext').onclick=()=>{if(isSp()){spCmd('next');return}play((tr+1)%TRACKS.length)};
+ w.querySelector('#mPrev').onclick=()=>{if(isSp()){spCmd('previous');return}play((tr+TRACKS.length-1)%TRACKS.length)};
  w.querySelectorAll('.m98qi').forEach(d=>d.onclick=()=>{src='away';play(+d.dataset.i);w.querySelector('.m98q').hidden=true;w.querySelector('#mList').classList.remove('on')});
  w.querySelector('.m98up input').onchange=e=>{const f=e.target.files[0];if(f)tip('“'+f.name+'” would be added to Away Tunes for everyone');e.target.value=''};
  w.querySelector('#mList').onclick=e=>{const q=w.querySelector('.m98q');q.hidden=!q.hidden;e.currentTarget.classList.toggle('on',!q.hidden);if(w.classList.contains('mini')&&!q.hidden)mx.click()};
  w.querySelector('#mHeart').onclick=e=>e.currentTarget.classList.toggle('on');w.querySelector('#mShuf').onclick=e=>e.currentTarget.classList.toggle('on');w.querySelector('#mRep').onclick=e=>e.currentTarget.classList.toggle('on');
- const bar=w.querySelector('.m98bar');let sk=false;const seek=e=>{const r=bar.getBoundingClientRect(),f=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));if(isSp()){spotT=f*SPOT.len}else{const L=SONGLEN[tr];if(!playing)play();songT0=AC.currentTime-f*L}};
+ const bar=w.querySelector('.m98bar');let sk=false;const seek=e=>{const r=bar.getBoundingClientRect(),f=Math.max(0,Math.min(1,(e.clientX-r.left)/r.width));if(isSp()){spotT=f*SPOT.len;clearTimeout(window._spSk);window._spSk=setTimeout(()=>spCmd('seek',Math.round(spotT*1000)),300)}else{const L=SONGLEN[tr];if(!playing)play();songT0=AC.currentTime-f*L}};
  bar.addEventListener('pointerdown',e=>{sk=true;bar.setPointerCapture(e.pointerId);seek(e)});bar.addEventListener('pointermove',e=>{if(sk)seek(e)});bar.addEventListener('pointerup',()=>sk=false);
- w.querySelector('#mSpot').onclick=()=>{if(src==='away'){src='spotify';stop(true);playing=false;spotPlay=true;tip('Showing what you\'re playing on Spotify')}else{src='away';spotPlay=false;tip('Back to Away Tunes')}ui()};
+ w.querySelector('#mSpot').onclick=()=>{if(src==='away'){src='spotify';stop(true);playing=false;spPoll()}else{src='away';spotPlay=false;tip('Back to Away Tunes')}ui()};
  ui()}
 
 (function viz(){requestAnimationFrame(viz);const v=$('viz');if(!v||!an)return;const a=new Uint8Array(an.frequencyBinCount);an.getByteFrequencyData(a);[...v.children].forEach((b,i)=>b.style.height=Math.max(6,playing?a[i+1]/2.55:6)+'%')})();
@@ -2506,8 +2506,17 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList&&
  document.addEventListener('pointerup',()=>setTimeout(saveIcons,50));
  try{if(localStorage.getItem('deskOn')==='1'){document.body.classList.add('quickon');setTimeout(()=>{if(!document.body.classList.contains('on')){document.body.classList.add('on');openAway();afterLogOn()}},50)}}catch(e){}})();
 /* updates: the mailbox lights up when a new version is pushed; restart without signing out */
-let deskVer=null;async function checkUpd(){if(!/^https?:/.test(location.protocol))return;try{const r=await fetch(location.pathname,{method:'HEAD',cache:'no-store'});const v=r.headers.get('last-modified')||r.headers.get('etag');if(!v)return;if(deskVer===null){deskVer=v;return}if(v!==deskVer){deskVer=v;const m=$('trMail');if(m){m.src=EXT.mbgo;m.classList.add('new');m.title='Update ready';window.updReady=1;ntBalloon({title:'Update ready!',text:'Click the mailbox to restart into it',anchor:'trMail'})}}}catch(e){}}
+let deskVer=null;async function checkUpd(){if(!/^https?:/.test(location.protocol))return;try{const r=await fetch(location.pathname,{method:'HEAD',cache:'no-store'});const v=r.headers.get('last-modified')||r.headers.get('etag');if(!v)return;if(deskVer===null){deskVer=v;return}if(v!==deskVer){deskVer=v;const m=$('trMail');if(m){m.src=EXT.mbgo;m.classList.add('new');m.title='Update ready';window.updReady=1;ntBalloon({title:'Update ready!',text:'Click the mailbox, or refresh your browser (Safari\'s, not ours)',anchor:'trMail'})}}}catch(e){}}
 setTimeout(checkUpd,3000);setInterval(checkUpd,120000);
-{const _ou=openUpd;openUpd=function(){if(window.updReady){mkWin('upd','Update ready',EXT.mbgo,'<div class="upd"><img src="'+EXT.mbgo+'"><b>A new version is here</b><p>Restart to get it. You stay signed on and your stuff stays put.</p><button class="gmbtn updgo">Restart now</button></div>',{x:innerWidth/2-170,y:140,w:340,h:220,fixed:true});document.querySelector('.updgo').onclick=()=>location.reload();return}_ou()}}
+{const _ou=openUpd;openUpd=function(){if(window.updReady){mkWin('upd','Update ready',EXT.mbgo,'<div class="upd"><img src="'+EXT.mbgo+'"><b>A new version is here</b><p>Hit Restart, or refresh your browser (Safari\'s button, not the one in Away Message). You stay signed on and your stuff stays put.</p><button class="gmbtn updgo">Restart now</button></div>',{x:innerWidth/2-170,y:140,w:340,h:220,fixed:true});document.querySelector('.updgo').onclick=()=>location.reload();return}_ou()}}
+
+/* real Spotify in Away Tunes (uses the site's Spotify sign-in) */
+async function spTok(){try{const W=fr.contentWindow;return W&&W.spToken?await W.spToken():''}catch(e){return ''}}
+async function spPoll(){if(src!=='spotify')return;const t=await spTok();if(!t){SPOT.t='Not connected';SPOT.a='connect Spotify in Settings';SPOT.img='';SPOT.len=1;spotT=0;spotPlay=false;ui();return}
+ try{const r=await fetch('https://api.spotify.com/v1/me/player/currently-playing',{headers:{Authorization:'Bearer '+t}});if(r.status===204){SPOT.t='Nothing playing';SPOT.a='play something on Spotify';SPOT.img='';SPOT.len=1;spotT=0;spotPlay=false;ui();return}
+  const j=await r.json(),it=j.item;if(!it)return;SPOT.t=it.name;SPOT.a=(it.artists||[]).map(a=>a.name).join(', ');SPOT.len=(it.duration_ms||1)/1000;SPOT.img=((it.album||{}).images||[])[0]?.url||'';spotT=(j.progress_ms||0)/1000;spotPlay=!!j.is_playing;ui()}catch(e){}}
+setInterval(()=>{if(src==='spotify'&&wins.music)spPoll()},5000);
+async function spCmd(act,pos){const t=await spTok();if(!t){tip('Connect Spotify in Settings first');return}const M={play:['PUT','play'],pause:['PUT','pause'],next:['POST','next'],previous:['POST','previous'],seek:['PUT','seek?position_ms='+pos]}[act];
+ try{const r=await fetch('https://api.spotify.com/v1/me/player/'+M[1],{method:M[0],headers:{Authorization:'Bearer '+t}});if(r.status===404)tip('Open Spotify on a device first');else if(r.status===403)tip('Play and skip need Spotify Premium')}catch(e){}setTimeout(spPoll,600)}
 </script>
 </body></html>
