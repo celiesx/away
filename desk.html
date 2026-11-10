@@ -1497,6 +1497,13 @@ img.fdown.sm{width:13px;height:12px}
 #pageOv:has(.webtab){display:flex!important;flex-direction:column;padding:0!important;overflow:hidden!important;background:#000!important}
 #pageOv .webtab{flex:1;width:100%!important;height:100%!important;border:0!important;display:block}
 #pageOv[hidden]{display:none!important}
+
+#w_vc .vcbd[data-b=""]{row-gap:0!important;padding-bottom:3px!important;box-sizing:border-box;max-width:100%;overflow:hidden}
+#w_vc .vcbd .vcst.has,#w_vc .vcbd:hover .vcst{margin-top:-3px!important;line-height:16px;max-height:18px}
+#w_vc .vcbd .vcst{margin-left:28px!important}
+#w_vc .vcbd .vctime{flex:none}#w_vc .vcbd .vccap{flex:none}
+#w_vc .vcbd[data-b=""].joined{background:#dcebc9!important;box-shadow:inset 3px 0 0 #8fb36a}
+#w_vc .vcbd[data-b=""].joined .vcst span{color:#4f6a3a!important}
 </style></head><body><meta name="robots" content="noindex,nofollow">
 <style>
 #gate{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;background:#5a7edc;font:14px Tahoma,Verdana,sans-serif;color:#fff}
@@ -2451,6 +2458,8 @@ const VCT0={hangout:Date.now()-37*60000-12000,priv:null};
 function vcTimers(){const w=wins.vc;if(!w)return;w.querySelectorAll('.vcbd[data-b=""]').forEach(r=>{const key=r.classList.contains('vcpriv')?'priv':'hangout';if(key==='priv'&&!VCT0.priv)VCT0.priv=Date.now();let t=r.querySelector('.vctime');if(!t){t=document.createElement('small');t.className='vctime';const cap=r.querySelector('.vccap');cap?cap.before(t):r.append(t)}
  const s2=Math.floor((Date.now()-VCT0[key])/1000),h=Math.floor(s2/3600),m=Math.floor(s2%3600/60),sec=s2%60;t.textContent=(h?h+':'+String(m).padStart(2,'0'):String(m).padStart(2,'0'))+':'+String(sec).padStart(2,'0')});if(!w.querySelector('.vcpriv'))VCT0.priv=null}
 setInterval(vcTimers,1000);
+function vcJoined(){const w=wins.vc;if(!w)return;w.querySelectorAll('.vcbd[data-b=""]').forEach(r=>{const priv=r.classList.contains('vcpriv');r.classList.toggle('joined',!!inCall&&(priv?!!w._priv:!w._priv))})}
+setInterval(vcJoined,300);
 
 /* start menu closes when you click anywhere else, even inside a window's page */
 document.addEventListener('pointerdown',e=>{const sm=$('sm');if(sm&&sm.classList.contains('on')&&!e.target.closest('#sm,#start'))closeMenu()},true);
