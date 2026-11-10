@@ -1532,6 +1532,9 @@ body.quickon #welcome{display:none!important}
 .wfrog .frog,.wfrog .fst,.wfrog .frow,.wfrog .fgrp,.wfrog .fcount{font-family:var(--ufont,Tahoma,Verdana,sans-serif)!important;letter-spacing:0!important}
 .wfrog .frow{font-size:14px!important}.wfrog .fgrp{font-size:12px!important}
 .wfrog .fwho b{font-family:var(--ufont,Tahoma,sans-serif)!important;font-size:16px!important}
+
+.wim select.imf{display:none!important}
+.webext{display:inline-grid;place-items:center;width:22px;height:22px;margin-left:4px;border:1px solid #c98aa8;border-radius:3px;background:#fff;color:#851C41;font:13px Tahoma;text-decoration:none}
 </style></head><body><meta name="robots" content="noindex,nofollow">
 <style>
 #gate{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;background:#5a7edc;font:14px Tahoma,Verdana,sans-serif;color:#fff}
@@ -1687,7 +1690,7 @@ function browserChrome(){const bt=$('btabs');[['chat','Chat',APPICON]].forEach((
  const lnk=(label,ic,fn)=>{const a=document.createElement('button');a.className='lkf';a.innerHTML='<img src="'+ic+'">'+label;a.onclick=fn;LK.append(a)};
  fold('Boards',()=>[['Lounge',()=>{addTab('chat','Chat',APPICON)}],['# cat-channel',()=>{addTab('chat','Chat',APPICON);tip('Opens #cat-channel')}]]);
  fold('People',()=>Object.keys(PEOPLE).map(n=>[n,()=>addTab('p_'+n,n,picOf(n)),d=>peerHover(d,n)]));
- fold('Sites',()=>[['lofi.cafe',()=>addTab('w_lofi','lofi.cafe',IMG.cd)],['I Miss The Office',()=>addTab('w_office','I Miss The Office',IMG.computer)],['Seoul rain walk',()=>addTab('w_seoul','Seoul rain walk',EXT.rainico)],['Virtual Cottage (download)',()=>window.open('https://dui.itch.io/virtual-cottage','_blank','noopener')]]);
+ fold('Sites',()=>[...SITES2.map(x=>[x[1],()=>addTab(x[0],x[1],x[3])]),['lofi.cafe',()=>addTab('w_lofi','lofi.cafe',IMG.cd)],['I Miss The Office',()=>addTab('w_office','I Miss The Office',IMG.computer)],['Seoul rain walk',()=>addTab('w_seoul','Seoul rain walk',EXT.rainico)],['Virtual Cottage (download)',()=>window.open('https://dui.itch.io/virtual-cottage','_blank','noopener')]]);
  lnk('My blog',IMG.memo,()=>addTab('blog','blog',IMG.memo));
  fr.addEventListener('load',()=>setTimeout(()=>setTab(curTab),900));
  $('bRef').onclick=()=>{const b=$('bRef');b.classList.remove('blink');void b.offsetWidth;b.classList.add('blink');const ov=$('pageOv'),wt=ov&&!ov.hidden&&ov.querySelector('.webtab');if(wt){const u=wt.src;wt.src='about:blank';setTimeout(()=>wt.src=u,50);return}if(!ov||ov.hidden){try{if(fr.src&&!fr.srcdoc){fr.contentWindow.location.reload();return}}catch(e){}loadInner(fr)}else{ov.innerHTML=ov.innerHTML}};
@@ -2513,7 +2516,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.classList&&
  document.addEventListener('pointerup',()=>setTimeout(saveIcons,50));
  try{if(localStorage.getItem('deskOn')==='1'){document.body.classList.add('quickon');setTimeout(()=>{if(!document.body.classList.contains('on')){document.body.classList.add('on');openAway();afterLogOn()}},50)}}catch(e){}})();
 /* updates: the mailbox lights up when a new version is pushed; restart without signing out */
-let deskVer=null;async function checkUpd(){if(!/^https?:/.test(location.protocol))return;try{const r=await fetch(location.pathname,{method:'HEAD',cache:'no-store'});const v=r.headers.get('last-modified')||r.headers.get('etag');if(!v)return;if(deskVer===null){deskVer=v;return}if(v!==deskVer){deskVer=v;const m=$('trMail');if(m){m.src=EXT.mbgo;m.classList.add('new');m.title='Update ready';window.updReady=1;ntBalloon({title:'Update ready!',text:'Click the mailbox, or refresh your browser (Safari\'s, not ours)',anchor:'trMail'})}}}catch(e){}}
+let deskVer=null;async function checkUpd(){if(!/^https?:/.test(location.protocol))return;try{const r=await fetch(location.pathname,{method:'HEAD',cache:'no-store'});const v=r.headers.get('last-modified')||r.headers.get('etag');if(!v)return;if(deskVer===null){deskVer=v;return}if(v!==deskVer){deskVer=v;const m=$('trMail');if(m){m.src=EXT.mbgo;m.classList.add('new');m.title='Update ready';window.updReady=1;ntBalloon({title:'Update ready!',text:'Click the mailbox to get it',anchor:'trMail'})}}}catch(e){}}
 setTimeout(checkUpd,3000);setInterval(checkUpd,120000);
 {const _ou=openUpd;openUpd=function(){if(window.updReady){mkWin('upd','Update ready',EXT.mbgo,'<div class="upd"><img src="'+EXT.mbgo+'"><b>A new version is here</b><p>Hit Restart, or refresh your browser (Safari\'s button, not the one in Away Message). You stay signed on and your stuff stays put.</p><button class="gmbtn updgo">Restart now</button></div>',{x:innerWidth/2-170,y:140,w:340,h:220,fixed:true});document.querySelector('.updgo').onclick=()=>location.reload();return}_ou()}}
 
@@ -2528,5 +2531,18 @@ async function spCmd(act,pos){const t=await spTok();if(!t){tip('Connect Spotify 
 
 /* frog profiles use the font you picked in Settings */
 setInterval(()=>{try{const d=fr&&fr.contentDocument;if(!d||!d.body)return;const ff=getComputedStyle(d.body).fontFamily;if(ff&&document.documentElement.style.getPropertyValue('--ufont')!==ff)document.documentElement.style.setProperty('--ufont',ff)}catch(e){}},2000);
+const SITES2=[
+ ['w_candy',"Candy's Closet",'https://cutegamesclub.itch.io/candys-closet'],
+ ['w_peggy',"Peggy's Post",'https://digitarium.itch.io/peggys-post'],
+ ['w_smell','I Can Smell You From Here','https://catproblem9735.itch.io/i-can-smell-you-from-here'],
+ ['w_lastseen','Last Seen Online','https://qwook.itch.io/last-seen-online'],
+ ['w_catcafe','Cat Cafe','https://zephyo.itch.io/an-average-day-at-the-cat-cafe'],
+ ['w_purr','Purrgatory','https://nivrad00.itch.io/purrgatory'],
+ ['w_court','Sort the Court','https://graebor.itch.io/sort-the-court'],
+ ['w_yt1','Walk video 1','https://www.youtube-nocookie.com/embed/6Tyhic7ju1c?autoplay=1&rel=0'],
+ ['w_yt2','Walk video 2','https://www.youtube-nocookie.com/embed/R4l4OhOcqKk?autoplay=1&rel=0'],
+ ['w_yt3','Walk video 3','https://www.youtube-nocookie.com/embed/ufskJSgaLfI?autoplay=1&rel=0']];
+SITES2.forEach(x=>{x[3]=/youtube/.test(x[2])?EXT.rainico:EXT.games;window.WEB=window.WEB||{};window.WEB[x[0]]=x[2]});
+setInterval(()=>{const u=$('bUrl');if(!u)return;const ov=$('pageOv'),wt=ov&&!ov.hidden&&ov.querySelector('.webtab');let a=$('webExt');if(wt&&!/youtube/.test(wt.src)){if(!a){a=document.createElement('a');a.id='webExt';a.className='webext';a.target='_blank';a.rel='noopener';a.title='Open in its own tab';a.textContent='↗';u.after(a)}a.href=wt.src;a.hidden=false}else if(a)a.hidden=true},700);
 </script>
 </body></html>
