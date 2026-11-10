@@ -1677,7 +1677,7 @@ function browserChrome(){const bt=$('btabs');[['chat','Chat',APPICON]].forEach((
  fold('Sites',()=>[['lofi.cafe',()=>addTab('w_lofi','lofi.cafe',IMG.cd)],['I Miss The Office',()=>addTab('w_office','I Miss The Office',IMG.computer)],['Seoul rain walk',()=>addTab('w_seoul','Seoul rain walk',EXT.rainico)],['Virtual Cottage (download)',()=>window.open('https://dui.itch.io/virtual-cottage','_blank','noopener')]]);
  lnk('My blog',IMG.memo,()=>addTab('blog','blog',IMG.memo));
  fr.addEventListener('load',()=>setTimeout(()=>setTab(curTab),900));
- $('bRef').onclick=()=>{const b=$('bRef');b.classList.remove('blink');void b.offsetWidth;b.classList.add('blink');loadInner(fr)};
+ $('bRef').onclick=()=>{const b=$('bRef');b.classList.remove('blink');void b.offsetWidth;b.classList.add('blink');const ov=$('pageOv'),wt=ov&&!ov.hidden&&ov.querySelector('.webtab');if(wt){const u=wt.src;wt.src='about:blank';setTimeout(()=>wt.src=u,50);return}if(!ov||ov.hidden){try{if(fr.src&&!fr.srcdoc){fr.contentWindow.location.reload();return}}catch(e){}loadInner(fr)}else{ov.innerHTML=ov.innerHTML}};
  $('bInfo').onclick=()=>{if(curTab!=='chat')return;infoOff=!infoOff;setTab('chat')};
  
  $('bFav').onclick=e=>{e.stopPropagation();const old=document.querySelector('.fav');if(old){old.remove();return}const r=$('bFav').getBoundingClientRect(),m=document.createElement('div');m.className='fav';m.style.left=r.left+'px';m.style.top=(r.bottom+2)+'px';
