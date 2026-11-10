@@ -1228,6 +1228,29 @@ img.fdown.sm{width:13px;height:12px}
 
 .cztime,.czpomo{background:none!important;border:0!important;box-shadow:none!important;border-radius:0!important;padding:0 6px!important;color:inherit!important;font:inherit!important;font-variant-numeric:tabular-nums!important;text-shadow:inherit!important}
 .cztime:hover,.czpomo:hover{text-decoration:underline}
+
+.navb.ext{padding:0 6px!important;display:inline-grid;place-items:center}
+#cflPop{position:fixed;z-index:2147483060;width:300px;background:#fff8fb;border:2px solid #47041C;border-radius:8px;box-shadow:3px 4px 0 #47041C33,0 6px 18px #0003;font:13px var(--px);color:#47041C;padding:10px}
+.cfh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.cfh b{font-size:16px}
+.cfh button{border:0;background:none;color:#851C41;font:14px var(--px);padding:0 4px}
+.cfw,.cfg{display:grid;grid-template-columns:repeat(7,1fr);text-align:center}
+.cfw i{font-style:normal;color:#b07a92;font-size:12px}
+.cfg i{font-style:normal;display:flex;flex-direction:column;align-items:center;padding:3px 0;border-radius:5px;cursor:var(--hand),pointer!important}
+.cfg i small{font-size:10px;color:#9a6a82}.cfg i:hover{background:#fde6ef}.cfg i.td{background:#fbd9e7}
+.cfg i.fut{opacity:.35;cursor:var(--cur),default!important}.cfg i.fut:hover{background:none}
+.cfk{display:flex;flex-wrap:wrap;gap:6px 10px;justify-content:center;margin:6px 0 2px;font-size:11px;color:#851C41}.cfk span{display:flex;align-items:center;gap:3px}
+.cfe{border-top:1.5px dashed #e3b5c9;margin-top:6px;padding-top:8px;display:flex;flex-direction:column;gap:6px}
+.cfp{display:flex;justify-content:space-between}
+.cfp button{display:flex;flex-direction:column;align-items:center;gap:1px;border:1.5px solid transparent;border-radius:6px;background:none;padding:3px 4px;font:11px var(--px);color:#851C41}
+.cfp button:hover{background:#fde6ef}.cfp button.on{border-color:#851C41;background:#fbd9e7}
+.cfe textarea{font:13px var(--px);height:52px;resize:none;border:1.5px solid #e3b5c9;border-radius:5px;padding:4px 6px;background:#fff;color:#47041C}
+.cfb{display:flex;justify-content:space-between}
+.cfb button{font:13px var(--px);padding:3px 12px;border:1.5px solid #851C41;border-radius:5px;background:#fff;color:#851C41}
+.cfb .cfok{background:#851C41;color:#fff}
+
+#musBtn,.tray{border-left:0!important}
+
+#cflPop{max-height:calc(100vh - 140px);overflow:auto}
 </style></head><body><meta name="robots" content="noindex,nofollow">
 <style>
 #gate{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;background:#E68CAC;font:14px Tahoma,Verdana,sans-serif;color:#fff}
@@ -1318,7 +1341,7 @@ const HELPICO=svgUrl('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32
 /* your own pfp (real build uses your actual picture) */
 IMG.me=MEPFP||(()=>{const c=document.createElement('canvas');c.width=c.height=48;const x=c.getContext('2d');const g=x.createLinearGradient(0,0,48,48);g.addColorStop(0,'#5a3b2a');g.addColorStop(.5,'#b98a62');g.addColorStop(1,'#e8c6a0');x.fillStyle=g;x.fillRect(0,0,48,48);x.fillStyle='#3a2418';x.fillRect(14,8,20,22);x.fillStyle='#f0cfb0';x.fillRect(17,13,14,14);x.fillStyle='#d85b7a';x.fillRect(10,32,28,16);x.strokeStyle='#2b2a3a';x.lineWidth=4;x.strokeRect(2,2,44,44);return c.toDataURL()})();
 /* pink pixel cursor */
-document.documentElement.style.setProperty('--cur','url('+EXT.cur_arrow+') 0 0');document.documentElement.style.setProperty('--hand','url('+EXT.cur_hand+') 9 0');document.documentElement.style.setProperty('--grab','url('+EXT.cur_grab+') 16 14');document.documentElement.style.setProperty('--zoom','url('+EXT.cur_zoom+') 10 10');(function(){return;const g=ICONS.cursor,c=document.createElement('canvas'),S=2;c.width=12*S+2;c.height=16*S+2;const x=c.getContext('2d');g.forEach((r,y)=>[...r].forEach((ch,i)=>{if(ch==='k'){x.fillStyle='#f2a7c3';x.fillRect(i*S-1,y*S+1,S,S)}}));g.forEach((r,y)=>[...r].forEach((ch,i)=>{if(PAL[ch]){x.fillStyle=ch==='w'?'#eef0fb':'#2b1f3f';x.fillRect(i*S+1,y*S,S,S)}}));document.documentElement.style.setProperty('--cur','url('+c.toDataURL()+') 1 0')})();
+{const C=(k,x,y)=>'-webkit-image-set(url('+EXT[k]+') 1.6x) '+x+' '+y+', url('+EXT[k]+') '+x+' '+y;document.documentElement.style.setProperty('--cur',C('cur_arrow',0,0));document.documentElement.style.setProperty('--hand',C('cur_hand',6,0));document.documentElement.style.setProperty('--grab',C('cur_grab',10,9));document.documentElement.style.setProperty('--zoom',C('cur_zoom',6,6))}(function(){return;const g=ICONS.cursor,c=document.createElement('canvas'),S=2;c.width=12*S+2;c.height=16*S+2;const x=c.getContext('2d');g.forEach((r,y)=>[...r].forEach((ch,i)=>{if(ch==='k'){x.fillStyle='#f2a7c3';x.fillRect(i*S-1,y*S+1,S,S)}}));g.forEach((r,y)=>[...r].forEach((ch,i)=>{if(PAL[ch]){x.fillStyle=ch==='w'?'#eef0fb':'#2b1f3f';x.fillRect(i*S+1,y*S,S,S)}}));document.documentElement.style.setProperty('--cur','url('+c.toDataURL()+') 1 0')})();
 const $=id=>document.getElementById(id);
 $('startIco').src=APPICON;$('smPfp').src=IMG.me;
 
@@ -1357,7 +1380,7 @@ function tip(t){$('tip').textContent=t;$('tip').classList.add('on');clearTimeout
 
 /* ---------- the real site ---------- */
 let fr;
-function openAway(then){if(!wins.away){mkWin('away','Away Message',APPICON,'<div id="frBox" style="position:absolute;inset:0;overflow:hidden"><iframe id="fr" title="Away Message" style="position:absolute;left:0;top:0;transform-origin:0 0"></iframe><div id="pageOv" hidden></div></div>',{x:120,y:24,w:Math.min(1060,innerWidth-160),h:innerHeight-90,pre:'<div class="ctabs"><div class="btabs" id="btabs"></div></div><div class="ie7nav"><div class="ie7addr"><button id="bRef" title="Refresh">⟳</button><img src="'+APPICON+'"><span id="bUrl">away://the-lounge</span></div><button class="navb" id="bFav" title="Favorites"><span style="color:#e8a32a">★</span> Favorites</button><button class="navb" id="bInfo" title="Show / hide room info">ⓘ Info</button></div><div class="linksbar" id="links"><button class="lkl" title="Hide links" onclick="const L=this.parentNode,h=L.classList.toggle(\'lkhid\');this.title=h?\'Show links\':\'Hide links\';closeMenus()">Links</button></div>'});wins.away.insertBefore(Object.assign(document.createElement('div'),{className:'iestat',innerHTML:'<img src="'+APPICON+'" style="width:14px">Signed on<i>Friends only</i>'}),wins.away.querySelector('.grip'));fr=$('fr');loadInner(fr);browserChrome();fitAway();new ResizeObserver(fitAway).observe($('frBox'));wins.away.classList.add('ie')}else show('away');if(then)setTimeout(then,wins.away._ready?0:1800);wins.away._ready=1}
+function openAway(then){if(!wins.away){mkWin('away','Away Message',APPICON,'<div id="frBox" style="position:absolute;inset:0;overflow:hidden"><iframe id="fr" title="Away Message" style="position:absolute;left:0;top:0;transform-origin:0 0"></iframe><div id="pageOv" hidden></div></div>',{x:120,y:24,w:Math.min(1060,innerWidth-160),h:innerHeight-90,pre:'<div class="ctabs"><div class="btabs" id="btabs"></div></div><div class="ie7nav"><div class="ie7addr"><button id="bRef" title="Refresh">⟳</button><img src="'+APPICON+'"><span id="bUrl">away://the-lounge</span></div><button class="navb ext" id="bCfl" title="coffeelings (mood journal)"></button><button class="navb" id="bFav" title="Favorites"><span style="color:#e8a32a">★</span> Favorites</button><button class="navb" id="bInfo" title="Show / hide room info">ⓘ Info</button></div><div class="linksbar" id="links"><button class="lkl" title="Hide links" onclick="const L=this.parentNode,h=L.classList.toggle(\'lkhid\');this.title=h?\'Show links\':\'Hide links\';closeMenus()">Links</button></div>'});wins.away.insertBefore(Object.assign(document.createElement('div'),{className:'iestat',innerHTML:'<img src="'+APPICON+'" style="width:14px">Signed on<i>Friends only</i>'}),wins.away.querySelector('.grip'));fr=$('fr');loadInner(fr);browserChrome();fitAway();new ResizeObserver(fitAway).observe($('frBox'));wins.away.classList.add('ie')}else show('away');if(then)setTimeout(then,wins.away._ready?0:1800);wins.away._ready=1}
 const inn=s=>{try{return fr.contentDocument.querySelector(s)}catch(e){return null}};
 const press=s=>openAway(()=>{const b=inn(s);b?b.click():tip('Sign on first')});
 
@@ -2068,5 +2091,30 @@ function msgPop(){let p=$('msgPop');if(p){p.remove();return}p=document.createEle
  draw();p.querySelector('.mps').oninput=e=>draw(e.target.value);p.querySelector('.mps').onkeydown=e=>{if(e.key==='Enter'){const f=L.querySelector('.mpr');f&&f.click()}};document.body.append(p);setTimeout(()=>p.querySelector('.mps').focus(),30)}
 document.addEventListener('click',()=>{const p=$('msgPop');p&&p.remove()});
 setTimeout(msgTray,0);
+
+/* coffeelings: a little mood + journal "extension" in the browser bar */
+const CFM=[['rad','#f4a9c8','#ffd9e8'],['good','#e8b06a','#f8dcae'],['meh','#c49a76','#e6cdb6'],['bad','#8a5a44','#b48a72'],['awful','#4a2c20','#7a5848']];
+function cupSVG(fill,foam,z){const G=['...w.w......','....w.w.....','.kkkkkkkk...','.kFFFFFFk...','.kffffffkkk.','.kffffffk.k.','.kffffffkkk.','.kffffffk...','..kffffk....','kkkkkkkkkk..'];let r='';G.forEach((row,y)=>[...row].forEach((c,x)=>{const col=c==='k'?'#47041C':c==='f'?(fill||'#fff8fb'):c==='F'?(foam||'#fff8fb'):c==='w'?'#c9a3b6':null;if(col)r+='<rect x="'+x+'" y="'+y+'" width="1" height="1" fill="'+col+'"/>'}));return '<svg viewBox="0 0 12 10" width="'+z+'" height="'+(z*10/12)+'" shape-rendering="crispEdges">'+r+'</svg>'}
+let CFL={};try{CFL=JSON.parse(localStorage.getItem('cfl')||'{}')}catch(e){}
+const cflSave=()=>{try{localStorage.setItem('cfl',JSON.stringify(CFL))}catch(e){}};
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#bCfl');if(!b)return;e.stopPropagation();cflPop(b)},true);
+new MutationObserver(()=>{const b=$('bCfl');if(b&&!b.dataset.c){b.dataset.c=1;b.innerHTML=cupSVG(CFM[0][1],CFM[0][2],20)}}).observe(document.body,{childList:true,subtree:true});
+let cflOff=0;
+function cflPop(btn){let p=$('cflPop');if(p){p.remove();return}p=document.createElement('div');p.id='cflPop';p.onclick=e=>e.stopPropagation();document.body.append(p);const r=btn.getBoundingClientRect();p.style.top=(r.bottom+6)+'px';p.style.left=Math.max(6,r.right-300)+'px';cflOff=0;cflDraw(p)}
+function cflDraw(p,pick){const now=new Date(),d=new Date(now.getFullYear(),now.getMonth()+cflOff,1),y=d.getFullYear(),m=d.getMonth(),first=d.getDay(),days=new Date(y,m+1,0).getDate(),key=k=>y+'-'+(m+1)+'-'+k;
+ let g='';for(let i=0;i<first;i++)g+='<i></i>';for(let k=1;k<=days;k++){const e=CFL[key(k)],mo=e&&CFM.find(x=>x[0]===e.m),fut=new Date(y,m,k)>now;g+='<i class="'+(fut?'fut':'')+(off0(k)?' td':'')+'" data-k="'+k+'" title="'+(e?e.m+(e.n?': '+e.n.replace(/"/g,'&quot;'):''):'')+'">'+cupSVG(mo&&mo[1],mo&&mo[2],26)+'<small>'+k+'</small></i>'}
+ function off0(k){return cflOff===0&&k===now.getDate()}
+ const cnt={};Object.keys(CFL).filter(x=>x.startsWith(y+'-'+(m+1)+'-')).forEach(x=>cnt[CFL[x].m]=(cnt[CFL[x].m]||0)+1);
+ p.innerHTML='<div class="cfh"><b>coffeelings</b><span><button data-d="-1">◂</button>'+d.toLocaleDateString('en',{month:'long'}).toLowerCase()+' '+y+'<button data-d="1">▸</button></span></div><div class="cfw"><i>s</i><i>m</i><i>t</i><i>w</i><i>t</i><i>f</i><i>s</i></div><div class="cfg">'+g+'</div><div class="cfk">'+CFM.map(x=>'<span>'+cupSVG(x[1],x[2],14)+x[0]+(cnt[x[0]]?' '+cnt[x[0]]:'')+'</span>').join('')+'</div><div class="cfe" hidden></div>';
+ p.querySelectorAll('.cfh button').forEach(b=>b.onclick=()=>{cflOff+=+b.dataset.d;cflDraw(p)});
+ p.querySelectorAll('.cfg i[data-k]:not(.fut)').forEach(c=>c.onclick=()=>cflEdit(p,key(+c.dataset.k),new Date(y,m,+c.dataset.k)));
+ if(pick)cflEdit(p,pick[0],pick[1])}
+function cflEdit(p,k,dt){const E=p.querySelector('.cfe'),cur=CFL[k]||{};E.hidden=false;let sel=cur.m||'';
+ E.innerHTML='<b>'+dt.toLocaleDateString('en',{weekday:'long',month:'short',day:'numeric'}).toLowerCase()+' · how was it?</b><div class="cfp">'+CFM.map(x=>'<button data-m="'+x[0]+'" class="'+(sel===x[0]?'on':'')+'">'+cupSVG(x[1],x[2],30)+'<small>'+x[0]+'</small></button>').join('')+'</div><textarea maxlength="280" placeholder="a lil note about your day (just for you)"></textarea><div class="cfb">'+(CFL[k]?'<button class="cfdel">clear</button>':'<span></span>')+'<button class="cfok">save</button></div>';
+ E.querySelector('textarea').value=cur.n||'';
+ E.querySelectorAll('.cfp button').forEach(b=>b.onclick=()=>{sel=b.dataset.m;E.querySelectorAll('.cfp button').forEach(x=>x.classList.toggle('on',x===b))});
+ E.querySelector('.cfok').onclick=()=>{if(!sel){E.querySelector('b').textContent='pick a cup first';return}CFL[k]={m:sel,n:E.querySelector('textarea').value.trim()};cflSave();cflDraw(p)};
+ const del=E.querySelector('.cfdel');if(del)del.onclick=()=>{delete CFL[k];cflSave();cflDraw(p)}}
+document.addEventListener('click',()=>{const p=$('cflPop');p&&p.remove()});
 </script>
 </body></html>
