@@ -2209,7 +2209,7 @@ function callWin(n,mode,why){const id='call';if(wins[id]){wins[id]._quiet=1;wins
    w._rec={cancel:()=>end(false)};soft(L,'Send',()=>end(true));soft(R,'Cancel',()=>end(false));key('Send','grn',()=>end(true));key('Cancel','red',()=>end(false))};
   soft(L,'Record',rec);soft(R,'No thanks',close);key('Voicemail','grn',rec);key('Close','red',close);return w}
  if(mode==='in'){B.innerHTML='<div class="nks">Calling</div><div class="nkt"></div>'+(why?'<div class="nkwhy"></div>':'');B.querySelector('.nkt').textContent=n;if(why)B.querySelector('.nkwhy').textContent='"'+why+'"';
-  w.querySelector('.nktop img').classList.add('ring');const ans=()=>{close();vcPrivate(n)};soft(L,'Answer',ans);soft(R,'Decline',close);key('Answer','grn',ans);key('Decline','red',close);return w}}
+  w.querySelector('.nktop img').classList.add('ring');const ans=()=>{close();vcPrivate(n)};soft(L,'Answer',ans);soft(R,'Decline',close);key('Answer','grn',ans);key('Decline','red',close);w._to=setTimeout(()=>{if(wins.call!==w)return;close();tip('Missed call from '+n)},25000);return w}}
 function callOut(n){callWin(n,'pick')}
 function callIn(n,why){if(wins.call&&wins.call._ringing)return;if(DND){trayPhone(n,true);const t=$('trPhone');t.classList.add('dnd');t.title=n+' is calling (you\'re on do not disturb)';t.onclick=e=>{e.stopPropagation();t.classList.remove('dnd');ringStop();const w=callWin(n,'in',why||'');w._ringing=1;w.querySelector('.nktop img').classList.add('ring')};return}trayPhone(n,true);ringStart();const w=callWin(n,'in',why||REASONS[Math.floor(Math.random()*REASONS.length)]);w._ringing=1;tip(n+' is calling')}
 /* site updates: mailbox in the tray */
@@ -2239,7 +2239,7 @@ function vcPrivate(n){openVC();const w=wins.vc;vcView('voice');if(inCall&&!w._pr
  w.querySelector('.vcpriv').onclick=()=>vcView('voice');
  const sm=w.querySelector('#vcBox small');sm.textContent='private call / '+n;w._tb.lastChild.textContent='Voice channel - private call';w.querySelector('.wt b').textContent='Voice channel - private call';
  if(!w._privHook){w._privHook=1;w.querySelector('#vcHang').addEventListener('click',()=>{if(!w._priv)return;w._priv=null;w.querySelectorAll('.vcpriv,.vcpm').forEach(x=>x.remove());$('vcTiles').innerHTML=w._tiles;w.querySelector('.vcbd[data-b=""]').classList.add('on');sm.textContent='hangout';w._tb.lastChild.textContent='Voice channel - hangout';w.querySelector('.wt b').textContent='Voice channel - hangout'})}}
-let _lo=false;function afterLogOn(){if(_lo)return;_lo=true;mailInit();setTimeout(()=>{if(!wins.call&&document.body.classList.contains('on'))callIn('kimchi')},40000)}
+let _lo=false;function afterLogOn(){if(_lo)return;_lo=true;mailInit();}
 
 /* Start menu: header opens your profile, right-click to pin things to the desktop */
 (()=>{const h=document.querySelector('#sm .smh');if(h){h.style.cursor='pointer';h.title='Open your profile';h.onclick=e=>{e.stopPropagation();closeMenu();openProfile()}}})();
