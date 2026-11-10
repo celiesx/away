@@ -1433,6 +1433,40 @@ img.fdown.sm{width:13px;height:12px}
 .wfrog.mine .flist{scrollbar-color:#b45d86 #f2c9d9}
 .wfrog.mine .fdform{background:#fbe3ee!important;box-shadow:inset 0 0 0 2px #b45d86!important}
 .wfrog.mine .fstar{fill:#fbe3ee;stroke:#b45d86}
+
+.vcm{position:relative}.vcmi{margin-left:auto;display:flex;gap:4px;padding-right:14px;flex:none}.vcmi img{width:15px;height:15px;opacity:.9}
+
+.pkemoji{display:flex;flex-wrap:wrap;gap:2px;margin-top:6px;padding-top:4px;border-top:1px solid #eee}.pkemoji h5{width:100%;margin:0 0 2px;font:bold 11px Tahoma;color:#851C41}.pkemoji button{border:0;background:none;font-size:18px;width:30px;height:30px;border-radius:4px;padding:0}.pkemoji button:hover{background:#fde6ef}
+.emoimg{height:24px;vertical-align:middle;margin:0 1px}
+
+.impick{max-height:340px!important;width:290px!important}.impick .pkview{flex:1;min-height:0}
+.vcst{display:flex;align-items:center;gap:5px;margin:-2px 8px 4px 34px;font:12px Tahoma;color:#7a7f8c;cursor:var(--hand),pointer!important}
+.vcst span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.vcst span.set{color:#3a3f4c;font-style:italic}.vcst i{font-style:normal;opacity:.6}
+.vcst:hover span{text-decoration:underline}
+.vcst input{flex:1;font:12px Tahoma;padding:1px 4px;border:1px solid #9fb2d0;border-radius:3px}
+
+/* weather: thinner bezel, shorter, smaller thinner icon, bolt by the battery */
+#wxPop{width:400px!important}
+#wxPop .lcdb{padding:3px!important;border-width:1px!important;border-radius:14px!important}
+#wxPop .lcd{padding:2px 12px 3px!important;border-radius:10px!important}
+#wxPop .lt{line-height:19px!important;font-size:16px!important}
+#wxPop .lbat{grid-template-columns:auto auto!important;align-items:center!important}
+#wxPop .lbat svg{grid-column:2;grid-row:1}
+#wxPop .lbat small:empty{display:none}
+#wxPop .lm{height:76px!important}
+#wxPop .li{top:6px!important;left:8px!important}
+#wxPop .li svg{width:48px!important;height:48px!important}
+#wxPop .li svg *{stroke-width:2!important}
+#wxPop .ltemp{left:118px!important;top:2px!important;font-size:30px!important}
+#wxPop .lhl{left:116px!important;top:40px!important;font-size:16px!important}
+#wxPop .lhl i{border-width:6px!important}
+#wxPop .lc{font-size:15px!important;bottom:0!important}
+#wxPop .lpin{left:236px!important;top:4px!important}
+#wxPop .ld{padding-top:1px!important}
+#wxPop .ld small{font-size:14px!important;line-height:1!important}
+#wxPop .ld b{font-size:20px!important;line-height:1.05!important}
+#wxPop .ltabs span{padding:2px 12px 3px!important;font-size:13px!important}
+#wxPop .lpost{height:10px!important}
 </style></head><body><meta name="robots" content="noindex,nofollow">
 <style>
 #gate{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;background:#5a7edc;font:14px Tahoma,Verdana,sans-serif;color:#fff}
@@ -2246,7 +2280,7 @@ function wxPop(){let p=$('wxPop');if(p){p.remove();clearInterval(wxIv);return}p=
  document.body.append(p);p.onclick=e=>e.stopPropagation();
  const tick=()=>{const n=new Date(),h=n.getHours();p.querySelector('.lg').textContent=h<5?'Good Night':h<12?'Good Morning':h<17?'Good Afternoon':h<21?'Good Evening':'Good Night';p.querySelector('.lt1').textContent=n.getDate();p.querySelector('.lt2').textContent=n.toLocaleDateString('en',{month:'short'});p.querySelector('.lt3').textContent=n.toLocaleDateString('en',{weekday:'short'});p.querySelector('.lt4').textContent=n.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false})};
  tick();wxIv=setInterval(tick,1000);
- try{{const B=p.querySelector('.lbat');B.hidden=false;B.querySelector('small').textContent='';B.querySelector('svg').style.visibility='hidden';B.querySelectorAll('i b').forEach(x=>x.style.visibility='visible')}navigator.getBattery&&navigator.getBattery().then(b=>{if(!b||isNaN(b.level))return;const B=p.querySelector('.lbat');B.hidden=false;const up=()=>{const lv=Math.round(b.level*100);B.querySelectorAll('i b').forEach((x,i)=>x.style.visibility=lv>i*33?'visible':'hidden');B.querySelector('svg').style.visibility=b.charging?'visible':'hidden';B.querySelector('small').textContent=lv+'%'};up();b.onlevelchange=b.onchargingchange=up})}catch(e){}
+ try{{const B=p.querySelector('.lbat');B.hidden=false;B.querySelector('small').textContent='';B.querySelector('svg').style.visibility='visible';B.querySelectorAll('i b').forEach(x=>x.style.visibility='visible')}navigator.getBattery&&navigator.getBattery().then(b=>{if(!b||isNaN(b.level))return;const B=p.querySelector('.lbat');B.hidden=false;const up=()=>{const lv=Math.round(b.level*100);B.querySelectorAll('i b').forEach((x,i)=>x.style.visibility=lv>i*33?'visible':'hidden');B.querySelector('svg').style.visibility=b.charging?'visible':'hidden';B.querySelector('small').textContent=lv+'%'};up();b.onlevelchange=b.onchargingchange=up})}catch(e){}
  wxLoad().then(d=>{const c=d.current,D=d.daily;p.querySelector('.li').innerHTML=wxIcon0(c.weather_code,c.is_day,true);p.querySelector('.ltemp').textContent=Math.round(c.temperature_2m)+'°';
   p.querySelector('.lhl').innerHTML='<i class="dn"></i>'+Math.round(D.temperature_2m_min[0])+'° <i class="up"></i>'+Math.round(D.temperature_2m_max[0])+'°';p.querySelector('.lc').textContent=WXT(c.weather_code);p.querySelector('.lpin').title=WX.place;p.querySelector('.lplace').textContent=WX.place;
   p.querySelector('.ld').innerHTML=D.time.slice(1,8).concat(D.time.length<8?[]:[]).map((t,i)=>'<div><small>'+new Date(t+'T12:00').toLocaleDateString('en',{weekday:'short'})+'</small><b>'+Math.round(D.temperature_2m_max[i+1])+'°</b></div>').join('')})
@@ -2359,5 +2393,26 @@ function plannerFit(w){const f=w.querySelector('iframe');w._pfIv=setInterval(()=
  if(!d.querySelector('.pvwin,.plwin')&&w._pvSeen){w.querySelector('[data-x]').click();return}if(d.querySelector('.pvwin,.plwin'))w._pvSeen=1},600)}
 
 function goAway(){openProfile();setTimeout(()=>{const it=wins.prof&&wins.prof._menus.Edit.find(x=>x&&/Away/.test(x[0]));it&&it[1]()},80)}
+
+/* your mute / deafen show next to your name in the voice list */
+function vcMeIcons(){const w=wins.vc;if(!w)return;w.querySelectorAll('.vcbo .vcm').forEach(r=>{if(r.hidden||!/\bmonica\b/.test(r.textContent))return;let s2=r.querySelector('.vcmi');if(!s2){s2=document.createElement('span');s2.className='vcmi';r.append(s2)}const h=(muted?'<img src="'+IMG.micOff+'" title="Muted">':'')+(deaf?'<img src="'+IMG.hpOff+'" title="Deafened">':'');if(s2.innerHTML!==h)s2.innerHTML=h})}
+{const _c3=callUI;callUI=function(){_c3.apply(this,arguments);vcMeIcons()}}
+new MutationObserver(()=>{if(wins.vc)vcMeIcons()}).observe(document.body,{childList:true,subtree:true});
+
+const EMOJIS='\u{1F600} \u{1F602} \u{1F923} \u{1F60A} \u{1F60D} \u{1F970} \u{1F60E} \u{1F914} \u{1F62E} \u{1F622} \u{1F62D} \u{1F621} \u{1F973} \u{1F634} \u{1F605} \u{1F972} \u{1F979} \u{1F644} \u{1F61C} \u{1F92F} \u{1F44D} \u{1F44E} \u{1F44F} \u{1F64C} \u{1F64F} \u{1F4AA} \u{1F44B} \u270C\uFE0F \u{1F90C} \u{1FAF6} \u2764\uFE0F \u{1F9E1} \u{1F49B} \u{1F49A} \u{1F499} \u{1F49C} \u{1F5A4} \u{1F90D} \u{1F494} \u2728 \u{1F525} \u{1F4AF} \u{1F389} \u{1F480} \u{1F440} \u2B50 \u{1F31F} \u{1F319} \u{1F338} \u{1F408} \u{1F415} \u{1F355} \u{1F366} \u2615 \u{1F3B5} \u{1F3AE} \u{1F4A4} \u{1F4A9} \u{1F921} \u{1F47B} \u{1F608} \u{1F6E1}\uFE0F 😞 😔 😟 😕 🙁 ☹️ 😣 😖 😩 😫 😢 🥺 😨 😰 😥 😓 😱 😑 😐 😶 😒 🙄 😏 😤 😮‍💨 🫠 🥴 😵‍💫 😬 😳 🫣 🤭 🫢 🤫 🤐 🤢 🤮 🤒 🤕 😷 😇 🥳 🤩 😋 😛 😝 🤪 😌 😉 🙃 🤗 🫂 🫡 🫶 🤝 🫰 🤞 🙅 🙆 🤦 🤷 🙇 💅 🤌 🥂 🩷 🤍 🤎 💗 💖 💕 💞 💓 💘 💝 🍊 🍑 🍓 🧸 🍂 🍁 🎃 🕯️ 🌙 ☁️ 🌧️ 🌈 🦋 🐻 🐱 🐰 🐸'.split(' ');
+/* emoji section in the Emotes tab */
+new MutationObserver(()=>{document.querySelectorAll('.impick .pkview:not(.pkgif):not([data-ej])').forEach(v=>{v.dataset.ej=1;const pk=v.closest('.impick');const g=document.createElement('div');g.className='pkemoji';g.innerHTML='<h5>Emoji</h5>';EMOJIS.forEach(e=>{const b=document.createElement('button');b.textContent=e;b.onclick=x=>{x.stopPropagation();const {ta}=pickTarget(pk);if(ta){ta.value+=e;ta.focus()}pk.remove()};g.append(b)});v.append(g)})}).observe(document.body,{childList:true,subtree:true});
+/* :emote: in IMs and voice chats turns into the picture */
+function emoteify(el){if(!EMOTES||!EMOTES.length||el.dataset.emo)return;el.dataset.emo=1;const map=Object.fromEntries(EMOTES.map(e=>[e.name,e.data]));const w=document.createTreeWalker(el,NodeFilter.SHOW_TEXT);const ns=[];while(w.nextNode())ns.push(w.currentNode);
+ ns.forEach(n=>{if(!/:[\w-]+:/.test(n.data))return;const f=document.createDocumentFragment();n.data.split(/(:[\w-]+:)/).forEach(p=>{const k=p.slice(1,-1);if(/^:[\w-]+:$/.test(p)&&map[k]){const im=document.createElement('img');im.src=map[k];im.className='emoimg';im.title=p;f.append(im)}else if(p)f.append(document.createTextNode(p))});n.replaceWith(f)})}
+new MutationObserver(()=>{if(!EMOTES){loadEmotes();return}document.querySelectorAll('.imlog>div:not([data-emo]),.vclog>div:not([data-emo])').forEach(emoteify)}).observe(document.body,{childList:true,subtree:true,characterData:true});
+/* double-click a voice channel to hop in */
+document.addEventListener('dblclick',e=>{const r=e.target.closest('#w_vc .vcbd[data-b=""]');if(!r)return;const w=wins.vc;if(r.classList.contains('vcpriv'))return;if(w._priv){w.querySelector('#vcHang').click();setTimeout(()=>w.querySelector('#vcJoinB').click(),120);return}if(!inCall){vcView('voice');const j=w.querySelector('#vcJoinB');j&&j.click()}});
+
+/* channel status under each voice channel (like discord) */
+const VCST={};
+function vcStatusRows(){document.querySelectorAll('#w_vc .vcbd[data-b=""]').forEach(r=>{if(r.nextElementSibling&&r.nextElementSibling.classList.contains('vcst'))return;const key=r.classList.contains('vcpriv')?'priv':'hangout';const d=document.createElement('div');d.className='vcst';const draw=()=>{d.innerHTML='';const t=document.createElement('span');t.textContent=VCST[key]||'Set a channel status';t.className=VCST[key]?'set':'';d.append(t,Object.assign(document.createElement('i'),{textContent:'✎'}))};draw();
+ d.onclick=e=>{e.stopPropagation();if(d.querySelector('input'))return;const i=document.createElement('input');i.maxLength=40;i.value=VCST[key]||'';i.placeholder='what are we doing?';d.innerHTML='';d.append(i);i.focus();const done=()=>{VCST[key]=i.value.trim();draw()};i.onkeydown=ev=>{if(ev.key==='Enter')i.blur();if(ev.key==='Escape'){i.value=VCST[key]||'';i.blur()}};i.onblur=done};r.after(d)})}
+new MutationObserver(()=>{if(wins.vc)vcStatusRows()}).observe(document.body,{childList:true,subtree:true});
 </script>
 </body></html>
