@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="20261110133346">
-<link rel="icon" type="image/png" href="icon-64.png?v=20261110133346">
-<link rel="shortcut icon" href="favicon.ico?v=20261110133346">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261110133346">
-<link rel="manifest" href="manifest.webmanifest?v=20261110133346">
+<meta name="build" content="20261110133628">
+<link rel="icon" type="image/png" href="icon-64.png?v=20261110133628">
+<link rel="shortcut icon" href="favicon.ico?v=20261110133628">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261110133628">
+<link rel="manifest" href="manifest.webmanifest?v=20261110133628">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
 <style>
@@ -895,7 +895,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=20261110133346"></script>
+<script src="config.js?v=20261110133628"></script>
 <script>
 (() => {
 'use strict';
@@ -1007,6 +1007,7 @@ const S = {
   editing: false, draft: null, sound: LS.get('am.sound') !== 'off', extra: '', ttlH: 24, timers: [], theme: cleanTheme(null)
 };
 try { const t = LS.get('am.theme'); if (t) S.theme = cleanTheme(JSON.parse(t)); } catch {}
+if (/[?&]eng=1/.test(location.search)) S.sound = false;
 const mine = () => S.profiles.get(S.uid) || null;
 const myRole = () => (mine() || {}).role || 'member';
 const isStaff = () => myRole() === 'mod' || myRole() === 'admin';
@@ -3599,7 +3600,7 @@ async function pvRender() {
 }
 /* ---------- spotify ---------- */
 const SP_SCOPE = 'user-read-currently-playing user-read-playback-state user-modify-playback-state';
-const spRedirect = () => location.origin + location.pathname;
+const spRedirect = () => location.origin + location.pathname.replace(/index\.html$/, '');
 const spGet = () => { try { return JSON.parse(LS.get('am.sp.' + S.uid) || 'null'); } catch { return null; } };
 const spSet = v => LS.set('am.sp.' + S.uid, v ? JSON.stringify(v) : '');
 const b64url = buf => btoa(String.fromCharCode(...new Uint8Array(buf))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
@@ -4057,12 +4058,12 @@ window.addEventListener('focus', () => { if (S.pings) { S.pings = 0; setBadge();
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '20261110133346' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '20261110133628' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '20261110133346') { newBuild = m[1]; updFlag(); }
+    if (m && m[1] !== BUILD && m[1] !== '20261110133628') { newBuild = m[1]; updFlag(); }
   } catch {}
 }
 function updFlag() {
