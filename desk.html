@@ -1547,6 +1547,14 @@ body.quickon #welcome{display:none!important}
 .sdvname{text-align:center;background:#f4d9a2;border:4px solid #b56a2b;border-radius:6px;box-shadow:0 3px 0 #5a2c0c;font:20px 'VT323',monospace;color:#3a1f0b;padding:2px}
 .sdvin{display:flex;gap:6px}.sdvin input{flex:1;font:18px 'VT323',monospace;padding:4px 8px;border:3px solid #b56a2b;border-radius:5px;background:#fff6e2;color:#3a1f0b}
 .sdvin button{font:18px 'VT323',monospace;padding:2px 14px;border:3px solid #7a3f15;border-radius:5px;background:linear-gradient(#f0b85f,#d48a34);color:#3a1f0b}
+
+.glib{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%}
+.glgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;width:100%;max-width:320px}
+.glt{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 8px;border:0;border-radius:16px;background:#fff;box-shadow:0 3px 0 #ecc7d6;font:500 13px 'Fredoka',sans-serif;color:#5a2340;cursor:var(--hand),pointer!important;transition:transform .1s}
+.glt:hover{transform:translateY(-2px)}.glt img{width:38px;height:38px;image-rendering:pixelated}
+.glnote{font:12px 'Fredoka',sans-serif;color:#a07890;text-align:center}
+.gplay{position:relative;height:100%;background:#000}.gplay iframe{width:100%;height:100%;border:0;display:block}
+.gpout{position:absolute;right:8px;bottom:8px;width:26px;height:26px;display:grid;place-items:center;border-radius:5px;background:#fffd;color:#851C41;text-decoration:none;font:15px Tahoma}
 </style></head><body><meta name="robots" content="noindex,nofollow">
 <style>
 #gate{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;background:#5a7edc;font:14px Tahoma,Verdana,sans-serif;color:#fff}
@@ -1702,7 +1710,7 @@ function browserChrome(){const bt=$('btabs');[['chat','Chat',APPICON]].forEach((
  const lnk=(label,ic,fn)=>{const a=document.createElement('button');a.className='lkf';a.innerHTML='<img src="'+ic+'">'+label;a.onclick=fn;LK.append(a)};
  fold('Boards',()=>[['Lounge',()=>{addTab('chat','Chat',APPICON)}],['# cat-channel',()=>{addTab('chat','Chat',APPICON);tip('Opens #cat-channel')}]]);
  fold('People',()=>Object.keys(PEOPLE).map(n=>[n,()=>addTab('p_'+n,n,picOf(n)),d=>peerHover(d,n)]));
- fold('Sites',()=>[...SITES2.map(x=>[x[1],()=>addTab(x[0],x[1],x[3])]),['lofi.cafe',()=>addTab('w_lofi','lofi.cafe',IMG.cd)],['I Miss The Office',()=>addTab('w_office','I Miss The Office',IMG.computer)],['Seoul rain walk',()=>addTab('w_seoul','Seoul rain walk',EXT.rainico)],['Virtual Cottage (download)',()=>window.open('https://dui.itch.io/virtual-cottage','_blank','noopener')]]);
+ fold('Sites',()=>[...SITES2.filter(x=>/youtube/.test(x[2])).map(x=>[x[1],()=>addTab(x[0],x[1],x[3])]),['lofi.cafe',()=>addTab('w_lofi','lofi.cafe',IMG.cd)],['I Miss The Office',()=>addTab('w_office','I Miss The Office',IMG.computer)],['Seoul rain walk',()=>addTab('w_seoul','Seoul rain walk',EXT.rainico)],['Virtual Cottage (download)',()=>window.open('https://dui.itch.io/virtual-cottage','_blank','noopener')]]);
  lnk('My blog',IMG.memo,()=>addTab('blog','blog',IMG.memo));
  fr.addEventListener('load',()=>setTimeout(()=>setTab(curTab),900));
  $('bRef').onclick=()=>{const b=$('bRef');b.classList.remove('blink');void b.offsetWidth;b.classList.add('blink');const ov=$('pageOv'),wt=ov&&!ov.hidden&&ov.querySelector('.webtab');if(wt){const u=wt.src;wt.src='about:blank';setTimeout(()=>wt.src=u,50);return}if(!ov||ov.hidden){try{if(fr.src&&!fr.srcdoc){fr.contentWindow.location.reload();return}}catch(e){}loadInner(fr)}else{ov.innerHTML=ov.innerHTML}};
@@ -1858,8 +1866,8 @@ function openFolder(){const html=()=>mediaOn?'<div class="fv">'+media.map(m=>'<d
  w._menus={File:[['Open',()=>{const i=[...w.querySelectorAll('.fi')].findIndex(x=>x.classList.contains('sel'));if(i>=0)viewItem(media[i]);else tip('Pick something first')}],['Move to Trash',()=>w._trash&&w._trash()],null,['Close','close']],Edit:[['Select all',()=>w.querySelectorAll('.fi').forEach(x=>x.classList.add('sel'))]],View:[['Big icons',()=>w.querySelector('.wc').classList.remove('flist2')],['List',()=>w.querySelector('.wc').classList.add('flist2')]],Help:[['Help topics',()=>tip('Photos and files people send stay here for 24 hours.')]]};upd();folderSel(w,upd)}
 function viewItem(m){mkWin('view_'+m[0].replace(/\W/g,''),m[0],IMG.folder,'<div class="viewer" style="background:'+m[1]+'"><span>'+m[0]+'</span></div>',{x:320+Math.random()*60,y:120,w:380,h:320})}
 function openGames(){if(wins.games){show('games');return}
- const w=mkWin('games','Games',EXT.games,'<div class="gm"><div class="gmtabs"><button data-g="word" class="on">Word of the day</button><button data-g="ttt">Tic-tac-toe</button><button data-g="bj">Blackjack</button></div><div class="gmbody"></div></div>',{x:330,y:40,w:380,h:600});
- const B=w.querySelector('.gmbody'),go=g=>{w.querySelectorAll('.gmtabs button').forEach(x=>x.classList.toggle('on',x.dataset.g===g));B.innerHTML='';({word:gWord,ttt:gTTT,bj:gBJ})[g](B)};
+ const w=mkWin('games','Games',EXT.games,'<div class="gm"><div class="gmtabs"><button data-g="word" class="on">Word of the day</button><button data-g="ttt">Tic-tac-toe</button><button data-g="bj">Blackjack</button><button data-g="lib">More</button></div><div class="gmbody"></div></div>',{x:330,y:40,w:400,h:600});
+ const B=w.querySelector('.gmbody'),go=g=>{w.querySelectorAll('.gmtabs button').forEach(x=>x.classList.toggle('on',x.dataset.g===g));B.innerHTML='';({word:gWord,ttt:gTTT,bj:gBJ,lib:gLib})[g](B)};
  w.querySelectorAll('.gmtabs button').forEach(x=>x.onclick=()=>go(x.dataset.g));go('word')}
 /* word of the day: guess the 5-letter word in 6 tries */
 const WOTD='HEART,CANDY,SWEET,PEACH,CLOUD,DREAM,BLUSH,FROGS,KITTY,LEMON,MANGO,STARS,MOODY,RAINY,SUNNY,PIXEL,MUSIC,PIANO,CHAIR,LIGHT,NIGHT,HONEY,BERRY,TULIP,DAISY,LILAC,ROSES,BUNNY,PUPPY,CRUSH,SHINY,GLOSS,PEARL,AMBER,CORAL,OCEAN,BEACH,SHELL,WAVES,STORM,FROST,SPICE,TOAST,BAGEL,MOCHA,LATTE,SUSHI,RAMEN,MOVIE,GAMER,PHONE,EMAIL,VOICE,PARTY,CHILL,COMFY,COZY,DIARY,PAINT,BRUSH,COLOR,GHOST,WITCH,MAGIC,SPELL,CHARM,LUCKY,ANGEL,FAIRY,TEDDY,QUILT,SLEEP,SNACK,MEOWS,PURRS,FLUFF,PLUSH'.split(',').filter(x=>x.length===5);
@@ -2573,5 +2581,10 @@ function openGojo(){if(wins.gojo){show('gojo');return}
   let rep=null;const sb=DSB();if(sb){try{const r=await sb.functions.invoke('gojo',{body:{text:t}});const d=r.data;if(d&&d.reply)rep=[d.reply,d.face]}catch(e){}}
   if(!rep)rep=freeReply(t);say(rep[0],rep[1]);btn.disabled=false;inp.focus()};
  say(new Date().getHours()<12?'Morning! You\'re up early. Need something, or did you just miss me?':'Oh, hey. Came to see me? Can\'t blame you.',11);setTimeout(()=>inp.focus(),60)}
+
+/* More games: itch.io games open in their own little window */
+function gLib(B){const G=SITES2.filter(x=>!/youtube/.test(x[2]));B.innerHTML='<div class="glib"><div class="gmhud"><span class="gmlogo">More games</span></div><div class="glgrid"></div><small class="glnote">tap one to play. if it stays blank, use ↗ to open it in its own tab</small></div>';
+ const g=B.querySelector('.glgrid');G.forEach(x=>{const b=document.createElement('button');b.className='glt';b.innerHTML='<img src="'+EXT.games+'"><span></span>';b.querySelector('span').textContent=x[1];b.onclick=()=>playGame(x);g.append(b)})}
+function playGame(x){const id='g_'+x[0];if(wins[id]){show(id);return}const w=mkWin(id,x[1],EXT.games,'<div class="gplay"><iframe src="'+x[2]+'" allow="autoplay; fullscreen; gamepad" allowfullscreen></iframe><a class="gpout" href="'+x[2]+'" target="_blank" rel="noopener" title="Open in its own tab">↗</a></div>',{x:200+Math.random()*80,y:40,w:Math.min(960,innerWidth-200),h:Math.min(680,innerHeight-90)})}
 </script>
 </body></html>
