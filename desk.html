@@ -1555,6 +1555,7 @@ body.quickon #welcome{display:none!important}
 .glnote{font:12px 'Fredoka',sans-serif;color:#a07890;text-align:center}
 .gplay{position:relative;height:100%;background:#000}.gplay iframe{width:100%;height:100%;border:0;display:block}
 .gpout{position:absolute;right:8px;bottom:8px;width:26px;height:26px;display:grid;place-items:center;border-radius:5px;background:#fffd;color:#851C41;text-decoration:none;font:15px Tahoma}
+#cflPop .cfimp{text-align:center;margin-top:6px}#cflPop .cfimp button{background:none;border:0;font:inherit;font-size:11px;color:#851C41;text-decoration:underline;cursor:pointer}
 </style></head><body><meta name="robots" content="noindex,nofollow">
 <style>
 #gate{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;background:#5a7edc;font:14px Tahoma,Verdana,sans-serif;color:#fff}
@@ -2430,7 +2431,8 @@ function cflDraw(p,pick){const now=new Date(),d=new Date(now.getFullYear(),now.g
  let g='';for(let i=0;i<first;i++)g+='<i></i>';for(let k=1;k<=days;k++){const e=CFL[key(k)],mo=e&&CFM.find(x=>x[0]===e.m),fut=new Date(y,m,k)>now;g+='<i class="'+(fut?'fut':'')+(off0(k)?' td':'')+'" data-k="'+k+'" title="'+(e?e.m+(e.n?': '+e.n.replace(/"/g,'&quot;'):''):'')+'">'+cupSVG(mo&&mo[1],mo&&mo[2],26)+'<small>'+k+'</small></i>'}
  function off0(k){return cflOff===0&&k===now.getDate()}
  const cnt={};Object.keys(CFL).filter(x=>x.startsWith(y+'-'+(m+1)+'-')).forEach(x=>cnt[CFL[x].m]=(cnt[CFL[x].m]||0)+1);
- p.innerHTML='<div class="cfh"><b>coffeelings</b><span><button data-d="-1">◂</button>'+d.toLocaleDateString('en',{month:'long'}).toLowerCase()+' '+y+'<button data-d="1">▸</button></span></div><div class="cfw"><i>s</i><i>m</i><i>t</i><i>w</i><i>t</i><i>f</i><i>s</i></div><div class="cfg">'+g+'</div><div class="cfk">'+CFM.map(x=>'<span>'+cupSVG(x[1],x[2],14)+x[0]+(cnt[x[0]]?' '+cnt[x[0]]:'')+'</span>').join('')+'</div><div class="cfe" hidden></div>';
+ p.innerHTML='<div class="cfh"><b>coffeelings</b><span><button data-d="-1">◂</button>'+d.toLocaleDateString('en',{month:'long'}).toLowerCase()+' '+y+'<button data-d="1">▸</button></span></div><div class="cfw"><i>s</i><i>m</i><i>t</i><i>w</i><i>t</i><i>f</i><i>s</i></div><div class="cfg">'+g+'</div><div class="cfk">'+CFM.map(x=>'<span>'+cupSVG(x[1],x[2],14)+x[0]+(cnt[x[0]]?' '+cnt[x[0]]:'')+'</span>').join('')+'</div><div class="cfe" hidden></div><div class="cfimp"><button>import from the extension</button><input type="file" accept=".txt" hidden></div>';
+ p.querySelector('.cfimp button').onclick=()=>p.querySelector('.cfimp input').click();p.querySelector('.cfimp input').onchange=ev=>{const f=ev.target.files[0];if(f)cflImport(f,p)};
  p.querySelectorAll('.cfh button').forEach(b=>b.onclick=()=>{cflOff+=+b.dataset.d;cflDraw(p)});
  p.querySelectorAll('.cfg i[data-k]:not(.fut)').forEach(c=>c.onclick=()=>cflEdit(p,key(+c.dataset.k),new Date(y,m,+c.dataset.k)));
  if(pick)cflEdit(p,pick[0],pick[1])}
@@ -2441,6 +2443,7 @@ function cflEdit(p,k,dt){const E=p.querySelector('.cfe'),cur=CFL[k]||{};E.hidden
  E.querySelector('.cfok').onclick=()=>{if(!sel){E.querySelector('b').textContent='pick a cup first';return}CFL[k]={m:sel,n:E.querySelector('textarea').value.trim()};cflSave();cflDraw(p)};
  const del=E.querySelector('.cfdel');if(del)del.onclick=()=>{delete CFL[k];cflSave();cflDraw(p)}}
 document.addEventListener('click',()=>{const p=$('cflPop');p&&p.remove()});
+function cflImport(f,p){const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],MAP={amazing:'rad',ok:'good',tired:'meh',sad:'bad',stressed:'awful'};const ym=(f.name.match(/(20\d\d)/)||[])[1];const rd=new FileReader();rd.onload=()=>{const y=ym||prompt('which year is this file from?',String(new Date().getFullYear()));if(!y)return;let cur=null,n=0;const done=()=>{if(cur&&cur.m){CFL[cur.k]={m:cur.m,n:cur.t.join('\n').trim().slice(0,280)};n++}};String(rd.result).split(/\r?\n/).forEach(l=>{const h=l.match(/^(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (\d{1,2})\s*(?:\/\s*(\w+))?\s*$/);if(h){done();cur={k:y+'-'+(MO.indexOf(h[1])+1)+'-'+(+h[2]),m:MAP[h[3]]||null,t:[]}}else if(cur&&l.trim())cur.t.push(l)});done();cflSave();cflDraw(p);const b=p.querySelector('.cfimp button');if(b)b.textContent=n?'brought in '+n+' days':'no days found in that file'};rd.readAsText(f)}
 
 function gBlip(k){try{const A=sfx(),t=AC.currentTime+.01,seq={key:[[660,.04]],ok:[[520,.07],[440,.09]],win:[[523,.08],[659,.08],[784,.08],[1047,.16]]}[k]||[];let d=t;seq.forEach(([f,l])=>{const o=AC.createOscillator(),g=AC.createGain();o.type='square';o.frequency.value=f;g.gain.setValueAtTime(.035*mv('sounds'),d);g.gain.exponentialRampToValueAtTime(.0005,d+l);o.connect(g);g.connect(A);o.start(d);o.stop(d+l+.02);d+=l})}catch(e){}}
 
