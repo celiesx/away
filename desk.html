@@ -1489,6 +1489,9 @@ img.fdown.sm{width:13px;height:12px}
 #w_vc .vcbo .vcm{width:auto!important;right:auto!important;margin-right:10px!important}
 #w_vc .vcbd .vcst:not(.has){height:0}
 #w_vc .vcbd:hover .vcst{height:auto}
+
+#w_vc .vctime{margin-left:auto;margin-right:8px;font:11px Tahoma;color:#8a8f9a;font-variant-numeric:tabular-nums}
+#w_vc .vcbd .vctime+.vccap{margin-left:0!important}
 </style></head><body><meta name="robots" content="noindex,nofollow">
 <style>
 #gate{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;background:#5a7edc;font:14px Tahoma,Verdana,sans-serif;color:#fff}
@@ -2436,5 +2439,11 @@ const VCST={};
 function vcStatusRows(){document.querySelectorAll('#w_vc .vcbd[data-b=""]').forEach(r=>{if(r.querySelector('.vcst'))return;const key=r.classList.contains('vcpriv')?'priv':'hangout';const d=document.createElement('div');d.className='vcst';const draw=()=>{d.innerHTML='';d.classList.toggle('has',!!VCST[key]);const t=document.createElement('span');t.textContent=VCST[key]||'Set a channel status';d.append(t,Object.assign(document.createElement('i'),{textContent:'✎'}))};draw();
  d.onclick=e=>{e.stopPropagation();if(d.querySelector('input'))return;const i=document.createElement('input');i.maxLength=40;i.value=VCST[key]||'';i.placeholder='what are we doing?';d.innerHTML='';d.append(i);i.focus();const done=()=>{VCST[key]=i.value.trim();draw()};i.onkeydown=ev=>{if(ev.key==='Enter')i.blur();if(ev.key==='Escape'){i.value=VCST[key]||'';i.blur()}};i.onblur=done};r.append(d)})}
 new MutationObserver(()=>{if(wins.vc)vcStatusRows()}).observe(document.body,{childList:true,subtree:true});
+
+/* how long each voice channel has been going */
+const VCT0={hangout:Date.now()-37*60000-12000,priv:null};
+function vcTimers(){const w=wins.vc;if(!w)return;w.querySelectorAll('.vcbd[data-b=""]').forEach(r=>{const key=r.classList.contains('vcpriv')?'priv':'hangout';if(key==='priv'&&!VCT0.priv)VCT0.priv=Date.now();let t=r.querySelector('.vctime');if(!t){t=document.createElement('small');t.className='vctime';const cap=r.querySelector('.vccap');cap?cap.before(t):r.append(t)}
+ const s2=Math.floor((Date.now()-VCT0[key])/1000),h=Math.floor(s2/3600),m=Math.floor(s2%3600/60),sec=s2%60;t.textContent=(h?h+':'+String(m).padStart(2,'0'):String(m).padStart(2,'0'))+':'+String(sec).padStart(2,'0')});if(!w.querySelector('.vcpriv'))VCT0.priv=null}
+setInterval(vcTimers,1000);
 </script>
 </body></html>
