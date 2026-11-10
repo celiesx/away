@@ -1467,6 +1467,28 @@ img.fdown.sm{width:13px;height:12px}
 #wxPop .ld b{font-size:20px!important;line-height:1.05!important}
 #wxPop .ltabs span{padding:2px 12px 3px!important;font-size:13px!important}
 #wxPop .lpost{height:10px!important}
+
+#sm #fly,#sm #fly .smi,#sm #fly .smi b,#sm #fly .smi span{color:#3a1328!important;text-shadow:none!important;background:#fff}
+#sm #fly .smi:hover,#sm #fly .smi:hover b,#sm #fly .smi:hover div{background:#c75f8b!important;color:#fff!important}
+#sm .lall,#sm [class*=allp]{color:#fff}
+
+#w_vc .vcbd[data-b=""]{flex-wrap:wrap}
+#w_vc .vcbd .vcst{flex-basis:100%;margin:0 0 0 30px!important;font-size:12px;color:#6a7080;overflow:hidden;max-height:0;opacity:0;transition:max-height .18s ease,opacity .18s ease,margin .18s ease}
+#w_vc .vcbd .vcst.has,#w_vc .vcbd:hover .vcst{max-height:22px;opacity:1;margin-top:1px!important}
+#w_vc .vcbd .vcst.has span{color:#3a3f4c;font-style:normal}
+#w_vc .vcbd .vcst i{opacity:0;transition:opacity .15s}
+#w_vc .vcbd:hover .vcst i{opacity:.7}
+#w_vc .vcbd .vcst:hover span{text-decoration:none}
+#w_vc .vcbd .vcst:hover i{opacity:1}
+
+#w_vc .vcbo{overflow-x:hidden!important}
+#w_vc .vcbo .vcm{display:flex;align-items:center;min-width:0;box-sizing:border-box;max-width:100%}
+#w_vc .vcmi{padding-right:8px!important}
+
+#w_vc .vcbo .vcm[hidden]{display:none!important}
+#w_vc .vcbo .vcm{width:auto!important;right:auto!important;margin-right:10px!important}
+#w_vc .vcbd .vcst:not(.has){height:0}
+#w_vc .vcbd:hover .vcst{height:auto}
 </style></head><body><meta name="robots" content="noindex,nofollow">
 <style>
 #gate{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;background:#5a7edc;font:14px Tahoma,Verdana,sans-serif;color:#fff}
@@ -2411,8 +2433,8 @@ document.addEventListener('dblclick',e=>{const r=e.target.closest('#w_vc .vcbd[d
 
 /* channel status under each voice channel (like discord) */
 const VCST={};
-function vcStatusRows(){document.querySelectorAll('#w_vc .vcbd[data-b=""]').forEach(r=>{if(r.nextElementSibling&&r.nextElementSibling.classList.contains('vcst'))return;const key=r.classList.contains('vcpriv')?'priv':'hangout';const d=document.createElement('div');d.className='vcst';const draw=()=>{d.innerHTML='';const t=document.createElement('span');t.textContent=VCST[key]||'Set a channel status';t.className=VCST[key]?'set':'';d.append(t,Object.assign(document.createElement('i'),{textContent:'✎'}))};draw();
- d.onclick=e=>{e.stopPropagation();if(d.querySelector('input'))return;const i=document.createElement('input');i.maxLength=40;i.value=VCST[key]||'';i.placeholder='what are we doing?';d.innerHTML='';d.append(i);i.focus();const done=()=>{VCST[key]=i.value.trim();draw()};i.onkeydown=ev=>{if(ev.key==='Enter')i.blur();if(ev.key==='Escape'){i.value=VCST[key]||'';i.blur()}};i.onblur=done};r.after(d)})}
+function vcStatusRows(){document.querySelectorAll('#w_vc .vcbd[data-b=""]').forEach(r=>{if(r.querySelector('.vcst'))return;const key=r.classList.contains('vcpriv')?'priv':'hangout';const d=document.createElement('div');d.className='vcst';const draw=()=>{d.innerHTML='';d.classList.toggle('has',!!VCST[key]);const t=document.createElement('span');t.textContent=VCST[key]||'Set a channel status';d.append(t,Object.assign(document.createElement('i'),{textContent:'✎'}))};draw();
+ d.onclick=e=>{e.stopPropagation();if(d.querySelector('input'))return;const i=document.createElement('input');i.maxLength=40;i.value=VCST[key]||'';i.placeholder='what are we doing?';d.innerHTML='';d.append(i);i.focus();const done=()=>{VCST[key]=i.value.trim();draw()};i.onkeydown=ev=>{if(ev.key==='Enter')i.blur();if(ev.key==='Escape'){i.value=VCST[key]||'';i.blur()}};i.onblur=done};r.append(d)})}
 new MutationObserver(()=>{if(wins.vc)vcStatusRows()}).observe(document.body,{childList:true,subtree:true});
 </script>
 </body></html>
