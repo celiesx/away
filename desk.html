@@ -1423,6 +1423,16 @@ img.fdown.sm{width:13px;height:12px}
 .pkres{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}.pkres button{border:0;padding:0;background:#f3e6ec;height:64px;border-radius:4px;overflow:hidden}.pkres img{width:100%;height:100%;object-fit:cover}
 .pkmsg{grid-column:1/-1;margin:6px 0;color:#888;font:12px Tahoma}.pkby{display:block;margin-top:5px;color:#999;font:10px Tahoma}
 .imimg{max-width:180px!important;max-height:150px!important}
+
+/* blown-up profile shows the whole banner */
+.wfrog.ismax .fban{height:auto!important;aspect-ratio:var(--ar,6/1);background-size:100% 100%!important;max-height:45vh}
+/* my profile: pink buttons/frames, no green */
+.wfrog.mine .fb{background:#f2c9d9!important;box-shadow:inset 0 0 0 2px #b45d86,inset 3px 3px #fde6ef!important}
+.wfrog.mine .fpfp{box-shadow:0 0 0 3px #b45d86!important}
+.wfrog.mine .fpic{box-shadow:inset 0 0 0 2px #b45d86,0 0 0 2px #f2c9d9!important}
+.wfrog.mine .flist{scrollbar-color:#b45d86 #f2c9d9}
+.wfrog.mine .fdform{background:#fbe3ee!important;box-shadow:inset 0 0 0 2px #b45d86!important}
+.wfrog.mine .fstar{fill:#fbe3ee;stroke:#b45d86}
 </style></head><body><meta name="robots" content="noindex,nofollow">
 <style>
 #gate{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;background:#5a7edc;font:14px Tahoma,Verdana,sans-serif;color:#fff}
@@ -1537,7 +1547,7 @@ function mkWin(id,title,icon,html,opt={}){if(wins[id]){show(id);return wins[id]}
  const tb=document.createElement('button');tb.className='tbtn on';tb.innerHTML='<img src="'+icon+'"><span class="tbl">'+title+'</span>';tb.title=title;$('tasks').append(tb);w._tb=tb;
  tb.onclick=()=>{if(w.classList.contains('hide')||!w.classList.contains('top'))show(id);else w.classList.add('hide'),tb.classList.remove('on')};
  w.querySelector('[data-m]').onclick=e=>{e.stopPropagation();w.classList.add('hide');tb.classList.remove('on')};
- w.querySelector('[data-max]').onclick=e=>{e.stopPropagation();if(w._max){Object.assign(w.style,w._max);w._max=null}else{w._max={left:w.style.left,top:w.style.top,width:w.style.width,height:w.style.height};Object.assign(w.style,{left:'0px',top:'0px',width:innerWidth+'px',height:(innerHeight-30)+'px'})}fitAway()};
+ w.querySelector('[data-max]').onclick=e=>{e.stopPropagation();if(w._max){Object.assign(w.style,w._max);w._max=null;w.classList.remove('ismax')}else{w._max={left:w.style.left,top:w.style.top,width:w.style.width,height:w.style.height};w.classList.add('ismax');Object.assign(w.style,{left:'0px',top:'0px',width:innerWidth+'px',height:(innerHeight-30)+'px'})}fitAway()};
  w.querySelector('.wt').ondblclick=e=>{if(!e.target.closest('button'))w.querySelector('[data-max]').click()};
  w.querySelector('[data-x]').onclick=e=>{e.stopPropagation();if(opt.keep){w.classList.add('hide');tb.classList.remove('on');return}w.remove();tb.remove();delete wins[id];opt.onclose&&opt.onclose()};
  const t=w.querySelector('.wt');let d=null;t.addEventListener('pointerdown',e=>{if(e.target.closest('button'))return;d={x:e.clientX-w.offsetLeft,y:e.clientY-w.offsetTop};t.setPointerCapture(e.pointerId);cover(1)});
@@ -2315,7 +2325,7 @@ function gBlip(k){try{const A=sfx(),t=AC.currentTime+.01,seq={key:[[660,.04]],ok
 /* real data for the desktop (only on the live desk page) */
 const DSB=()=>window.deskSb||null;let MEPROF=null;
 async function meProf(){if(MEPROF)return MEPROF;const sb=DSB();if(!sb||!window.deskUid)return null;try{const {data}=await sb.from('profiles').select('banner,avatar,sn').eq('id',window.deskUid).maybeSingle();MEPROF=data}catch(e){}return MEPROF}
-function myBanner(w){meProf().then(p=>{if(!p||!wins.prof)return;const b=w.querySelector('.fban');if(b&&p.banner)b.style.background='url('+p.banner+') center/cover';const im=w.querySelector('.fpfp img');if(im&&p.avatar)im.src=p.avatar})}
+function myBanner(w){meProf().then(p=>{if(!p||!wins.prof)return;const b=w.querySelector('.fban');if(b&&p.banner){b.style.background='url('+p.banner+') center/cover';const im=new Image();im.onload=()=>b.style.setProperty('--ar',im.naturalWidth/im.naturalHeight);im.src=p.banner}const im=w.querySelector('.fpfp img');if(im&&p.avatar)im.src=p.avatar})}
 let EMOTES=null;async function loadEmotes(){if(EMOTES)return EMOTES;const sb=DSB();if(!sb)return EMOTES=[];try{const {data}=await sb.from('emotes').select('name,data').order('name');EMOTES=(data||[]).filter(x=>/^data:image\//.test(x.data))}catch(e){EMOTES=[]}return EMOTES}
 /* bear picker: Emotes (your emotes + kaomoji) | GIFs, like the real site */
 function pickTarget(pk){const box=pk.closest('.wim,.vccomp');return {ta:box&&box.querySelector('textarea,input:not([type=file])'),log:box&&(box.classList.contains('wim')?box.querySelector('.imlog'):box.parentNode.querySelector('.vclog'))}}
