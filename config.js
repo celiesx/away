@@ -3,5 +3,6 @@ window.AWAY_CONFIG = {
   url: 'https://zhvpdphfzbwqlgqqymhs.supabase.co',
   key: 'sb_publishable_cC3d7pbqKgXrLicQ9zjZTg_iStKbCA5',
   spotify: 'd3c3f637021f4b1292f947d6dc388ed4',
+  lastfm: '7862424b8f1ccd89918f795191e0ab20',
   discord: true
 };

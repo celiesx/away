@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="20261109144226">
-<link rel="icon" type="image/png" href="icon-64.png?v=20261109144226">
-<link rel="shortcut icon" href="favicon.ico?v=20261109144226">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261109144226">
-<link rel="manifest" href="manifest.webmanifest?v=20261109144226">
+<meta name="build" content="20261110114841">
+<link rel="icon" type="image/png" href="icon-64.png?v=20261110114841">
+<link rel="shortcut icon" href="favicon.ico?v=20261110114841">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261110114841">
+<link rel="manifest" href="manifest.webmanifest?v=20261110114841">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
 <style>
@@ -823,10 +823,11 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
           <label for="eBio">About me</label><textarea id="eBio" rows="4" maxlength="400"></textarea>
         </details>
         <details class="esec"><summary>Social</summary>
-          <div id="eSpBox" hidden><b>Spotify</b><p class="fine">Show what you are playing on your page automatically. 1. Type your Spotify email and tap Request. 2. Wait for Monica to add you. 3. Tap Connect Spotify.</p>
+          <b>Now playing</b><p class="fine">Show what you are listening to on Spotify, Apple Music, YouTube Music and more. 1. Make a free account at last.fm. 2. Link your music app to it (Spotify: Settings, then Apps, then Last.fm). 3. Type your Last.fm username here and save.</p><label for="eLf">Last.fm username</label><input id="eLf" maxlength="30" autocomplete="off" spellcheck="false" placeholder="your last.fm name">
+          <details id="eSpWrap"><summary class="fine">Have Spotify Premium and want play/skip buttons?</summary><div id="eSpBox" hidden><b>Spotify</b><p class="fine">Show what you are playing on your page automatically. 1. Type your Spotify email and tap Request. 2. Wait for Monica to add you. 3. Tap Connect Spotify.</p>
             <small id="eSpNote" class="muted"></small>
             <div class="avrow"><input id="eSpEm" type="email" maxlength="120" placeholder="your Spotify email" aria-label="Your Spotify email"><button id="eSpReq" class="btn sm" type="button">Request</button></div><small id="eSpReqNote" class="muted"></small>
-            <div class="avrow"><button id="eSpGo" class="btn sm" type="button">Connect Spotify</button><button id="eSpOff" class="btn sm" type="button" hidden>Disconnect</button></div></div>
+            <div class="avrow"><button id="eSpGo" class="btn sm" type="button">Connect Spotify</button><button id="eSpOff" class="btn sm" type="button" hidden>Disconnect</button></div></div></details>
           <label for="eDm">Who can message me</label><select id="eDm"><option value="all">Everyone</option><option value="friends">Friends only</option></select>
           <div id="eFontBox" hidden><label for="eHandFont">Handwriting font for the planner (admin only)</label><input id="eHandFont" type="file" accept=".otf,.ttf,.woff,.woff2"><small id="eFontNote" class="muted"></small><label for="ePdf">Planner PDF (admin only)</label><input id="ePdf" type="file" accept="application/pdf,.pdf"><small id="ePdfNote" class="muted"></small><label for="eCov">Planner covers PDF (admin only)</label><input id="eCov" type="file" accept="application/pdf,.pdf"><small id="eCovNote" class="muted"></small><label for="eStk">Planner stickers: pick both stickers files (admin only)</label><input id="eStk" type="file" multiple accept=".webp,.json"><small id="eStkNote" class="muted"></small></div>
           <p class="muted" style="margin:8px 0 0">Friends are people who accepted your request. Mods can always reach you.</p>
@@ -894,7 +895,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=20261109144226"></script>
+<script src="config.js?v=20261110114841"></script>
 <script>
 (() => {
 'use strict';
@@ -993,10 +994,10 @@ function fromRow(r) {
     song: { title: clamp(r.song_title, 60), url: clamp(r.song_url, 300) },
     links: links.slice(0, 3).map(l => ({ label: clamp(l && l.label, 24), url: clamp(l && l.url, 300) })),
     top: (Array.isArray(r.top) ? r.top : []).filter(x => typeof x === 'string').slice(0, 4),
-    theme: cleanTheme(r.theme), avatar: okAvatar(r.avatar), banner: okBanner(r.banner), wallpaper: okWall(r.wallpaper), wallDim: Number.isFinite(+r.wall_dim) ? Math.max(0, Math.min(90, +r.wall_dim)) : 60, created: r.created_at ? (Date.parse(r.created_at) || 0) : 0, lastSeen: r.last_seen ? (Date.parse(r.last_seen) || 0) : 0, role: r.role === 'admin' || r.role === 'mod' ? r.role : 'member', roleSeen: r.role_seen === 'admin' || r.role_seen === 'mod' ? r.role_seen : 'member', stars: Math.max(0, Number(r.stars) || 0), downs: Math.max(0, Number(r.downs) || 0), mutedUntil: r.muted_until ? (Date.parse(r.muted_until) || 0) : 0, dmFriends: !!r.dm_friends_only
+    theme: cleanTheme(r.theme), avatar: okAvatar(r.avatar), banner: okBanner(r.banner), wallpaper: okWall(r.wallpaper), wallDim: Number.isFinite(+r.wall_dim) ? Math.max(0, Math.min(90, +r.wall_dim)) : 60, created: r.created_at ? (Date.parse(r.created_at) || 0) : 0, lastSeen: r.last_seen ? (Date.parse(r.last_seen) || 0) : 0, role: r.role === 'admin' || r.role === 'mod' ? r.role : 'member', roleSeen: r.role_seen === 'admin' || r.role_seen === 'mod' ? r.role_seen : 'member', stars: Math.max(0, Number(r.stars) || 0), downs: Math.max(0, Number(r.downs) || 0), mutedUntil: r.muted_until ? (Date.parse(r.muted_until) || 0) : 0, dmFriends: !!r.dm_friends_only, lastfm: /^[A-Za-z0-9_-]{1,30}$/.test(r.lastfm || '') ? r.lastfm : ''
   };
 }
-const toRow = p => ({ sn: p.sn, bio: p.bio, away: p.away, away_on: p.awayOn, mood: p.mood, song_title: p.song.title, song_url: p.song.url, links: p.links, top: p.top, theme: p.theme, avatar: p.avatar, banner: p.banner || '', wallpaper: p.wallpaper || '', wall_dim: p.wallDim == null ? 60 : p.wallDim, dm_friends_only: !!p.dmFriends });
+const toRow = p => ({ sn: p.sn, bio: p.bio, away: p.away, away_on: p.awayOn, mood: p.mood, song_title: p.song.title, song_url: p.song.url, links: p.links, top: p.top, theme: p.theme, avatar: p.avatar, banner: p.banner || '', wallpaper: p.wallpaper || '', wall_dim: p.wallDim == null ? 60 : p.wallDim, dm_friends_only: !!p.dmFriends, lastfm: p.lastfm || null });
 
 /* ---------- state ---------- */
 const S = {
@@ -2596,7 +2597,7 @@ async function enterApp() {
   S.signedOn = true; S.selected = S.uid; S.mode = 'login';
   fire(loadHand()); fire(cleanMedia()); if (!S.invis) fire(sb.rpc('touch_seen')); fire(checkWarnings());
   S.showInfo = !isPhone(); S.logUnread = 0; S.modForm = null;
-  fire(spInit()); S.timers.push(setInterval(spPoll, 20000)); S.timers.push(setInterval(npTick, 1000));
+  fire(spInit()); S.timers.push(setInterval(spPoll, 20000)); S.timers.push(setInterval(lfPoll, 25000)); setTimeout(lfPoll, 3000); S.timers.push(setInterval(npTick, 1000));
   S.timers.push(setInterval(() => { if (!S.invis && Date.now() - S.lastAct < 300000 && !document.hidden) fire(sb.rpc('touch_seen')); }, 300000));
   subscribe();
   S.timers.push(setInterval(() => fire(cleanMedia()), 15 * 60000));
@@ -2755,7 +2756,7 @@ function fillTop() {
 }
 function fillEditor() {
   const d = S.draft; fire(renderSp());
-  $('eDm').value = d.dmFriends ? 'friends' : 'all'; $('eFontBox').hidden = !isAdmin(); if (isAdmin()) fire(showUploads()); $('eSn').value = d.sn; $('eBio').value = d.bio; $('eSongT').value = d.song.title; $('eSongU').value = d.song.url;
+  $('eLf').value = d.lastfm || ''; $('eDm').value = d.dmFriends ? 'friends' : 'all'; $('eFontBox').hidden = !isAdmin(); if (isAdmin()) fire(showUploads()); $('eSn').value = d.sn; $('eBio').value = d.bio; $('eSongT').value = d.song.title; $('eSongU').value = d.song.url;
   for (let i = 0; i < 3; i++) { const l = d.links[i] || { label: '', url: '' }; $('eL' + i + 'n').value = l.label; $('eL' + i + 'u').value = l.url; }
   syncLook(); fillTop(); showBnPrev(); showWpPrev(); $('eAvPrev').replaceChildren(avatar(d, 44)); $('eErr').hidden = true;
 }
@@ -2770,7 +2771,7 @@ function syncLook() {
 }
 function readEditor() {
   const d = S.draft;
-  d.dmFriends = $('eDm').value === 'friends'; d.sn = $('eSn').value; d.bio = $('eBio').value; d.song = { title: $('eSongT').value, url: $('eSongU').value };
+  d.dmFriends = $('eDm').value === 'friends'; d.lastfm = ($('eLf').value.trim().match(/^[A-Za-z0-9_-]{1,30}$/) || [''])[0]; d.sn = $('eSn').value; d.bio = $('eBio').value; d.song = { title: $('eSongT').value, url: $('eSongU').value };
   d.links = [0, 1, 2].map(i => ({ label: $('eL' + i + 'n').value, url: $('eL' + i + 'u').value }));
   Object.assign(d.theme, { ac: $('eAc').value, bg: $('eBg').value, fg: $('eFg').value, font: $('eFont').value, pat: $('ePat').value });
 }
@@ -3632,7 +3633,7 @@ async function spToken() {
   try { const j = await spTokenCall({ grant_type: 'refresh_token', refresh_token: t.r }); const n = { a: j.access_token, r: j.refresh_token || t.r, e: Date.now() + j.expires_in * 1000, sc: j.scope || t.sc || '' }; spSet(n); return n.a; }
   catch { spSet(null); return ''; }
 }
-const npOf = id => { const n = id === S.uid ? S.np : (S.online.has(id) && S.pmeta[id] && S.pmeta[id].st !== 'invis' ? S.pmeta[id].np : null); return n && n.t && typeof n.d === 'number' ? { t: clamp(String(n.t), 80), a: clamp(String(n.a || ''), 80), g: /^https:\/\/i\.scdn\.co\//.test(String(n.g || '')) ? String(n.g) : '', d: Math.max(0, +n.d || 0), p: Math.max(0, +n.p || 0), s: +n.s || Date.now(), pz: n.pz ? 1 : 0 } : null; };
+const npOf = id => { const n = id === S.uid ? S.np : (S.online.has(id) && S.pmeta[id] && S.pmeta[id].st !== 'invis' ? S.pmeta[id].np : null); return n && n.t && typeof n.d === 'number' ? { t: clamp(String(n.t), 80), a: clamp(String(n.a || ''), 80), g: /^https:\/\/(i\.scdn\.co|lastfm\.freetls\.fastly\.net)\//.test(String(n.g || '')) ? String(n.g) : '', d: Math.max(0, +n.d || 0), p: Math.max(0, +n.p || 0), s: +n.s || Date.now(), pz: n.pz ? 1 : 0 } : null; };
 const npChip = id => npOf(id) ? h('button', { type: 'button', class: 'npchip', title: 'Open the player', 'aria-label': 'Open the player', onclick: e => { e.stopPropagation(); openPlayer(id); } }, '\u266a') : null;
 function svgIc(kind) {
   const NS = 'http://www.w3.org/2000/svg', svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('width', '16'); svg.setAttribute('height', '16'); svg.setAttribute('aria-hidden', 'true');
@@ -3680,10 +3681,26 @@ function npCard(np, href) {
   const bar = h('i', { class: 'npfill' }), el = h('span', {}, '0:00'), tot = h('span', {}, fmtT(np.d));
   const card = h('div', { class: 'npcard', 'data-p': String(np.p), 'data-s': String(np.s), 'data-d': String(np.d), 'data-pz': String(np.pz || 0) },
     np.g ? h('img', { class: 'npart', src: np.g, alt: '', width: 64, height: 64 }) : null,
-    h('div', { class: 'npinfo' }, href ? h('a', { class: 'npt', href, target: '_blank', rel: 'noopener noreferrer', title: 'Open in Spotify' }, np.t) : h('b', {}, np.t), h('small', {}, np.a), h('div', { class: 'npbar' }, bar), h('div', { class: 'nptimes' }, el, tot)));
+    h('div', { class: 'npinfo' }, href ? h('a', { class: 'npt', href, target: '_blank', rel: 'noopener noreferrer', title: /last\.fm/.test(href) ? 'Open on Last.fm' : 'Open in Spotify' }, np.t) : h('b', {}, np.t), h('small', {}, np.a), np.d ? h('div', { class: 'npbar' }, bar) : h('small', { class: 'npnow' }, '\u266a now playing'), np.d ? h('div', { class: 'nptimes' }, el, tot) : null));
   card._f = [bar, el]; return card;
 }
 function npTick() { for (const c of document.querySelectorAll('.npcard')) { const d = +c.dataset.d, e = c.dataset.pz === '1' ? +c.dataset.p : Math.min(d, +c.dataset.p + Date.now() - +c.dataset.s); if (!c._f) { const f = c.querySelector('.npfill'), t = c.querySelector('.nptimes span'); c._f = [f, t]; } c._f[0].style.width = (d ? Math.min(100, e / d * 100) : 0) + '%'; c._f[1].textContent = fmtT(e); } }
+let lfBusy = false;
+async function lfPoll() {
+  const me = mine(); if (!CFG.lastfm || !S.signedOn || S.invis || lfBusy || spGet() || !me || !me.lastfm) return;
+  lfBusy = true;
+  try {
+    const r = await fetch('https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&limit=1&format=json&api_key=' + encodeURIComponent(CFG.lastfm) + '&user=' + encodeURIComponent(me.lastfm));
+    if (!r.ok) return;
+    const j = await r.json(), t = j && j.recenttracks && [].concat(j.recenttracks.track || [])[0];
+    if (!t || !(t['@attr'] && t['@attr'].nowplaying === 'true')) { if (S.np && S.np.lf) spNp(null); return; }
+    const name = clamp(t.name || '', 80), art = clamp((t.artist && (t.artist['#text'] || t.artist.name)) || '', 80), img = ((t.image || []).slice(-1)[0] || {})['#text'] || '';
+    const prev = S.np && S.np.lf && S.np.t === name && S.np.a === art ? S.np : null;
+    spNp({ t: name, a: art, g: /^https:\/\/lastfm\.freetls\.fastly\.net\//.test(img) ? img : '', d: 0, p: prev ? prev.p + Date.now() - prev.s : 0, s: Date.now(), u: safeUrl(t.url || '') || '', pz: 0, lf: 1 });
+    const title = clamp(art + ' - ' + name, 60), url = clamp(safeUrl(t.url || '') || '', 300);
+    if (me.song.title !== title) { const { error } = await sb.from('profiles').update({ song_title: title, song_url: url }).eq('id', S.uid); if (!error) { me.song = { title, url }; renderMe(); renderBuddies(); renderProfile(); } }
+  } catch { /* try again later */ } finally { lfBusy = false; }
+}
 async function spPoll() {
   if (!CFG.spotify || !S.signedOn || !sb || S.invis || spBusy || Date.now() < spPause) return;
   const tok = await spToken(); if (!tok) return;
@@ -3706,7 +3723,7 @@ async function spPoll() {
 }
 async function renderSp() {
   const box = $('eSpBox'); if (!box) return; box.hidden = !CFG.spotify; if (!CFG.spotify) return;
-  const on = !!spGet();
+  const on = !!spGet(); if (on || isAdmin()) $('eSpWrap').open = true;
   $('eSpGo').hidden = on; $('eSpOff').hidden = !on; $('eSpNote').textContent = on ? '✓ Connected. Your song updates by itself while you are signed on.' : 'Not connected yet.';
   const { data } = await sb.from('spotify_requests').select('email').eq('owner', S.uid).maybeSingle();
   $('eSpEm').value = data ? data.email : ''; $('eSpReqNote').textContent = data ? 'Requested. Once Monica adds you, tap Connect Spotify.' : '';
@@ -4039,12 +4056,12 @@ window.addEventListener('focus', () => { if (S.pings) { S.pings = 0; setBadge();
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '20261109144226' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '20261110114841' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '20261109144226') { newBuild = m[1]; updFlag(); }
+    if (m && m[1] !== BUILD && m[1] !== '20261110114841') { newBuild = m[1]; updFlag(); }
   } catch {}
 }
 function updFlag() {
