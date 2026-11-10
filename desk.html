@@ -2447,5 +2447,9 @@ const VCT0={hangout:Date.now()-37*60000-12000,priv:null};
 function vcTimers(){const w=wins.vc;if(!w)return;w.querySelectorAll('.vcbd[data-b=""]').forEach(r=>{const key=r.classList.contains('vcpriv')?'priv':'hangout';if(key==='priv'&&!VCT0.priv)VCT0.priv=Date.now();let t=r.querySelector('.vctime');if(!t){t=document.createElement('small');t.className='vctime';const cap=r.querySelector('.vccap');cap?cap.before(t):r.append(t)}
  const s2=Math.floor((Date.now()-VCT0[key])/1000),h=Math.floor(s2/3600),m=Math.floor(s2%3600/60),sec=s2%60;t.textContent=(h?h+':'+String(m).padStart(2,'0'):String(m).padStart(2,'0'))+':'+String(sec).padStart(2,'0')});if(!w.querySelector('.vcpriv'))VCT0.priv=null}
 setInterval(vcTimers,1000);
+
+/* start menu closes when you click anywhere else, even inside a window's page */
+document.addEventListener('pointerdown',e=>{const sm=$('sm');if(sm&&sm.classList.contains('on')&&!e.target.closest('#sm,#start'))closeMenu()},true);
+addEventListener('blur',()=>setTimeout(()=>{const sm=$('sm');if(sm&&sm.classList.contains('on')&&document.activeElement&&document.activeElement.tagName==='IFRAME')closeMenu()},0));
 </script>
 </body></html>
