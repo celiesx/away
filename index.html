@@ -1841,7 +1841,7 @@ body.real #vcPrivBtn{display:none!important}
 #boot.run .bt-pw{display:none}
 #boot .bt-foot{position:absolute;left:24px;bottom:18px;font-size:11px;color:#8a8a8a}
 #boot .bt-foot2{position:absolute;right:24px;bottom:16px;font:italic bold 13px Tahoma,Verdana,sans-serif!important;color:#ddd}
-</style><link rel="icon" type="image/png" href="icon-64.png?v=desk2"><link rel="shortcut icon" href="favicon.ico?v=desk2"><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body><script>window.DESKBUILD=297</script><meta name="robots" content="noindex,nofollow">
+</style><link rel="icon" type="image/png" href="icon-64.png?v=desk2"><link rel="shortcut icon" href="favicon.ico?v=desk2"><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body><script>window.DESKBUILD=298</script><meta name="robots" content="noindex,nofollow">
 <script>(function(){var q=location.search,h=location.hash;if(/[?&](code|state|error)=/.test(q)||/access_token|type=recovery|error_description/.test(h)){location.replace('app.html'+q+h)}})();</script>
 <style>
 #gate{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;background:#000;font:14px Tahoma,Verdana,sans-serif;color:#fff}
@@ -2521,7 +2521,7 @@ $('lkGo').onclick=()=>{signedIn=true;$('lkBox').hidden=true;document.getElementB
 /* boot: power on -> whirr + startup sound + chime first, then welcome/desktop */
 const _bootA=new Audio('snd/startup.mp3');_bootA.preload='auto';_bootA.volume=.8;try{_bootA.load()}catch(e){}
 function bootSnd(){window._booted=true;try{pcHum(true)}catch(e){}try{_bootA.currentTime=0;_bootA.play().catch(()=>{})}catch(e){}setTimeout(()=>{try{chime(true)}catch(e){}},700)}
-(function(){const B=$('boot');if(!B)return;if(navigator.webdriver&&!/boot/.test(location.hash)){B.remove();return}$('btLogo').src=APPICON;{const d=new Date(document.lastModified);$('btVer').textContent='Version 1.0 \u00b7 Build '+(window.DESKBUILD||'')+(window.DESKBUILD?'.':'')+String(d.getFullYear()).slice(2)+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')}let go=false;
+(function(){const B=$('boot');if(!B)return;if(navigator.webdriver&&!/boot/.test(location.hash)){B.remove();return}try{if(sessionStorage.getItem('am.powered')){sessionStorage.removeItem('am.powered');window._booted=true;B.remove();return}}catch(e){}$('btLogo').src=APPICON;{const d=new Date(document.lastModified);$('btVer').textContent='Version 1.0 \u00b7 Build '+(window.DESKBUILD||'')+(window.DESKBUILD?'.':'')+String(d.getFullYear()).slice(2)+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')}let go=false;
  const start=()=>{if(go)return;go=true;B.classList.add('press');bootSnd();setTimeout(()=>B.classList.add('run'),600);setTimeout(()=>{B.classList.add('out');setTimeout(()=>B.remove(),1700)},7000)};
  B.querySelector('.bt-pw b').addEventListener('click',e=>{e.stopPropagation();start()});addEventListener('keydown',function k(e){if(!document.contains(B)){removeEventListener('keydown',k);return}if(!go&&(e.key==='Enter'||e.key===' ')){e.preventDefault();start();removeEventListener('keydown',k)}})})();
 
