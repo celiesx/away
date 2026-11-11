@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="310">
-<link rel="icon" type="image/png" href="icon-64.png?v=310">
-<link rel="shortcut icon" href="favicon.ico?v=310">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=310">
-<link rel="manifest" href="manifest.webmanifest?v=310">
+<meta name="build" content="311">
+<link rel="icon" type="image/png" href="icon-64.png?v=311">
+<link rel="shortcut icon" href="favicon.ico?v=311">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=311">
+<link rel="manifest" href="manifest.webmanifest?v=311">
 <script>window.__errs=[];addEventListener('error',function(e){__errs.push(String(e.message).slice(0,200)+' @'+e.lineno+':'+e.colno)});addEventListener('unhandledrejection',function(e){__errs.push('rej '+String(e.reason&&e.reason.message||e.reason).slice(0,200))});</script>
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -154,7 +154,7 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 #xpBoot .xb-logo{display:flex;align-items:center;gap:12px}#xpBoot .xb-logo img{width:56px;height:56px}
 #xpBoot .xb-logo b{font:italic bold 32px Tahoma,sans-serif}#xpBoot .xb-logo i{color:#ff9a2e;font-size:15px;vertical-align:super}
 #xpBoot .xb-bar{width:118px;height:14px;border:2px solid #b5b5b5;border-radius:4px;position:relative;overflow:hidden}
-#xpBoot .xb-bar span{position:absolute;top:50%;transform:translateY(-50%);left:-30px;display:flex;gap:2px;animation:xbs 1.6s linear infinite}#xpBoot .xb-bar span i{width:8px;height:8px;border-radius:1px;background:linear-gradient(#9cc0ff,#2e62d9 55%,#1c3f9c)}
+#xpBoot .xb-bar span{position:absolute;top:50%;transform:translateY(-50%);left:-30px;display:flex;gap:2px;animation:xbs 1.6s linear infinite}#xpBoot .xb-bar span i{width:8px;height:8px;border-radius:1px;background:linear-gradient(#ffd29a,#ff8a1e 55%,#d55e00)}
 @keyframes xbs{to{left:122px}}
 #xpBoot .xb-logo img{width:64px!important;height:64px!important;object-fit:contain}
 #xpBoot .xb-bar{opacity:0;transition:opacity .8s ease .2s}#xpBoot.run .xb-bar{opacity:1}
@@ -163,7 +163,7 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 #xbPw{width:40px;height:40px;border-radius:50%;border:2px solid #555;display:grid;place-items:center;background:radial-gradient(circle at 40% 35%,#3a3a3a,#111);box-shadow:0 0 12px #ff8a1e33;cursor:pointer;padding:0}#xbPw svg{width:20px;height:20px}
 #xbPw:hover{border-color:#ff9a2e;box-shadow:0 0 16px #ff8a1e88}
 #xpBoot.press #xbPw{border-color:#5fd34a;background:radial-gradient(circle at 40% 35%,#5fd34a,#1f7a17);box-shadow:0 0 18px #5fd34aaa}#xpBoot.press #xbPw path{fill:#eaffdf}
-#xpBoot .xb-bar span{animation:none!important;transform:translate(-30px,-50%);left:0!important}#xpBoot.run .xb-bar span{animation:xbs2 1.9s linear infinite!important}#xpBoot .xb-logo{transform:translateY(46px) scale(.92);transition:opacity 1.2s ease,filter 1.2s ease,transform 1.4s cubic-bezier(.22,.9,.3,1)!important}#xpBoot.run .xb-logo{transform:none}#xpBoot .xb-bar{transform:translateY(14px);transition:opacity 1s ease .5s,transform 1.2s cubic-bezier(.22,.9,.3,1) .4s!important}#xpBoot.run .xb-bar{transform:none}
+#xpBoot .xb-bar span{animation:none!important;transform:translate(-30px,-50%);left:0!important}#xpBoot.run .xb-bar span{animation:xbs2 1.9s linear infinite!important}#xpBoot .xb-logo{transform:translateY(-56px) scale(.96);transition:opacity 1.2s ease,filter 1.2s ease,transform 2.2s cubic-bezier(.33,.0,.2,1)!important}#xpBoot.run .xb-logo{transform:none}#xpBoot .xb-bar{transform:none;transition:opacity 1.2s ease 1.1s!important}#xpBoot.run .xb-bar{transform:none}
 @keyframes xbs2{to{transform:translate(122px,-50%)}}
 
 #xpBoot small{position:absolute;left:20px;bottom:16px;color:#888;font-size:11px}
@@ -805,6 +805,24 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 .callbox{position:fixed;right:16px;bottom:16px;z-index:9999;display:flex;align-items:center;gap:10px;min-width:260px;max-width:340px;padding:10px 12px;background:var(--bg,#fff);color:inherit;border:1px solid var(--line,#888);border-radius:var(--rx,8px);box-shadow:0 6px 24px #0004}
 .callbox .grow{min-width:0}.callbox .cst{font-size:12px;opacity:.75}.callbox .cwhy{font-size:12px;font-style:italic}.callbox .ctm{font-size:12px;font-variant-numeric:tabular-nums}.callbox .cbt{display:flex;flex-direction:column;gap:4px}.callbox .btn.danger{color:#b3261e}
 #callBtn{width:auto;padding:0 6px;font-size:11px}
+
+#signon.xpso .so-optin{border-radius:6px 6px 3px 3px!important;background:#fff!important;border:1px solid #0831d9!important;padding:0 0 4px!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;box-shadow:3px 3px 10px #0007!important;font-family:Tahoma,Verdana,sans-serif!important;gap:0!important}
+#signon.xpso .so-opttl{margin:0 0 4px!important;padding:5px 10px!important;text-align:left!important;color:#fff!important;font:bold 13px Tahoma,sans-serif!important;background:linear-gradient(#0a5ff0,#3d95ff 8%,#0b61e5 40%,#0053e0 88%,#0646c0)!important;border-radius:5px 5px 0 0}
+#signon.xpso .so-row{padding:5px 12px!important;font:12px Tahoma,sans-serif!important;color:#000!important;border-radius:0!important;transition:background .12s,color .12s}
+#signon.xpso .so-row::before{content:'';width:16px;height:16px;border-radius:3px;background:linear-gradient(#7ad35f,#2f9a1f)!important;box-shadow:inset 0 0 0 1px #1d6b12;font-size:0}
+#signon.xpso .so-row.so-x2::before{background:linear-gradient(#f39a7d,#d0441c)!important;box-shadow:inset 0 0 0 1px #8c240e}
+#signon.xpso .so-row:hover,#signon.xpso .so-row:focus-visible{background:#316ac5!important;color:#fff!important}
+#signon.xpso .so-row:hover::before{filter:brightness(1.15)}
+#signon.xpso .so-optbtn:hover{color:#ffd28a!important}
+.so-helpov{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:#0005!important}
+#signon.xpso .so-helpov .sohelp,.so-helpov .sohelp{background:#ece9d8!important;color:#000!important;border:0!important;border-radius:8px 8px 0 0!important;padding:0 0 10px!important;box-shadow:0 0 0 1px #0831d9,4px 4px 14px #0008!important;font:12px/1.5 Tahoma,sans-serif!important;max-width:440px!important}
+.so-helpov .sohelp h3{margin:0 0 8px!important;padding:6px 40px 6px 10px!important;border:0!important;color:#fff!important;font:bold 13px Tahoma,sans-serif!important;background:linear-gradient(#0a5ff0,#3d95ff 8%,#0b61e5 40%,#0053e0 88%,#0646c0)!important;border-radius:8px 8px 0 0;text-shadow:1px 1px #0a2a7a;position:sticky;top:0;z-index:1}
+.so-helpov .sohelp p{margin:0 10px!important;padding:8px 10px!important;background:#fff;border:0!important;border-left:1px solid #7f9db9!important;border-right:1px solid #7f9db9!important}
+.so-helpov .sohelp h3+p{border-top:1px solid #7f9db9!important}.so-helpov .sohelp p:last-child{border-bottom:1px solid #7f9db9!important}
+.so-helpov .sohelp p b{color:#0b3d91!important}
+.so-helpov .sohelp p i{font-style:normal!important;opacity:.8}
+.so-helpov #soHelpX{position:absolute!important;top:4px!important;right:6px!important;z-index:2;width:21px!important;height:21px!important;border-radius:3px!important;border:1px solid #fff!important;background:linear-gradient(#e5826a,#c13c13)!important;color:#fff!important;font:bold 14px/18px Tahoma!important;padding:0!important;box-shadow:none!important}
+.so-helpov #soHelpX:hover{filter:brightness(1.15)}
 </style>
 </head>
 <body>
@@ -985,7 +1003,7 @@ document.getElementById("xbPw").addEventListener("click",start);addEventListener
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=310"></script>
+<script src="config.js?v=311"></script>
 <script>
 (() => {
 'use strict';
@@ -2722,7 +2740,7 @@ async function loadHand() {
 async function enterApp() {
   try { const { data: lf } = await sb.from('site_flags').select('val').eq('key', 'locked').maybeSingle(); if (lf) LOCKED = lf.val === true; } catch {}
   { const me = S.profiles.get(S.uid); if (LOCKED && (!me || me.role !== 'admin')) { lockScreen(); return await new Promise(() => {}); } }
-  if (LOCKED && !/[?&]desk=1/.test(location.search) && window.top === window) { location.replace('./'); return await new Promise(() => {}); }
+  if (LOCKED && !/[?&]desk=1/.test(location.search) && window.top === window) { try { localStorage.setItem('deskOn', '1'); sessionStorage.setItem('am.powered', '1'); } catch {} location.replace('./'); return await new Promise(() => {}); }
   S.awayNote = '';
   S.tone = LS.get('am.tone') || 'classic'; S.pmeta = {}; S.lastAct = Date.now(); S.lastTracked = ''; S.dnd = LS.get('am.dnd') === '1'; S.invis = LS.get('am.invis') === '1';
   S.notes = new Map(); S.emotes = new Map(); S.reacts = new Map(); S.channels = new Map(); S.pins = new Map(); S.bms = []; S.infoTab = 'members'; S.msgs = []; S.msgIds = new Set(); S.sys = []; S.unread = {}; S.opened = new Set(); S.conv = 'lounge'; S.online = new Set(); S.presLive = false; S.presSettled = false;
@@ -4288,12 +4306,12 @@ window.addEventListener('focus', () => { if (S.pings) { S.pings = 0; setBadge();
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '310' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '311' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '310') { newBuild = m[1]; updFlag(); }
+    if (m && m[1] !== BUILD && m[1] !== '311') { newBuild = m[1]; updFlag(); }
   } catch {}
 }
 function updFlag() {
