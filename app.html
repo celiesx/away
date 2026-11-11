@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="323">
-<link rel="icon" type="image/png" href="icon-64.png?v=323">
-<link rel="shortcut icon" href="favicon.ico?v=323">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=323">
-<link rel="manifest" href="manifest.webmanifest?v=323">
+<meta name="build" content="324">
+<link rel="icon" type="image/png" href="icon-64.png?v=324">
+<link rel="shortcut icon" href="favicon.ico?v=324">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=324">
+<link rel="manifest" href="manifest.webmanifest?v=324">
 <script>window.__errs=[];addEventListener('error',function(e){__errs.push(String(e.message).slice(0,200)+' @'+e.lineno+':'+e.colno)});addEventListener('unhandledrejection',function(e){__errs.push('rej '+String(e.reason&&e.reason.message||e.reason).slice(0,200))});</script>
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -210,7 +210,18 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .pop{font-family:VT323,Terminal,'Courier New',monospace;font-size:17px;position:absolute;width:min(86%,330px);max-height:min(60vh,420px);display:flex;flex-direction:column;pointer-events:auto;background:var(--panel);color:var(--fg);border:2px solid var(--ac);box-shadow:3px 3px 0 #0006}
 .poptb{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:3px 4px 3px 9px;background:var(--ac);color:var(--oc,#fff);font-weight:800}
 .poptb{font-size:19px;letter-spacing:.03em}
-.bdrow{display:flex;gap:6px}.bdrow select{flex:1}
+.bdrow{display:flex;gap:6px}
+.a98ov{position:fixed;inset:0;z-index:9999;display:grid;place-items:center;background:transparent}
+.a98{background:#c0c0c0;color:#000;font:12px Tahoma,'MS Sans Serif',sans-serif;box-shadow:inset -1px -1px #000,inset 1px 1px #dfdfdf,inset -2px -2px #808080,inset 2px 2px #fff;padding:3px;min-width:280px;max-width:min(92vw,380px)}
+.a98t{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(90deg,#000080,#1084d0);color:#fff;font-weight:bold;padding:2px 3px 2px 4px}
+.a98x{width:16px;height:14px;padding:0;border:0;border-radius:0;background:#c0c0c0 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='14' shape-rendering='crispEdges'%3E%3Cpath d='M4 3h2v1h1v1h2V4h1V3h2v1h-1v1h-1v1H9v2h1v1h1v1h1v1h-2v-1H9V9H7v1H6v1H4v-1h1V9h1V8h1V6H6V5H5V4H4z' fill='%23000'/%3E%3C/svg%3E") center/16px 14px no-repeat;box-shadow:inset -1px -1px #000,inset 1px 1px #fff,inset -2px -2px #808080,inset 2px 2px #dfdfdf;cursor:pointer}
+.a98ic{width:32px;height:32px;flex:none}.a98m{display:flex;gap:12px;align-items:flex-start;padding:14px 12px 8px}.a98m p{margin:2px 0 8px;line-height:1.4}
+.a98i{flex:none;width:32px;height:32px;border-radius:50%;background:#fff;border:2px solid #000080;color:#000080;font:bold 20px/28px 'Times New Roman',serif;font-style:normal;text-align:center}.a98i.w{border-radius:0;border:0;background:none;width:0;height:0;border-left:17px solid transparent;border-right:17px solid transparent;border-bottom:30px solid #ffd800;position:relative;color:#000;font:bold 16px/1 Tahoma;text-indent:-4px;line-height:36px}
+.a98in{width:100%;box-sizing:border-box;font:12px Tahoma;padding:2px 3px;border:0;box-shadow:inset 1px 1px #808080,inset -1px -1px #fff,inset 2px 2px #000,inset -2px -2px #dfdfdf;background:#fff;color:#000;border-radius:0}
+.a98f{display:flex;justify-content:center;gap:6px;padding:4px 8px 8px}
+.a98b{min-width:75px;height:23px;font:12px Tahoma;color:#000;background:#c0c0c0;border:0;border-radius:0;box-shadow:inset -1px -1px #000,inset 1px 1px #fff,inset -2px -2px #808080,inset 2px 2px #dfdfdf;cursor:pointer;padding:0 10px}.a98b.def{outline:1px solid #000;outline-offset:0}.a98b:active{box-shadow:inset 1px 1px #000,inset -1px -1px #fff,inset 2px 2px #808080}.a98b:hover{outline:1px solid #000}
+.npfind{position:absolute;right:14px;top:56px;z-index:6;min-width:330px}.npfb{display:flex;gap:8px;padding:10px 8px 8px}.npfl{flex:1;display:flex;flex-direction:column;gap:8px}.npfl>label{display:flex;align-items:center;gap:6px;white-space:nowrap}.npfo{display:flex;justify-content:space-between;align-items:flex-end;gap:8px}.npfo fieldset{border:1px solid #808080;box-shadow:1px 1px #fff;padding:2px 8px 4px;margin:0;display:flex;gap:10px}.npfo legend{padding:0 2px}.npfo label,.npmc{display:flex;align-items:center;gap:3px}.npfbt{display:flex;flex-direction:column;gap:5px}
+.bdrow select{flex:1}
 .pop .poptb{background:linear-gradient(#f9d3e3,#f2b3cd 45%,#e996b9)!important;color:#5a2340!important;text-shadow:0 1px 0 #ffffff99;border-bottom:1px solid #b45d86;padding:2px 3px 2px 8px;font-size:15px}
 .pop .poptb button{width:18px;height:16px;padding:0;border:0;border-radius:0;background:#c0c0c0 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='14' shape-rendering='crispEdges'%3E%3Cpath d='M4 3h2v1h1v1h2V4h1V3h2v1h-1v1h-1v1H9v2h1v1h1v1h1v1h-2v-1H9V9H7v1H6v1H4v-1h1V9h1V8h1V6H6V5H5V4H4z' fill='%23000'/%3E%3C/svg%3E") center/16px 14px no-repeat;box-shadow:inset -1px -1px #000,inset 1px 1px #fff,inset -2px -2px #808080,inset 2px 2px #dfdfdf;color:transparent;font-size:0;cursor:pointer}
 .pop .poptb button:active{box-shadow:inset 1px 1px #000,inset -1px -1px #fff,inset 2px 2px #808080}
@@ -1008,7 +1019,7 @@ document.getElementById("xbPw").addEventListener("click",start);addEventListener
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=323"></script>
+<script src="config.js?v=324"></script>
 <script>
 (() => {
 'use strict';
@@ -1643,7 +1654,7 @@ function fileEl(m) {
   const mineMsg = m.uid === S.uid;
   const b = h('button', { class: 'fchip', type: 'button' }, '\u{1F4C4} ' + (m.fname || 'file.pdf'), m.once ? h('small', {}, mineMsg ? ' view once' : ' view once, open it only when ready') : null);
   b.onclick = async () => {
-    if (m.once && !mineMsg && !confirm('This file can only be opened once. When it opens, save it right away. Open it now?')) return;
+    if (m.once && !mineMsg && !(await ask98('This file can only be opened once. When it opens, save it right away. Open it now?', { ok: 'Open' }))) return;
     const w = window.open('', '_blank');
     const { data, error } = await sb.storage.from('media').createSignedUrl(m.image, m.once && !mineMsg ? 120 : 3600);
     if (error || !data) { if (w) w.close(); S.extra = m.once && !mineMsg ? 'That file was already opened, or it expired.' : 'That file is not available anymore.'; renderNote(); clearExtraSoon(); return; }
@@ -2011,13 +2022,13 @@ async function friendAct(id, accept) {
 function iconBtn(src, label, onclick, extra) { return h('button', { class: 'ibtn' + (extra ? ' ' + extra : ''), type: 'button', title: label, 'aria-label': label, onclick }, h('img', { src, alt: '', width: 22, height: 22 })); }
 function friendBtn(id) {
   const f = frOf(id), lab = !f ? 'Add friend' : f.st === 'sent' ? 'Request sent. Tap to cancel' : f.st === 'got' ? 'Accept friend request' : 'Friends. Tap to remove';
-  return iconBtn(f && f.st === 'friend' ? IC_FR : IC_ADD, lab, () => { if (f && f.st === 'friend' && !confirm('Remove this friend?')) return; friendAct(id); }, f && f.st === 'got' ? 'hot' : f && f.st === 'sent' ? 'dim' : '');
+  return iconBtn(f && f.st === 'friend' ? IC_FR : IC_ADD, lab, async () => { if (f && f.st === 'friend' && !(await ask98('Remove this friend?', { ok: 'Remove' }))) return; friendAct(id); }, f && f.st === 'got' ? 'hot' : f && f.st === 'sent' ? 'dim' : '');
 }
 async function purgeRoom() {
   if (!isAdmin()) return say('Only the admin can do that.');
   if (!isRoom(S.conv)) return say('/purge only works in the lounge or a board.');
   const ch = S.conv === 'lounge' ? null : S.conv.slice(2), where = S.conv === 'lounge' ? 'the lounge' : '#' + ((S.channels.get(ch) || {}).name || 'this board');
-  if (!confirm('Delete every message in ' + where + ' for everyone? This cannot be undone.')) return;
+  if (!(await ask98('Delete every message in ' + where + ' for everyone? This cannot be undone.', { warn: 1, ok: 'Delete' }))) return;
   const { data, error } = await sb.rpc('purge_room', { p_channel: ch });
   if (error) return say('Could not clear that.');
   if (Array.isArray(data) && data.length) fire(sb.storage.from('media').remove(data));
@@ -2297,7 +2308,7 @@ async function makeChannel(e) {
 async function delChannel() {
   const id = S.conv.startsWith('c:') ? S.conv.slice(2) : '', c = S.channels.get(id);
   if (!c || c.by !== S.uid) return;
-  if (!confirm('Delete #' + c.name + ' and everything in it?')) return;
+  if (!(await ask98('Delete #' + c.name + ' and everything in it?', { warn: 1, ok: 'Delete' }))) return;
   const { error } = await sb.from('channels').delete().eq('id', id);
   if (error) { S.extra = 'Could not delete that board.'; renderNote(); clearExtraSoon(); return; }
   dropChannel(id);
@@ -2319,7 +2330,7 @@ function renderPin() {
     h('button', { class: 'x', type: 'button', 'aria-label': 'Unpin', onclick: () => unpin(p.id) }, '\u00d7'));
 }
 async function delMsg(m) {
-  if (!confirm(m.uid === S.uid ? 'Delete this message for everyone?' : 'Delete this message from ' + ((profileOf(m.uid) || {}).sn || 'them') + '? The mods and admin will see that you did.')) return;
+  if (!(await ask98(m.uid === S.uid ? 'Delete this message for everyone?' : 'Delete this message from ' + ((profileOf(m.uid) || {}).sn || 'them') + '? The mods and admin will see that you did.', { ok: 'Delete' }))) return;
   const { error } = await sb.from('messages').delete().eq('id', Number(m.id));
   if (error) { S.extra = 'Could not delete that.'; renderNote(); clearExtraSoon(); return; }
   if (m.image && m.uid === S.uid) fire(sb.storage.from('media').remove([m.image]));
@@ -4005,6 +4016,22 @@ function wireSp() {
     $('eSpReqNote').textContent = error ? 'That did not go through.' : 'Sent. Once Monica adds you, tap Connect Spotify.';
   });
 }
+
+function ask98(msg, o) {
+  o = o || {};
+  return new Promise(res => {
+    const prev = document.activeElement;
+    const inp = o.input ? h('input', { class: 'a98in', value: o.val || '', maxlength: '200' }) : null;
+    const done = v => { ov.remove(); document.removeEventListener('keydown', key, true); try { prev && prev.focus && prev.focus(); } catch {} res(v); };
+    const key = e => { if (e.key === 'Escape') { e.preventDefault(); done(o.input ? null : false); } else if (e.key === 'Enter') { e.preventDefault(); done(o.input ? inp.value : true); } };
+    const ok = h('button', { class: 'a98b def', type: 'button', onclick: () => done(o.input ? inp.value : true) }, o.ok || 'OK');
+    const ov = h('div', { class: 'a98ov' }, h('div', { class: 'a98', role: 'dialog', 'aria-modal': 'true' },
+      h('div', { class: 'a98t' }, h('span', {}, o.title || 'Away Message'), h('button', { class: 'a98x', type: 'button', 'aria-label': 'Close', onclick: () => done(o.input ? null : false) })),
+      h('div', { class: 'a98m' }, o.input ? null : h('img', { class: 'a98ic', alt: '', src: o.warn ? "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Cpath%20d%3D%27M16%202%2031%2029H1z%27%20fill%3D%27%23ffd800%27%20stroke%3D%27%23000%27%20stroke-width%3D%271.5%27%20stroke-linejoin%3D%27round%27/%3E%3Crect%20x%3D%2714.5%27%20y%3D%2710%27%20width%3D%273%27%20height%3D%2711%27%20fill%3D%27%23000%27/%3E%3Crect%20x%3D%2714.5%27%20y%3D%2723%27%20width%3D%273%27%20height%3D%273%27%20fill%3D%27%23000%27/%3E%3C/svg%3E" : "data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2032%2032%27%3E%3Ccircle%20cx%3D%2716%27%20cy%3D%2716%27%20r%3D%2714%27%20fill%3D%27%23fff%27%20stroke%3D%27%23000080%27%20stroke-width%3D%272%27/%3E%3Ctext%20x%3D%2716%27%20y%3D%2723%27%20font-family%3D%27Times%20New%20Roman%2Cserif%27%20font-weight%3D%27bold%27%20font-size%3D%2720%27%20text-anchor%3D%27middle%27%20fill%3D%27%23000080%27%3E%3F%3C/text%3E%3C/svg%3E" }), h('div', {}, h('p', {}, msg), inp)),
+      h('div', { class: 'a98f' }, ok, h('button', { class: 'a98b', type: 'button', onclick: () => done(o.input ? null : false) }, o.input ? 'Cancel' : (o.no || 'Cancel')))));
+    document.body.append(ov); document.addEventListener('keydown', key, true); setTimeout(() => (inp || ok).focus(), 30); if (inp) inp.select();
+  });
+}
 /* ---------- notepad ---------- */
 let npEl = null, npTimer = null;
 const NP_HELP = ['hi', 'I need a hug', 'drink some water', 'you can do this', 'did you eat yet', 'pls stretch', 'this is just a notepad lol', 'ctrl+z cannot undo feelings', 'no help here, only vibes', 'go touch grass (briefly)', 'you are doing fine', 'hi again'];
@@ -4033,14 +4060,28 @@ async function openNotepad() {
   };
   let wrap = LS.get('am.npwrap') !== '0', lastFind = '';
   const ins = t => { ta.focus(); const a = ta.selectionStart, b = ta.selectionEnd; ta.setRangeText(t, a, b, 'end'); ta.dispatchEvent(new Event('input')); };
-  const findNext = () => { if (!lastFind) return doFind(); const v = ta.value.toLowerCase(), i = v.indexOf(lastFind.toLowerCase(), ta.selectionEnd); const j = i < 0 ? v.indexOf(lastFind.toLowerCase()) : i; if (j < 0) { say('Cannot find "' + lastFind + '"'); return; } ta.focus(); ta.setSelectionRange(j, j + lastFind.length); };
-  const doFind = () => { const q = prompt('Find what:', lastFind); if (q == null || !q) return; lastFind = q; findNext(); };
+  let fdlg = null, mcase = false, dirUp = false;
+  const findNext = () => { if (!lastFind) return doFind(); const v = mcase ? ta.value : ta.value.toLowerCase(), q = mcase ? lastFind : lastFind.toLowerCase(); let j; if (dirUp) { j = v.lastIndexOf(q, Math.max(0, ta.selectionStart - 1)); } else { j = v.indexOf(q, ta.selectionEnd); } if (j < 0) { ask98('Cannot find "' + lastFind + '"', { title: 'Notepad', warn: 1, ok: 'OK' }); return; } ta.focus(); ta.setSelectionRange(j, j + lastFind.length); };
+  const doFind = () => {
+    if (fdlg) { fdlg.querySelector('input').focus(); return; }
+    const inp = h('input', { class: 'a98in', value: lastFind });
+    const go = h('button', { class: 'a98b def', type: 'button', onclick: () => { lastFind = inp.value; if (lastFind) findNext(); } }, 'Find Next');
+    const shutF = () => { fdlg.remove(); fdlg = null; };
+    const mc = h('input', { type: 'checkbox' }); mc.checked = mcase; mc.onchange = () => { mcase = mc.checked; };
+    const up = h('input', { type: 'radio', name: 'npdir' }), dn = h('input', { type: 'radio', name: 'npdir' }); up.checked = dirUp; dn.checked = !dirUp; up.onchange = () => { dirUp = true; }; dn.onchange = () => { dirUp = false; };
+    fdlg = h('div', { class: 'a98 npfind' },
+      h('div', { class: 'a98t' }, h('span', {}, 'Find'), h('button', { class: 'a98x', type: 'button', 'aria-label': 'Close', onclick: shutF })),
+      h('div', { class: 'npfb' }, h('div', { class: 'npfl' }, h('label', {}, h('span', {}, 'Fi', h('u', {}, 'n'), 'd what:'), inp), h('div', { class: 'npfo' }, h('label', { class: 'npmc' }, mc, h('span', {}, 'Match ', h('u', {}, 'c'), 'ase')), h('fieldset', {}, h('legend', {}, 'Direction'), h('label', {}, up, h('span', {}, h('u', {}, 'U'), 'p')), h('label', {}, dn, h('span', {}, h('u', {}, 'D'), 'own'))))),
+        h('div', { class: 'npfbt' }, go, h('button', { class: 'a98b', type: 'button', onclick: shutF }, 'Cancel'))));
+    inp.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') { e.preventDefault(); go.click(); } if (e.key === 'Escape') shutF(); });
+    npEl.querySelector('.npwin').append(fdlg); setTimeout(() => { inp.focus(); inp.select(); }, 30);
+  };
   const timeDate = () => { const d = new Date(); ins(d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) + ' ' + d.toLocaleDateString([], { month: 'numeric', day: 'numeric', year: 'numeric' })); };
   const applyWrap = () => { ta.wrap = wrap ? 'soft' : 'off'; ta.style.whiteSpace = wrap ? 'pre-wrap' : 'pre'; ta.style.overflowX = wrap ? 'hidden' : 'auto'; };
   applyWrap();
   const cmd = c => { ta.focus(); try { document.execCommand(c); } catch {} };
   const MENUS = {
-    File: [['New', '', () => { if (ta.value && !confirm('Start a new page? This clears what is written.')) return; ta.value = ''; ta.dispatchEvent(new Event('input')); }], ['Rename...', '', rename], ['Save As...', '', exportTxt], null, ['Exit', '', close]],
+    File: [['New', '', async () => { if (ta.value && !(await ask98('Start a new page? This clears what is written.', { title: 'Notepad', ok: 'Yes', no: 'No' }))) return; ta.value = ''; ta.dispatchEvent(new Event('input')); }], ['Rename...', '', rename], ['Save As...', '', exportTxt], null, ['Exit', '', close]],
     Edit: [['Undo', 'Ctrl+Z', () => cmd('undo')], null, ['Cut', 'Ctrl+X', () => cmd('cut')], ['Copy', 'Ctrl+C', () => cmd('copy')], ['Paste', 'Ctrl+V', async () => { try { const t = await navigator.clipboard.readText(); ins(t); } catch { say('Use Ctrl+V to paste'); } }], ['Delete', 'Del', () => { ta.focus(); if (ta.selectionStart !== ta.selectionEnd) ins(''); }], null, ['Select All', '', () => { ta.focus(); ta.select(); }], ['Time/Date', 'F5', timeDate], null, ['Word Wrap', '', () => { wrap = !wrap; LS.set('am.npwrap', wrap ? '1' : '0'); applyWrap(); }, () => wrap]],
     Search: [['Find...', '', doFind], ['Find Next', 'F3', findNext]],
     Help: [['Help Topics', '', help], null, ['About Notepad', '', () => say('Notepad · only you can see this page')]]
@@ -4351,12 +4392,12 @@ window.addEventListener('focus', () => { if (S.pings) { S.pings = 0; setBadge();
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '323' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '324' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '323') { newBuild = m[1]; updFlag(); }
+    if (m && m[1] !== BUILD && m[1] !== '324') { newBuild = m[1]; updFlag(); }
   } catch {}
 }
 function updFlag() {
