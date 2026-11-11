@@ -1570,7 +1570,7 @@ body.quickon #welcome{display:none!important}
 .gcard{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:18px;text-align:center;background:#fff8fb;font:13px Fredoka,Tahoma,sans-serif;color:#47041C}.gcard img{width:48px;image-rendering:pixelated}.gcard b{font-size:18px}.gcard p{margin:0;color:#7a4a5e;max-width:280px}
 .gcgo{font:16px Fredoka,Tahoma,sans-serif;padding:7px 26px;background:#ffd9e8;border:2px solid #47041C;border-radius:8px;box-shadow:3px 3px 0 #47041C;cursor:pointer;color:#47041C}.gcgo:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #47041C}
 .pcbox{position:relative;display:inline-block;margin:0 10px 10px 0;line-height:0}.pcbox .pcg{position:absolute!important;display:block!important;width:7px!important;height:7px!important;padding:0!important;margin:0;background:#3a63c8!important;border:1px solid #fff!important;box-sizing:border-box!important;z-index:5!important;font-size:0!important}.pcbox .pcg.r{right:-8px;top:50%;margin-top:-3px;cursor:ew-resize!important}.pcbox .pcg.b{bottom:-8px;left:50%;margin-left:-3px;cursor:ns-resize!important}.pcbox .pcg.br{right:-8px;bottom:-8px;cursor:nwse-resize!important}.pcghost{position:absolute;left:0;top:0;border:1px dashed #000;pointer-events:none;box-sizing:border-box}
-body.real .pcard [data-a=c],body.real .imcall,body.real #vcPrivBtn{display:none!important}
+body.real #vcPrivBtn{display:none!important}
 #pageOv:has(>.webtab){background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center}#pageOv>.webtab{flex:none!important;width:min(100%,calc((100% - 0px)*1))!important;height:auto!important;aspect-ratio:16/9;max-height:100%!important;max-width:calc((100vh)*16/9)!important}
 .sp{height:100%;display:flex;flex-direction:column;background:#d4d0c8;padding:8px 8px 6px;font:11px Tahoma,Verdana,sans-serif;color:#000}
 .sptabs{display:flex;gap:0;position:relative;z-index:1}.sptabs button{font:11px Tahoma;background:#d4d0c8;border:1px solid;border-color:#fff #404040 transparent #fff;box-shadow:inset -1px 0 #808080;padding:3px 9px 2px;margin-right:-1px;margin-top:2px;cursor:pointer;color:#000}
@@ -2175,7 +2175,7 @@ function pcHum(up){audio();if(AC.state==='suspended')AC.resume();const t=AC.curr
  const hum=AC.createOscillator(),hg=AC.createGain();hum.type='sawtooth';hum.frequency.value=110;const hl=AC.createBiquadFilter();hl.type='lowpass';hl.frequency.value=400;hum.connect(hl);hl.connect(hg);hg.gain.setValueAtTime(up?0:.05,t);hg.gain.linearRampToValueAtTime(up?.05:0,t+(up?.6:1.6));if(up)hg.gain.linearRampToValueAtTime(0,t+4.2);hg.connect(out);hum.start(t);hum.stop(t+4.4);
  const fan=AC.createBufferSource(),bp=AC.createBiquadFilter(),fg=AC.createGain();fan.buffer=noiseBuf;fan.loop=true;bp.type='bandpass';bp.Q.value=2.5;bp.frequency.setValueAtTime(up?180:900,t);bp.frequency.exponentialRampToValueAtTime(up?900:150,t+(up?1.8:1.8));fg.gain.setValueAtTime(up?0:.07,t);fg.gain.linearRampToValueAtTime(up?.07:0,t+(up?1.2:1.9));if(up)fg.gain.linearRampToValueAtTime(0,t+4.2);fan.connect(bp);bp.connect(fg);fg.connect(out);fan.start(t);fan.stop(t+4.4);
  if(up)[.35,.47,.52,.9,.98,1.3].forEach(d=>{const s=AC.createBufferSource(),hp=AC.createBiquadFilter(),g=AC.createGain();s.buffer=noiseBuf;hp.type='highpass';hp.frequency.value=2500;g.gain.setValueAtTime(.18,t+d);g.gain.exponentialRampToValueAtTime(.001,t+d+.025);s.connect(hp);hp.connect(g);g.connect(out);s.start(t+d,Math.random());s.stop(t+d+.04)})}
-function logOn(){if(document.body.classList.contains('on'))return;try{localStorage.setItem('deskOn','1')}catch(e){}$('wMsg').textContent='Welcome';pcHum(true);setTimeout(()=>chime(true),700);setTimeout(()=>{document.body.classList.add('on');openAway();afterLogOn()},900)}
+function logOn(){if(document.body.classList.contains('on'))return;try{localStorage.setItem('deskOn','1')}catch(e){}$('wMsg').textContent='Welcome';pcHum(true);setTimeout(()=>{try{const a=new Audio('snd/startup.mp3');a.volume=.8;a.play().catch(()=>chime(true))}catch(e){chime(true)}},500);setTimeout(()=>{document.body.classList.add('on');openAway();afterLogOn()},900)}
 function signOff(){try{localStorage.removeItem('deskOn')}catch(e){}document.body.classList.remove('quickon');closeMenu();chime(false);setTimeout(()=>pcHum(false),900);stop();signedIn=false;$('wSub').textContent='signed off · click to sign on';$('wMsg').textContent='Signing off…';$('lkPw').value='';if(inCall){inCall=false;muted=deaf=false;callUI()}setTimeout(()=>{$('wMsg').textContent=''},1400);document.body.classList.remove('on');setTimeout(()=>{for(const k in wins){wins[k].remove();wins[k]._tb.remove();delete wins[k]}},1200)}
 $('wLogo').src=APPICON;$('wPfp').src=IMG.me;$('lkPfp').src=IMG.me;let signedIn=true;
 $('wUser').onclick=()=>{if(signedIn)logOn();else{$('lkBox').hidden=false;document.getElementById('welcome').classList.add('lkon');setTimeout(()=>$('lkPw').focus(),50)}};
@@ -2220,7 +2220,7 @@ function callWin(n,mode,why){const id='call';if(wins[id]){wins[id]._quiet=1;wins
  if(mode==='pick'){B.innerHTML='<div class="nkt">Call '+n+'</div><input class="nkin" maxlength="40" placeholder="why u calling?">';setTimeout(()=>{const i=B.querySelector('.nkin');i&&i.focus()},60);
   let pick='';B.querySelectorAll('.nkchips button').forEach(b=>b.onclick=()=>{pick=b.textContent;B.querySelectorAll('.nkchips button').forEach(x=>x.classList.toggle('on',x===b));B.querySelector('.nkin').value=''});
   B.querySelector('.nkin').oninput=e=>{pick=e.target.value;B.querySelectorAll('.nkchips button').forEach(x=>x.classList.remove('on'))};
-  const go=()=>callWin(n,'out',pick.trim());soft(L,'Call',go);soft(R,'Back',close);key('Call','grn',go);key('Cancel','red',close);B.querySelector('.nkin').onkeydown=e=>{if(e.key==='Enter')go()};return w}
+  const go=()=>{if(REAL){const t=pick.trim();close();rcStart(n,t);return}callWin(n,'out',pick.trim())};soft(L,'Call',go);soft(R,'Back',close);key('Call','grn',go);key('Cancel','red',close);B.querySelector('.nkin').onkeydown=e=>{if(e.key==='Enter')go()};return w}
  if(mode==='out'){B.innerHTML='<div class="nks">Calling</div><div class="nkt"></div>'+(why?'<div class="nkwhy"></div>':'');B.querySelector('.nkt').textContent=n;if(why)B.querySelector('.nkwhy').textContent='"'+why+'"';
   soft(L,'',null);soft(R,'End call',close);key('End call','red',close);ringStart();w.querySelector('.nktop img').classList.add('ring');
   const pickUp=modeOf(n)!=='away'&&n!=='charlie';w._to=setTimeout(()=>{if(wins.call!==w)return;ringStop();if(pickUp){close();vcPrivate(n)}else callWin(n,'miss',why)},pickUp?5200:7000);return w}
@@ -2305,11 +2305,30 @@ function openCam(){if(wins.cam){show('cam');return}
   if(c==='mir')mir=!mir;if(c==='fx'){fx=(fx+1)%FX.length;st.textContent=stream?'live · '+FX[fx]:'off'}};
  w.querySelector('[data-x]').addEventListener('click',stop,true)}
 
+/* real calls: the engine frame does the WebRTC, the desk shows the Nokia */
+function engWin(){try{const w=ENGF&&ENGF.contentWindow;if(w&&w.eval('typeof S!=="undefined"&&S.signedOn&&typeof callStart==="function"'))return w}catch(e){}return null}
+let RC={st:'idle',peer:null,why:'',t0:0,muted:false},rcHooked=null;
+function rcHook(){const w=engWin();if(!w||rcHooked===w)return;rcHooked=w;w.addEventListener('am-call',e=>{const d=e.detail||{};if(d.st==='missed'){const n=snOf(d.peer);ntAdd({title:'Missed call from '+n,text:d.why||'',pic:PEOPLE[n]?PEOPLE[n].pic:'#ccc',open:()=>goReal('dm',n)});return}RC=Object.assign({},RC,d);rcDraw(d.end)})}
+setInterval(rcHook,1500);
+function snOf(id){for(const n in REALIDS)if(REALIDS[n]===id)return n;return 'someone'}
+function rcDraw(end){const n=snOf(RC.peer);let w=wins.rcall;
+ if(RC.st==='idle'){ringStop();if(w){const B=w.querySelector('.nkbody');B.innerHTML='<div class="nks">'+({busy:'On another call',declined:'Declined',dnd:'Do not disturb',noanswer:'No answer',nomic:'No microphone',failed:'Call dropped'}[end]||'Call ended')+'</div><div class="nkt"></div>';B.querySelector('.nkt').textContent=n;w.querySelector('.nkl').textContent='';w.querySelector('.nkr').textContent='';trayPhone(n,false);setTimeout(()=>{if(RC.st==='idle'&&wins.rcall===w)w.querySelector('[data-x]').click()},2200)}return}
+ if(!w){w=mkWin('rcall','Call',EXT.handset,'<div class="nk"><div class="nkscr"><div class="nktop"><img class="nkflip" src="'+EXT.redphone+'"><span class="nkbars"><i></i><i></i><i></i><i></i></span></div><div class="nkbody"></div><div class="nksoft"><span class="nkl"></span><span class="nkr"></span></div></div><div class="nkkeys"></div></div>',{x:innerWidth/2-100,y:140,w:200,h:150,fixed:true,onclose:()=>{ringStop();const e=engWin();if(e&&RC.st!=='idle')try{e.eval('callHang')()}catch(_){}}});w.classList.add('wbare');
+  const nk=w.querySelector('.nk');let dd=null;nk.addEventListener('pointerdown',e=>{if(e.target.closest('button,input,.nksoft span.on'))return;dd={x:e.clientX-w.offsetLeft,y:e.clientY-w.offsetTop};nk.setPointerCapture(e.pointerId);show('rcall')});nk.addEventListener('pointermove',e=>{if(dd){w.style.left=(e.clientX-dd.x)+'px';w.style.top=Math.max(0,e.clientY-dd.y)+'px'}});nk.addEventListener('pointerup',()=>dd=null)}
+ show('rcall');const B=w.querySelector('.nkbody'),L=w.querySelector('.nkl'),R=w.querySelector('.nkr'),E=engWin();
+ const soft=(el,t,f)=>{el.textContent=t;el.onclick=f;el.classList.toggle('on',!!f)};const ev=f=>()=>{const e=engWin();if(e)try{e.eval(f)()}catch(_){}};
+ const lbl={calling:'Calling',ringing:'Incoming call',connecting:'Connecting',live:''}[RC.st]||'';
+ B.innerHTML='<div class="nks">'+lbl+'</div><div class="nkt"></div>'+(RC.why?'<div class="nkwhy"></div>':'')+(RC.st==='live'?'<div class="nks nktime">0:00</div>':'');B.querySelector('.nkt').textContent=n;if(RC.why)B.querySelector('.nkwhy').textContent='"'+RC.why+'"';
+ w.querySelector('.nktop img').classList.toggle('ring',RC.st==='ringing'||RC.st==='calling');
+ if(RC.st==='ringing'){ringStart();trayPhone(n,true);soft(L,'Answer',ev('callAccept'));soft(R,'Decline',ev('callDecline'))}
+ else{ringStop();if(RC.st==='live'){soft(L,RC.muted?'Unmute':'Mute',ev('callMute'));clearInterval(w._iv);w._iv=setInterval(()=>{const t=w.querySelector('.nktime');if(!t||RC.st!=='live')return clearInterval(w._iv);const q=Math.floor((Date.now()-RC.t0)/1000);t.textContent=Math.floor(q/60)+':'+String(q%60).padStart(2,'0')},1000)}else soft(L,'',null);soft(R,'End call',ev('callHang'))}}
+function rcStart(n,why){const e=engWin(),id=REALIDS[n];if(!e||!id){tip('calls need a second to connect, try again');return}try{e.eval('callStart')(id,why)}catch(_){}}
+
 /* route people actions to the real site */
 {const _dm=openDM;openDM=function(n){if(REAL){goReal('dm',n);return}return _dm(n)};
  const _pe=openPeer;openPeer=function(n){if(REAL&&n!==((MEPROF&&MEPROF.sn)||'monica')){goReal('prof',n);return}return _pe(n)};
  const _at=addTab;addTab=function(k,l,ic){if(REAL&&k.startsWith('p_')){goReal('prof',k.slice(2));return}return _at(k,l,ic)};
- const _co=callOut;callOut=function(n){if(REAL){tip('calling isn\'t hooked up for real yet');return}return _co(n)};
+ 
  const _ci=callIn;callIn=function(n,w){if(REAL)return;return _ci(n,w)};}
 
 /* site updates: mailbox in the tray */

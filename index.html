@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="20261110140112">
-<link rel="icon" type="image/png" href="icon-64.png?v=20261110140112">
-<link rel="shortcut icon" href="favicon.ico?v=20261110140112">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261110140112">
-<link rel="manifest" href="manifest.webmanifest?v=20261110140112">
+<meta name="build" content="20261110182420">
+<link rel="icon" type="image/png" href="icon-64.png?v=20261110182420">
+<link rel="shortcut icon" href="favicon.ico?v=20261110182420">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=20261110182420">
+<link rel="manifest" href="manifest.webmanifest?v=20261110182420">
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
 <style>
@@ -720,6 +720,9 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
  .compose{margin:6px 12px 10px!important}
 }
 @media(min-width:901px){.win>.tb>span:first-child{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
+.callbox{position:fixed;right:16px;bottom:16px;z-index:9999;display:flex;align-items:center;gap:10px;min-width:260px;max-width:340px;padding:10px 12px;background:var(--bg,#fff);color:inherit;border:1px solid var(--line,#888);border-radius:var(--rx,8px);box-shadow:0 6px 24px #0004}
+.callbox .grow{min-width:0}.callbox .cst{font-size:12px;opacity:.75}.callbox .cwhy{font-size:12px;font-style:italic}.callbox .ctm{font-size:12px;font-variant-numeric:tabular-nums}.callbox .cbt{display:flex;flex-direction:column;gap:4px}.callbox .btn.danger{color:#b3261e}
+#callBtn{width:auto;padding:0 6px;font-size:11px}
 </style>
 </head>
 <body>
@@ -787,7 +790,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
     </section>
 
     <section id="chatWin" class="win" aria-label="Chat">
-      <div class="tb"><span id="chatTitle">the lounge</span><button id="infoBtn" class="tbx" type="button" aria-label="About this room and who is here">i</button></div>
+      <div class="tb"><span id="chatTitle">the lounge</span><button id="callBtn" class="tbx" type="button" aria-label="Call" title="Call" hidden>Call</button><button id="infoBtn" class="tbx" type="button" aria-label="About this room and who is here">i</button></div>
       <div class="convbar"><div id="convs" class="convs" aria-label="Conversations"></div><button id="newCh" class="btn sm plus" type="button" aria-label="Make a board">+</button></div>
       <form id="chForm" class="chform" autocomplete="off" hidden>
         <label class="sr" for="chName">Board name</label><input id="chName" maxlength="20" spellcheck="false" placeholder="board name">
@@ -895,7 +898,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=20261110140112"></script>
+<script src="config.js?v=20261110182420"></script>
 <script>
 (() => {
 'use strict';
@@ -1650,6 +1653,7 @@ function renderLog() {
   const items = [...list.map(m => ({ ts: m.ts, m })), ...(S.conv === 'lounge' ? S.sys.map(s => ({ ts: s.ts, s })) : [])].sort((a, b) => a.ts - b.ts);
   log.replaceChildren();
   const chn = S.conv.startsWith('c:') ? S.channels.get(S.conv.slice(2)) : null;
+  { const cb = $('callBtn'); if (cb) { cb.hidden = !peer || CALLS_OFF; cb.onclick = () => { if (peer) fire(callStart(S.conv)); }; } }
   $('chatTitle').textContent = peer ? 'dm · ' + peer.sn : chn ? '#' + chn.name : 'the lounge' + (S.presLive && S.online.size ? ' · ' + S.online.size + ' here' : '');
   if (chn && !canRead(chn)) {
     const cr = profileOf(chn.by);
@@ -2488,6 +2492,7 @@ function subscribe() {
     })
     .subscribe(st => { S.rtTried = true; S.rt = st === 'SUBSCRIBED'; renderNote(); });
   S.typ = new Map(); S.typAt = 0;
+  setTimeout(() => { try { callInit(); } catch {} }, 0);
   S.presChan = sb.channel('am-presence', { config: { presence: { key: S.uid } } });
   S.presChan.on('broadcast', { event: 't' }, msg => { S.dbgGot = (S.dbgGot || 0) + 1; const p = (msg && msg.payload) || {}; if (typeof p.u !== 'string' || typeof p.c !== 'string' || p.u === S.uid) return; if (!isRoom(p.c) && p.c !== S.uid) return; S.typ.set((p.c === S.uid ? p.u : p.c) + '|' + p.u, Date.now()); renderTyping(); setTimeout(renderTyping, 4700); });
   S.typChan = S.presChan;
@@ -2731,7 +2736,100 @@ document.addEventListener('visibilitychange', () => {
   if (lockHiddenAt && Date.now() - lockHiddenAt >= c.m * 60000) lockNow();
 });
 if (lockCfg() && lockHasSession()) lockNow();
-async function signOff(why) { try { wpLeave(); } catch {} sfx('close'); S.awayNote = typeof why === 'string' ? why : ''; try { await sb.auth.signOut(); } catch {} resetApp(); }
+
+/* ---- calls: 1:1 voice over WebRTC, signaling over Supabase broadcast ---- */
+const CALLS_OFF = /[?&]desk=1/.test(location.search) && !/[?&]eng=1/.test(location.search);
+const CALL = { st: 'idle', peer: null, id: '', pc: null, mic: null, pend: [], t0: 0, muted: false, why: '', to: null, ring: null };
+const callOuts = new Map();
+let callMine = null;
+function callEmit() { try { window.dispatchEvent(new CustomEvent('am-call', { detail: { st: CALL.st, peer: CALL.peer, why: CALL.why, t0: CALL.t0, muted: CALL.muted } })); } catch {} if (!/[?&]desk=1/.test(location.search)) callUi(); }
+function callChanTo(uid) {
+  let c = callOuts.get(uid); if (c) return c.ready;
+  const ch = sb.channel('am-call-' + uid, { config: { broadcast: { self: false } } });
+  const ready = new Promise(res => { ch.subscribe(st => { if (st === 'SUBSCRIBED') res(ch); }); setTimeout(() => res(ch), 4000); });
+  callOuts.set(uid, { ch, ready }); return ready;
+}
+async function callSend(to, ev, d) { const ch = await callChanTo(to); try { await ch.send({ type: 'broadcast', event: ev, payload: Object.assign({ to, from: S.uid, id: CALL.id }, d || {}) }); } catch {} }
+function callInit() {
+  if (CALLS_OFF || callMine || !S.uid) return;
+  callMine = sb.channel('am-call-' + S.uid, { config: { broadcast: { self: false } } });
+  const on = (ev, fn) => callMine.on('broadcast', { event: ev }, ({ payload: p }) => { if (p && p.to === S.uid) fire(fn(p)); });
+  on('ring', async p => {
+    const who = profileOf(p.from); if (!who) return;
+    if (CALL.st !== 'idle') { callSend(p.from, 'busy', { id: p.id }); return; }
+    if (S.dnd) { callSend(p.from, 'decline', { id: p.id, dnd: 1 }); callMissed(p.from, p.why); return; }
+    Object.assign(CALL, { st: 'ringing', peer: p.from, id: p.id, why: String(p.why || '').slice(0, 80), muted: false });
+    callTone(true); callEmit();
+    CALL.to = setTimeout(() => { if (CALL.st === 'ringing' && CALL.id === p.id) { callMissed(p.from, CALL.why); callEnd(false); } }, 30000);
+  });
+  on('taken', p => { if (CALL.st === 'ringing' && p.id === CALL.id && p.from === S.uid) callEnd(false); });
+  on('cancel', p => { if (p.id === CALL.id && CALL.st === 'ringing') { callMissed(p.from, CALL.why); callEnd(false); } });
+  on('busy', p => { if (p.id === CALL.id) { CALL.why = 'busy'; callEnd(false, 'busy'); } });
+  on('decline', p => { if (p.id === CALL.id) callEnd(false, p.dnd ? 'dnd' : 'declined'); });
+  on('accept', async p => { if (p.id !== CALL.id || CALL.st !== 'calling') return; clearTimeout(CALL.to); CALL.st = 'connecting'; callEmit(); const pc = callPc(); const o = await pc.createOffer(); await pc.setLocalDescription(o); callSend(CALL.peer, 'offer', { sdp: o }); });
+  on('offer', async p => { if (p.id !== CALL.id || !CALL.pc) return; await CALL.pc.setRemoteDescription(p.sdp); for (const c of CALL.pend.splice(0)) { try { await CALL.pc.addIceCandidate(c); } catch {} } const a = await CALL.pc.createAnswer(); await CALL.pc.setLocalDescription(a); callSend(CALL.peer, 'answer', { sdp: a }); });
+  on('answer', async p => { if (p.id !== CALL.id || !CALL.pc) return; await CALL.pc.setRemoteDescription(p.sdp); for (const c of CALL.pend.splice(0)) { try { await CALL.pc.addIceCandidate(c); } catch {} } });
+  on('ice', async p => { if (p.id !== CALL.id || !CALL.pc) return; if (CALL.pc.remoteDescription) { try { await CALL.pc.addIceCandidate(p.c); } catch {} } else CALL.pend.push(p.c); });
+  on('hangup', p => { if (p.id === CALL.id) callEnd(false, 'ended'); });
+  callMine.subscribe();
+}
+function callPc() {
+  const pc = new RTCPeerConnection(RTC_CFG); CALL.pc = pc;
+  if (CALL.mic) CALL.mic.getTracks().forEach(t => pc.addTrack(t, CALL.mic));
+  pc.onicecandidate = e => { if (e.candidate) callSend(CALL.peer, 'ice', { c: e.candidate.toJSON() }); };
+  pc.ontrack = e => { let a = $('callAudio'); if (!a) { a = h('audio', { id: 'callAudio', autoplay: true }); a.style.display = 'none'; document.body.append(a); } a.srcObject = e.streams[0]; fire(a.play()); };
+  pc.onconnectionstatechange = () => { if (pc.connectionState === 'connected' && CALL.st !== 'live') { CALL.st = 'live'; CALL.t0 = Date.now(); callTone(false); callEmit(); } if (pc.connectionState === 'failed') callEnd(true, 'failed'); };
+  return pc;
+}
+async function callMic() { try { CALL.mic = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } }); return true; } catch { return false; } }
+async function callStart(to, why) {
+  if (CALL.st !== 'idle' || !to || to === S.uid) return false;
+  Object.assign(CALL, { st: 'calling', peer: to, id: Math.random().toString(36).slice(2) + Date.now().toString(36), why: String(why || '').slice(0, 80), muted: false, pend: [] });
+  callEmit();
+  if (!(await callMic())) { callEnd(false, 'nomic'); return false; }
+  const me = mine(); callSend(to, 'ring', { why: CALL.why, sn: me ? me.sn : '' });
+  callTone(true, true);
+  CALL.to = setTimeout(() => { if (CALL.st === 'calling') { callSend(CALL.peer, 'cancel'); callEnd(false, 'noanswer'); } }, 30000);
+  return true;
+}
+async function callAccept() {
+  if (CALL.st !== 'ringing') return; clearTimeout(CALL.to); callTone(false);
+  if (!(await callMic())) { callSend(CALL.peer, 'decline'); callEnd(false, 'nomic'); return; }
+  CALL.st = 'connecting'; callEmit(); callPc();
+  callSend(S.uid, 'taken'); callSend(CALL.peer, 'accept');
+}
+function callDecline() { if (CALL.st !== 'ringing') return; callSend(CALL.peer, 'decline'); callEnd(false, 'declined'); }
+function callHang() { if (CALL.st === 'idle') return; callSend(CALL.peer, CALL.st === 'calling' ? 'cancel' : 'hangup'); callEnd(false, 'ended'); }
+function callMute(m) { CALL.muted = m == null ? !CALL.muted : !!m; if (CALL.mic) CALL.mic.getAudioTracks().forEach(t => t.enabled = !CALL.muted); callEmit(); }
+function callEnd(send, why) {
+  if (send && CALL.peer) callSend(CALL.peer, 'hangup');
+  clearTimeout(CALL.to); callTone(false);
+  try { CALL.pc && CALL.pc.close(); } catch {} try { CALL.mic && CALL.mic.getTracks().forEach(t => t.stop()); } catch {}
+  const a = $('callAudio'); if (a) a.srcObject = null;
+  const last = { peer: CALL.peer, why: why || '' };
+  Object.assign(CALL, { st: 'idle', pc: null, mic: null, pend: [], t0: 0, muted: false });
+  try { window.dispatchEvent(new CustomEvent('am-call', { detail: { st: 'idle', peer: last.peer, end: last.why } })); } catch {}
+  CALL.peer = null; if (!/[?&]desk=1/.test(location.search)) callUi(last.why);
+}
+function callMissed(from, why) { const p = profileOf(from); if (!p) return; S.extra = 'Missed call from ' + p.sn + (why ? ': ' + why : ''); try { renderNote(); clearExtraSoon(); } catch {} try { window.dispatchEvent(new CustomEvent('am-call', { detail: { st: 'missed', peer: from, why } })); } catch {} }
+function callTone(on, out) {
+  clearInterval(CALL.ring); CALL.ring = null; if (!on || /[?&]eng=1/.test(location.search)) return;
+  const beep = () => { try { const ac = callTone.ac || (callTone.ac = new (window.AudioContext || window.webkitAudioContext)()); const o = ac.createOscillator(), g = ac.createGain(); o.frequency.value = out ? 425 : 660; g.gain.value = .05; o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + (out ? 1 : .35)); } catch {} };
+  beep(); CALL.ring = setInterval(beep, out ? 3000 : 1200);
+}
+function callUi(ended) {
+  let b = $('callBox');
+  if (CALL.st === 'idle') { if (b) { if (ended && ended !== 'ended') { b.querySelector('.cst').textContent = ({ busy: 'They are on another call.', declined: 'Call declined.', dnd: 'They have do not disturb on.', noanswer: 'No answer.', nomic: 'Could not use your microphone.', failed: 'Call dropped.' })[ended] || 'Call ended.'; b.querySelector('.cbt').replaceChildren(); setTimeout(() => { if (CALL.st === 'idle') b.remove(); }, 2500); } else b.remove(); } return; }
+  const p = profileOf(CALL.peer) || { sn: 'someone', theme: { ac: '#888888' } };
+  if (!b) { b = h('div', { id: 'callBox', class: 'callbox', role: 'dialog', 'aria-label': 'Call' }); document.body.append(b); }
+  const st = { calling: 'Calling…', ringing: 'Incoming call', connecting: 'Connecting…', live: 'On a call' }[CALL.st] || '';
+  const bt = h('div', { class: 'cbt' });
+  if (CALL.st === 'ringing') bt.append(h('button', { class: 'btn pri', type: 'button', onclick: () => callAccept() }, 'Answer'), h('button', { class: 'btn', type: 'button', onclick: () => callDecline() }, 'Decline'));
+  else bt.append(h('button', { class: 'btn', type: 'button', onclick: () => callMute() }, CALL.muted ? 'Unmute' : 'Mute'), h('button', { class: 'btn danger', type: 'button', onclick: () => callHang() }, 'Hang up'));
+  b.replaceChildren(avatar(p, 40), h('div', { class: 'grow' }, h('b', {}, p.sn), h('div', { class: 'cst' }, st), CALL.why ? h('div', { class: 'cwhy' }, CALL.why) : null, h('div', { class: 'ctm' })), bt);
+  clearInterval(callUi.iv); if (CALL.st === 'live') callUi.iv = setInterval(() => { const t = b.querySelector('.ctm'); if (!t || CALL.st !== 'live') return clearInterval(callUi.iv); const s2 = Math.floor((Date.now() - CALL.t0) / 1000); t.textContent = Math.floor(s2 / 60) + ':' + String(s2 % 60).padStart(2, '0'); }, 1000);
+}
+async function signOff(why) { try { wpLeave(); } catch {} try { callHang(); } catch {} sfx('close'); S.awayNote = typeof why === 'string' ? why : ''; try { await sb.auth.signOut(); } catch {} resetApp(); }
 const autoMs = () => { if (isPhone()) return 0; const v = LS.get('am.auto'); const n = v == null || v === '' ? 30 : Number(v); return n > 0 ? n * 60000 : 0; };
 const AUTO_MSG = 'You were signed off after being away. Sign back on when you are ready.';
 function autoExpired() { const ms = autoMs(); return !!(S.signedOn && ms && Date.now() - S.lastAct > ms); }
@@ -4059,12 +4157,12 @@ window.addEventListener('focus', () => { if (S.pings) { S.pings = 0; setBadge();
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '20261110140112' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '20261110182420' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '20261110140112') { newBuild = m[1]; updFlag(); }
+    if (m && m[1] !== BUILD && m[1] !== '20261110182420') { newBuild = m[1]; updFlag(); }
   } catch {}
 }
 function updFlag() {
