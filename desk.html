@@ -1796,6 +1796,11 @@ body.real #vcPrivBtn{display:none!important}
 #loDlg .lo-c{font:12px Tahoma;background:linear-gradient(#fff,#ecebe6);color:#000;border:1px solid #47041C;border-radius:3px;padding:3px 14px;cursor:pointer}
 .wlo{display:none;font:22px Tahoma,Verdana,sans-serif;color:#fff;padding:10px 16px}
 #welcome.logoff .wlo{display:block}#welcome.logoff .wuser{display:none}#welcome.logoff .wleft small{visibility:hidden}
+
+.m98art.photo{background:#000}.m98art.photo>img,.w.w98.mini .m98art.photo>img{width:100%!important;height:100%!important;object-fit:cover;image-rendering:auto}
+.m98art{flex:none!important;min-height:0}.m98art:not(.photo)>img{width:70%!important;height:70%!important;object-fit:contain}
+.w.w98.mini .m98art{height:64px!important;aspect-ratio:auto!important}.w.w98.mini .m98art:not(.photo)>img{width:82%!important;height:82%!important}
+.m98spk{cursor:pointer}.m98spk.muted{filter:sepia(1) saturate(9) hue-rotate(-40deg) brightness(.85)}
 /* XP-style boot */
 #boot{position:fixed;inset:0;z-index:2147483646;background:#000;transition:opacity 1.6s ease!important;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Tahoma,Verdana,sans-serif;color:#fff;cursor:pointer;transition:opacity .6s}
 #boot.out{opacity:0;pointer-events:none}
@@ -1818,7 +1823,7 @@ body.real #vcPrivBtn{display:none!important}
 #boot.run .bt-pw{display:none}
 #boot .bt-foot{position:absolute;left:24px;bottom:18px;font-size:11px;color:#8a8a8a}
 #boot .bt-foot2{position:absolute;right:24px;bottom:16px;font:italic bold 13px Tahoma,Verdana,sans-serif!important;color:#ddd}
-</style><link rel="icon" type="image/png" href="icon-64.png?v=desk2"><link rel="shortcut icon" href="favicon.ico?v=desk2"><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body><script>window.DESKBUILD=283</script><meta name="robots" content="noindex,nofollow">
+</style><link rel="icon" type="image/png" href="icon-64.png?v=desk2"><link rel="shortcut icon" href="favicon.ico?v=desk2"><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body><script>window.DESKBUILD=284</script><meta name="robots" content="noindex,nofollow">
 <style>
 #gate{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;background:#5a7edc;font:14px Tahoma,Verdana,sans-serif;color:#fff}
 #gate .gt,#gate .gb{height:12%;background:#00309c}#gate .gt{border-bottom:2px solid #9db5ec}#gate .gb{border-top:2px solid #f2a24a}
@@ -2334,7 +2339,7 @@ function ui(){const sp=src==='spotify';$('musBtn').textContent=sp?(spotPlay?'♪
  const t=sp?SPOT.t:TRACKS[tr].n,a=sp?SPOT.a:ARTIST[tr],on=sp?spotPlay:playing;
  w.querySelector('#m98t').textContent=t.toUpperCase()+'*';w.querySelector('#m98a').textContent=a.toUpperCase()+'*';
  w.querySelector('.wt b').textContent=sp?'Spotify':'Away Tunes';w.querySelector('.wt img').src=sp?SPOTICO:IMG.cd;if(w._tb){w._tb.querySelector('img').src=sp?SPOTICO:IMG.cd;w._tb.querySelector('.tbl').textContent=sp?'Spotify':'Away Tunes'}
- w.querySelector('#m98img').src=sp?(SPOT.img||SPOTICO):EXT.cozy;
+ w.querySelector('#m98img').src=sp?(SPOT.img||SPOTICO):EXT.cozy;w.querySelector('.m98art').classList.toggle('photo',!!(sp&&SPOT.img));{const sk=w.querySelector('.m98spk');if(sk){sk.classList.toggle('muted',!!MUTE.music);if(MUTE.music)sk.src=IMG.spk0}}
  w.querySelector('#mPlay').innerHTML=on?'<svg viewBox="0 0 12 14"><path d="M1 1h3v12H1zM8 1h3v12H8z"/></svg>':'<svg viewBox="0 0 12 14"><path d="M1 1v12l10-6z"/></svg>';
  w.querySelectorAll('.m98q [data-i]').forEach(d=>{d.classList.toggle('on',!sp&&+d.dataset.i===tr);d.hidden=sp});{const qh=w.querySelector('.m98qh'),up=w.querySelector('.m98up'),sq=w.querySelector('.m98sq');if(qh)qh.textContent=sp?'Up next':'Songs';if(up)up.hidden=sp;if(sq)sq.hidden=!sp;if(sp&&!sq)spQueue()}w.querySelector('#mSpot').classList.toggle('on',sp)}
 setInterval(()=>{const w=wins.music;if(!w)return;let L,t;if(src==='spotify'){if(spotPlay)spotT=(spotT+.25)%SPOT.len;L=SPOT.len;t=spotT}else{L=SONGLEN[tr];t=playing&&AC?((AC.currentTime-songT0)%L):0}w.querySelector('#m98c').textContent=fmt(t);w.querySelector('#m98l').textContent='-'+fmt(L-t);w.querySelector('#m98k').style.left=(t/L*100)+'%';const f=w.querySelector('#m98f');if(f)f.style.width=(t/L*100)+'%'},250);
@@ -2544,6 +2549,9 @@ setInterval(trayOrder,1500);setTimeout(trayOrder,300);
 
 /* folder buttons open up when you hover them */
 document.addEventListener('mouseover',e=>{const b=e.target.closest&&e.target.closest('.fb');if(!b)return;const im=b.querySelector('img');if(im&&(im.src===IMG.folder||im.src===EXT.folder)){im.dataset.fc=im.src;im.src=IMG.folder_open||EXT.folder_open;b.addEventListener('mouseleave',()=>{if(im.dataset.fc){im.src=im.dataset.fc;delete im.dataset.fc}},{once:true})}});
+
+/* tap the speaker in the player to mute music (turns red) */
+document.addEventListener('click',e=>{const sk=e.target.closest&&e.target.closest('.m98spk');if(!sk)return;e.preventDefault();e.stopPropagation();MUTE.music=!MUTE.music;applyMix();sk.classList.toggle('muted',!!MUTE.music);const v=MIX.music;sk.src=MUTE.music?IMG.spk0:IMG['spk'+(v<=0?0:v<.34?1:v<.67?2:3)];document.querySelectorAll('[data-m=music]').forEach(c=>c.checked=!!MUTE.music)},true);
 
 /* notifications: tray envelope + right-side panel */
 const NOTIF=[];let ntSeen=false;let ntSub={Blakey:1};
