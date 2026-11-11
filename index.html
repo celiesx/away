@@ -1841,7 +1841,7 @@ body.real #vcPrivBtn{display:none!important}
 #boot.run .bt-pw{display:none}
 #boot .bt-foot{position:absolute;left:24px;bottom:18px;font-size:11px;color:#8a8a8a}
 #boot .bt-foot2{position:absolute;right:24px;bottom:16px;font:italic bold 13px Tahoma,Verdana,sans-serif!important;color:#ddd}
-</style><link rel="icon" type="image/png" href="icon-64.png?v=desk2"><link rel="shortcut icon" href="favicon.ico?v=desk2"><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body><script>window.DESKBUILD=296</script><meta name="robots" content="noindex,nofollow">
+</style><link rel="icon" type="image/png" href="icon-64.png?v=desk2"><link rel="shortcut icon" href="favicon.ico?v=desk2"><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body><script>window.DESKBUILD=297</script><meta name="robots" content="noindex,nofollow">
 <script>(function(){var q=location.search,h=location.hash;if(/[?&](code|state|error)=/.test(q)||/access_token|type=recovery|error_description/.test(h)){location.replace('app.html'+q+h)}})();</script>
 <style>
 #gate{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;background:#000;font:14px Tahoma,Verdana,sans-serif;color:#fff}
@@ -1866,7 +1866,7 @@ body.real #vcPrivBtn{display:none!important}
 (async()=>{const G=document.getElementById('gate'),M=document.getElementById('gMsg'),F=document.getElementById('gForm');
  const nope=()=>{F.hidden=true;M.innerHTML='under construction<br><small>something cute is coming. <a href="./">back to Away Message</a></small>'};
  let sb;try{sb=supabase.createClient(window.AWAY_CONFIG.url,window.AWAY_CONFIG.key,{auth:{persistSession:true,autoRefreshToken:true}})}catch(e){nope();return}
- const hop=()=>{try{const n=+sessionStorage.getItem('am.hop')||0,t=+sessionStorage.getItem('am.hopT')||0;if(Date.now()-t<15000&&n>=2){sessionStorage.setItem('am.hop','0');document.querySelectorAll('#gate .gt,#gate .gb,#gate .gbox').forEach(e=>e.style.setProperty('display','','important'));G.style.background='#5a7edc';M.textContent='sign in';F.hidden=false;return}sessionStorage.setItem('am.hop',String(n+1));sessionStorage.setItem('am.hopT',String(Date.now()))}catch(e){}location.replace('app.html')};
+ const hop=()=>{try{const n=+sessionStorage.getItem('am.hop')||0,t=+sessionStorage.getItem('am.hopT')||0;if(Date.now()-t<15000&&n>=2){sessionStorage.setItem('am.hop','0');document.querySelectorAll('#gate .gt,#gate .gb').forEach(e=>e.style.display='block');document.querySelector('#gate .gbox').style.display='flex';G.style.background='#5a7edc';M.textContent='sign in';F.hidden=false;return}sessionStorage.setItem('am.hop',String(n+1));sessionStorage.setItem('am.hopT',String(Date.now()))}catch(e){}location.replace('app.html')};
  const check=async s=>{if(!s){hop();return}
   const {data}=await sb.from('profiles').select('role').eq('id',s.user.id).maybeSingle();
   if(data&&data.role==='admin'){try{sessionStorage.removeItem('am.hop')}catch(e){}window.deskSb=sb;window.deskUid=s.user.id;G.remove()}else hop()};
