@@ -1675,7 +1675,7 @@ body.real #vcPrivBtn{display:none!important}
 #boot.run .bt-pw{display:none}
 #boot .bt-foot{position:absolute;left:24px;bottom:18px;font-size:11px;color:#8a8a8a}
 #boot .bt-foot2{position:absolute;right:24px;bottom:16px;font:italic bold 13px Tahoma,Verdana,sans-serif!important;color:#ddd}
-</style><link rel="icon" type="image/png" href="icon-64.png?v=desk2"><link rel="shortcut icon" href="favicon.ico?v=desk2"><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body><script>window.DESKBUILD=273</script><meta name="robots" content="noindex,nofollow">
+</style><link rel="icon" type="image/png" href="icon-64.png?v=desk2"><link rel="shortcut icon" href="favicon.ico?v=desk2"><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body><script>window.DESKBUILD=274</script><meta name="robots" content="noindex,nofollow">
 <style>
 #gate{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;background:#5a7edc;font:14px Tahoma,Verdana,sans-serif;color:#fff}
 #gate .gt,#gate .gb{height:12%;background:#00309c}#gate .gt{border-bottom:2px solid #9db5ec}#gate .gb{border-top:2px solid #f2a24a}
@@ -2304,6 +2304,12 @@ function xpSel(doc){if(doc._xps)return;doc._xps=1;const close=()=>{const o=doc.g
   doc.body.append(dd);const h=dd.offsetHeight,vh=v.innerHeight;dd.style.top=(r.bottom+h>vh-4&&r.top>h?r.top-h:r.bottom)+'px'},true);
  doc.addEventListener('keydown',e=>{if(e.key==='Escape')close()});doc.defaultView.addEventListener('blur',close);doc.addEventListener('scroll',e=>{if(!(e.target.id==='xpdd'))close()},true)}
 xpSel(document);
+
+/* tiny health report so problems can be seen from the database */
+const DERR=[];addEventListener('error',e=>{DERR.push(String(e.message||e.error||'err').slice(0,200)+' @'+(e.lineno||'')+':'+(e.colno||''));DERR.splice(0,DERR.length-25)});addEventListener('unhandledrejection',e=>{DERR.push('rej '+String(e.reason&&e.reason.message||e.reason).slice(0,200));DERR.splice(0,DERR.length-25)});
+function deskDiag(tag){try{const sb=DSB();if(!sb)return;const fw=f=>{try{const w=f&&f.contentWindow;if(!w)return {none:1};const S=w.AM&&w.AM.S;let errs=[];try{errs=(w.__errs||[]).slice(-8)}catch(e){}return {href:String(w.location.href).slice(0,120),am:!!w.AM,signedOn:!!(S&&S.signedOn),booting:!!(S&&S.booting),uid:S&&S.uid||null,profiles:S&&S.profiles?S.profiles.size:-1,msgs:S&&S.msgs?S.msgs.length:-1,errs}}catch(e){return {x:String(e).slice(0,120)}}};
+ sb.from('desk_diag').insert({data:{tag,v:window.DESKBUILD||0,href:location.href.slice(0,120),ua:navigator.userAgent.slice(0,140),on:document.body.classList.contains('on'),real:document.body.classList.contains('real'),eng:fw(ENGF),fr:fw(document.getElementById('fr')),people:Object.keys(PEOPLE||{}).slice(0,12),errs:DERR.slice(-15)}}).then(()=>{},()=>{})}catch(e){}}
+setTimeout(()=>deskDiag('20s'),20000);setTimeout(()=>deskDiag('70s'),70000);
 
 /* notifications: tray envelope + right-side panel */
 const NOTIF=[];let ntSeen=false;let ntSub={Blakey:1};
