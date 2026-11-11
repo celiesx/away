@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="353">
-<link rel="icon" type="image/png" href="icon-64.png?v=353">
-<link rel="shortcut icon" href="favicon.ico?v=353">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=353">
-<link rel="manifest" href="manifest.webmanifest?v=353">
+<meta name="build" content="354">
+<link rel="icon" type="image/png" href="icon-64.png?v=354">
+<link rel="shortcut icon" href="favicon.ico?v=354">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=354">
+<link rel="manifest" href="manifest.webmanifest?v=354">
 <script>window.__errs=[];addEventListener('error',function(e){__errs.push(String(e.message).slice(0,200)+' @'+e.lineno+':'+e.colno)});addEventListener('unhandledrejection',function(e){__errs.push('rej '+String(e.reason&&e.reason.message||e.reason).slice(0,200))});</script>
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&family=DotGothic16&display=swap">
@@ -531,6 +531,12 @@ a.btn{text-decoration:none;display:inline-flex;align-items:center;justify-conten
 .npwin .npdrop[hidden]{display:none}.npwin .npdrop button{text-align:left;padding:2px 22px 2px 10px;font-family:inherit;font-size:19px;color:#111;background:transparent;border:0;border-radius:0;cursor:pointer}.npwin .npdrop button:hover{background:#3a54a8;color:#fff}
 .npwin textarea{margin:0 3px;height:min(56vh,420px);resize:none;background:#fff;color:#111;border:2px solid;border-color:#404040 #fff #fff #404040;border-radius:0;font-family:VT323,'Courier New',monospace;font-size:20px;line-height:1.15}
 .npwin .npst{padding:2px 8px 3px;font-size:16px;color:#333}
+.vplay{display:inline-flex;align-items:center;gap:7px;margin-top:4px;padding:4px 9px 4px 4px;max-width:100%;background:#f9e3ec;border:1px solid #c98aa5;border-radius:14px;box-shadow:inset 0 1px #fff;color:#5a2a44;font:12px Tahoma,sans-serif}
+.vplay audio{display:none}.vpbtn{flex:none;width:22px;height:22px;padding:0;border-radius:50%;border:1px solid #a0566f;background:linear-gradient(#ffb7d0,#e07ba1);display:grid;place-items:center;cursor:pointer;box-shadow:inset 0 1px #fff8}
+.vpic{width:0;height:0;border-left:7px solid #fff;border-top:5px solid transparent;border-bottom:5px solid transparent;margin-left:2px}.vplay.on .vpic{width:7px;height:9px;border:0;margin:0;background:linear-gradient(90deg,#fff 0 2px,transparent 2px 5px,#fff 5px 7px)}
+.vpwave{display:inline-flex;align-items:center;gap:2px;height:18px;cursor:pointer}.vpwave i{display:block;width:3px;border-radius:1px;background:#d9a3b9}.vpwave i.on{background:#b0306a}
+.vptm{font-variant-numeric:tabular-nums;min-width:28px;color:#7a3a5c}.vplbl{font-size:11px;color:#b0306a;letter-spacing:.02em}.vplay.vm{background:#fff4d6;border-color:#d1a85a}.vplay.vm .vpbtn{background:linear-gradient(#ffd98a,#e9a53a);border-color:#a8742a}.vplay.vm .vpwave i{background:#e8cf96}.vplay.vm .vpwave i.on{background:#b27716}.vplay.vm .vplbl{color:#8a5a10}
+
 #bdOv{position:fixed;inset:0;z-index:9999;background:#0006;display:grid;place-items:center}
 #bdOv .bdbox{width:min(94vw,520px);background:#c0c0c0;box-shadow:inset -1px -1px #000,inset 1px 1px #dfdfdf,inset -2px -2px #808080,inset 2px 2px #fff,4px 4px 0 #0005;padding:3px}
 #bdOv .bdtb{display:flex;justify-content:space-between;align-items:center;background:linear-gradient(90deg,#c75f8b,#f2a7c6);color:#fff;font:bold 13px Tahoma,sans-serif;padding:3px 4px 3px 8px}#bdOv .bdtb button{width:20px;height:18px;padding:0;border:0;background:#c0c0c0;color:#000;font:bold 13px Tahoma;box-shadow:inset -1px -1px #000,inset 1px 1px #fff,inset -2px -2px #808080;cursor:pointer}
@@ -1055,7 +1061,7 @@ document.getElementById("xbPw").addEventListener("click",start);addEventListener
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=353"></script>
+<script src="config.js?v=354"></script>
 <script>
 (() => {
 'use strict';
@@ -1886,8 +1892,9 @@ function renderLog() {
         cont ? h('span') : avBtn(p || { sn: '?', theme: { ac } }, 40),
         h('div', { class: 'body' },
           cont ? null : h('div', { class: 'hd' }, h('button', { class: 'chip', type: 'button', style: sty, onclick: open }, sn), h('time', {}, fmtTime(m.ts))),
-          h('div', { class: 'tx' }, rqEl, r.nodes, m.image ? (isFile(m) ? fileEl(m) : isVid(m) ? vidEl(m) : isVoice(m) ? voiceBox(m) : picEl(m.image)) : null), r.cards, reactBar(m),
+          h('div', { class: 'tx' }, rqEl, isVoice(m) && m.text === '(voicemail)' ? null : r.nodes, m.image ? (isFile(m) ? fileEl(m) : isVid(m) ? vidEl(m) : isVoice(m) ? voiceBox(m) : picEl(m.image)) : null), r.cards, reactBar(m),
           h('div', { class: 'macts' },
+            h('button', { class: 'pinb', type: 'button', 'aria-label': 'Reply to this message', onclick: () => startReply(m) }, 'reply'),
             h('button', { class: 'pinb rxb', type: 'button', 'aria-label': 'Add a reaction', onclick: e => { if (pickEl) return closePicker(); const b = e.currentTarget.getBoundingClientRect(); openPicker(b.left, b.bottom + 4, em => toggleReact(m, em)); } }, 'react'),
             isRoom(S.conv) && (m.text || (m.image && !isFile(m))) ? h('button', { class: 'pinb', type: 'button', 'aria-label': 'Pin this message', onclick: () => pinMsg(m) }, 'pin') : null,
             m.uid === S.uid ? h('button', { class: 'pinb delb', type: 'button', 'aria-label': 'Delete this message', onclick: () => delMsg(m) }, 'delete') : null)));
@@ -3004,7 +3011,7 @@ async function callStart(to, why) {
   if (!(await callMic())) { callEnd(false, 'nomic'); return false; }
   const me = mine(); callSend(to, 'ring', { why: CALL.why, sn: me ? me.sn : '' });
   callTone(true, true);
-  CALL.to = setTimeout(() => { if (CALL.st === 'calling') { callSend(CALL.peer, 'cancel'); callEnd(false, 'noanswer'); } }, 30000);
+  CALL.to = setTimeout(() => { if (CALL.st === 'calling') { callSend(CALL.peer, 'cancel'); callEnd(false, 'noanswer'); } }, 20000);
   return true;
 }
 async function callAccept() {
@@ -4203,17 +4210,31 @@ $('photoBtn').addEventListener('click', () => $('photoIn').click());
 }
 S.tOpen = S.tOpen || new Set();
 function voiceBox(m) {
-  const a = voiceEl(m.image);
+  const a = voiceEl(m.image, m.text === '(voicemail)' ? 'Voicemail' : '');
   if (!m.transcript) return a;
   const open = S.tOpen.has(m.id), tx = h('div', { class: 'tscr', hidden: !open }, h('b', {}, 'Transcript '), m.transcript);
   const tb = h('button', { class: 'tbtn' + (open ? ' on' : ''), type: 'button', 'aria-label': 'Show transcript', title: 'Transcript', onclick: () => { const on = tx.hidden; tx.hidden = !on; tb.classList.toggle('on', on); if (on) S.tOpen.add(m.id); else S.tOpen.delete(m.id); } }, 'T');
   return h('div', { class: 'vbox' }, h('div', { class: 'vrow' }, a, tb), tx);
 }
-function voiceEl(path) {
-  const a = h('audio', { class: 'voice', controls: '', preload: 'metadata' });
-  const set = u => { if (u) a.src = u; else a.replaceWith(h('span', { class: 'muted' }, 'voice message expired')); };
+function voiceEl(path, label) {
+  const a = h('audio', { preload: 'metadata' });
+  let seed = 0; for (const ch of path) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
+  const bars = Array.from({ length: 22 }, (_, i) => { seed = (seed * 1103515245 + 12345) >>> 0; const v = 3 + (seed >>> 16) % 13; return h('i', { style: 'height:' + (i < 2 || i > 19 ? Math.min(v, 6) : v) + 'px' }); });
+  const wave = h('span', { class: 'vpwave' }, ...bars), tm = h('span', { class: 'vptm' }, '0:00');
+  const ic = h('span', { class: 'vpic' });
+  const btn = h('button', { class: 'vpbtn', type: 'button', 'aria-label': 'Play' }, ic);
+  const box = h('div', { class: 'vplay' + (label ? ' vm' : '') }, btn, label ? h('b', { class: 'vplbl' }, label) : null, wave, tm, a);
+  const fmt = t => Math.floor(t / 60) + ':' + String(Math.floor(t % 60)).padStart(2, '0');
+  const dur = () => isFinite(a.duration) && a.duration > 0 ? a.duration : 0;
+  const draw = () => { const f = dur() ? a.currentTime / dur() : 0; bars.forEach((b, i) => b.classList.toggle('on', i / bars.length < f)); tm.textContent = a.paused && !a.currentTime ? fmt(dur()) : fmt(a.currentTime); };
+  a.addEventListener('loadedmetadata', () => { if (a.duration === Infinity) { a.currentTime = 1e9; a.addEventListener('timeupdate', function fix() { a.removeEventListener('timeupdate', fix); a.currentTime = 0; draw(); }); } draw(); });
+  a.addEventListener('timeupdate', draw); a.addEventListener('play', () => { box.classList.add('on'); btn.setAttribute('aria-label', 'Pause'); });
+  a.addEventListener('pause', () => { box.classList.remove('on'); btn.setAttribute('aria-label', 'Play'); }); a.addEventListener('ended', () => { a.currentTime = 0; draw(); });
+  btn.onclick = () => { if (a.paused) fire(a.play()); else a.pause(); };
+  wave.onclick = e => { if (!dur()) return; const r = wave.getBoundingClientRect(); a.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * dur(); draw(); };
+  const set = u => { if (u) a.src = u; else box.replaceWith(h('span', { class: 'muted' }, (label ? 'voicemail' : 'voice message') + ' expired')); };
   const c = urlCache.get(path); if (c && c.exp > Date.now()) set(c.url); else mediaUrl(path).then(set);
-  return a;
+  return box;
 }
 let REC = null; const MIC_ICON = $('micBtn').firstElementChild.cloneNode(true);
 async function micToggle() {
@@ -4451,12 +4472,12 @@ window.addEventListener('focus', () => { if (S.pings) { S.pings = 0; setBadge();
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '353' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '354' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '353') { newBuild = m[1]; updFlag(); }
+    if (m && m[1] !== BUILD && m[1] !== '354') { newBuild = m[1]; updFlag(); }
   } catch {}
 }
 function updFlag() {
