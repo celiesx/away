@@ -1841,7 +1841,7 @@ body.real #vcPrivBtn{display:none!important}
 #boot.run .bt-pw{display:none}
 #boot .bt-foot{position:absolute;left:24px;bottom:18px;font-size:11px;color:#8a8a8a}
 #boot .bt-foot2{position:absolute;right:24px;bottom:16px;font:italic bold 13px Tahoma,Verdana,sans-serif!important;color:#ddd}
-</style><link rel="icon" type="image/png" href="icon-64.png?v=desk2"><link rel="shortcut icon" href="favicon.ico?v=desk2"><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body><script>window.DESKBUILD=295</script><meta name="robots" content="noindex,nofollow">
+</style><link rel="icon" type="image/png" href="icon-64.png?v=desk2"><link rel="shortcut icon" href="favicon.ico?v=desk2"><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body><script>window.DESKBUILD=296</script><meta name="robots" content="noindex,nofollow">
 <script>(function(){var q=location.search,h=location.hash;if(/[?&](code|state|error)=/.test(q)||/access_token|type=recovery|error_description/.test(h)){location.replace('app.html'+q+h)}})();</script>
 <style>
 #gate{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;background:#000;font:14px Tahoma,Verdana,sans-serif;color:#fff}
@@ -1858,7 +1858,7 @@ body.real #vcPrivBtn{display:none!important}
 #gate form[hidden]{display:none!important}
 #gate .glogo,#gate .gmsg,#gate .gmsg small{color:#fff!important}
 #gate .gerr{color:#47041C!important}
-#gate .gt,#gate .gb,#gate .gbox{display:none!important}</style>
+#gate .gt,#gate .gb,#gate .gbox{display:none}</style>
 <div id="gate"><div class="gt"></div><div class="gm"><div class="gbox"><div class="glogo">away</div><div class="gmsg" id="gMsg"></div><form id="gForm" hidden><input id="gEmail" type="email" placeholder="email" autocomplete="username"><input id="gPw" type="password" placeholder="password" autocomplete="current-password"><button>sign in</button><div class="gerr" id="gErr"></div></form></div></div><div class="gb"></div></div>
 <script src="config.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
@@ -1866,9 +1866,10 @@ body.real #vcPrivBtn{display:none!important}
 (async()=>{const G=document.getElementById('gate'),M=document.getElementById('gMsg'),F=document.getElementById('gForm');
  const nope=()=>{F.hidden=true;M.innerHTML='under construction<br><small>something cute is coming. <a href="./">back to Away Message</a></small>'};
  let sb;try{sb=supabase.createClient(window.AWAY_CONFIG.url,window.AWAY_CONFIG.key,{auth:{persistSession:true,autoRefreshToken:true}})}catch(e){nope();return}
- const check=async s=>{if(!s){location.replace('app.html');return}
+ const hop=()=>{try{const n=+sessionStorage.getItem('am.hop')||0,t=+sessionStorage.getItem('am.hopT')||0;if(Date.now()-t<15000&&n>=2){sessionStorage.setItem('am.hop','0');document.querySelectorAll('#gate .gt,#gate .gb,#gate .gbox').forEach(e=>e.style.setProperty('display','','important'));G.style.background='#5a7edc';M.textContent='sign in';F.hidden=false;return}sessionStorage.setItem('am.hop',String(n+1));sessionStorage.setItem('am.hopT',String(Date.now()))}catch(e){}location.replace('app.html')};
+ const check=async s=>{if(!s){hop();return}
   const {data}=await sb.from('profiles').select('role').eq('id',s.user.id).maybeSingle();
-  if(data&&data.role==='admin'){window.deskSb=sb;window.deskUid=s.user.id;G.remove()}else location.replace('app.html')};
+  if(data&&data.role==='admin'){try{sessionStorage.removeItem('am.hop')}catch(e){}window.deskSb=sb;window.deskUid=s.user.id;G.remove()}else hop()};
  F.onsubmit=async e=>{e.preventDefault();document.getElementById('gErr').textContent='';const {data,error}=await sb.auth.signInWithPassword({email:document.getElementById('gEmail').value.trim(),password:document.getElementById('gPw').value});if(error){document.getElementById('gErr').textContent='that didn\'t work, try again';return}check(data.session)};
  try{const {data:{session}}=await sb.auth.getSession();check(session)}catch(e){nope()}})();
 </script>
