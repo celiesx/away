@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="352">
-<link rel="icon" type="image/png" href="icon-64.png?v=352">
-<link rel="shortcut icon" href="favicon.ico?v=352">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=352">
-<link rel="manifest" href="manifest.webmanifest?v=352">
+<meta name="build" content="353">
+<link rel="icon" type="image/png" href="icon-64.png?v=353">
+<link rel="shortcut icon" href="favicon.ico?v=353">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=353">
+<link rel="manifest" href="manifest.webmanifest?v=353">
 <script>window.__errs=[];addEventListener('error',function(e){__errs.push(String(e.message).slice(0,200)+' @'+e.lineno+':'+e.colno)});addEventListener('unhandledrejection',function(e){__errs.push('rej '+String(e.reason&&e.reason.message||e.reason).slice(0,200))});</script>
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&family=DotGothic16&display=swap">
@@ -1055,7 +1055,7 @@ document.getElementById("xbPw").addEventListener("click",start);addEventListener
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=352"></script>
+<script src="config.js?v=353"></script>
 <script>
 (() => {
 'use strict';
@@ -2108,7 +2108,7 @@ function renderProfile() {
   if (!S.editing && id && id !== S.uid) body.append(modPanel(id, p));
   if (!S.editing && id && id !== S.uid && isStaff()) body.append(staffTagsBox(id));
   { const rc = p.role === 'admin' || p.role === 'mod' ? h('span', { class: 'rolechip' }, p.role) : null;
-    if (p.bio || rc) body.append(h('div', { class: 'sec' }, h('h3', {}, 'About me', rc), p.bio ? h('p', {}, p.bio) : null)); }
+    if (p.bio || rc) body.append(h('div', { class: 'sec' }, h('h3', {}, 'About me', rc), p.bio ? h('p', {}, ...[].concat(emoText(p.bio, 'em'))) : null)); }
   if (p.created) body.append(h('div', { class: 'sec' }, h('h3', {}, 'Member since'), h('p', {}, new Date(p.created).toLocaleDateString([], { month: 'long', day: 'numeric', year: 'numeric' }), null)));
   const liveNp = id === S.uid ? S.np : (S.online.has(id) && S.pmeta[id] && S.pmeta[id].st !== 'invis' ? S.pmeta[id].np : null);
   if (liveNp && liveNp.t && typeof liveNp.d === 'number') {
@@ -4451,12 +4451,12 @@ window.addEventListener('focus', () => { if (S.pings) { S.pings = 0; setBadge();
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '352' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '353' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '352') { newBuild = m[1]; updFlag(); }
+    if (m && m[1] !== BUILD && m[1] !== '353') { newBuild = m[1]; updFlag(); }
   } catch {}
 }
 function updFlag() {
@@ -4546,7 +4546,7 @@ async function sendTo(to, text) {
   if (addMsg(data, false)) { renderLog(); renderConvs(); } return { ok: true };
 }
 async function sendFileTo(to, file) { const prev = S.extra; const ok = await sendPhoto(file, { to }); return ok ? { ok: true } : { error: S.extra && S.extra !== prev ? S.extra : 'That did not go through.' }; }
-try { window.spToken = spToken; window.AM = { get S() { return S; }, friendAct, frOf: id => frOf(id), spToken, mediaUrl, openConv, selectProfile, setMood, setAway, convOf, sendTo, sendFileTo, callStart, callAccept, callDecline, callHang, callMute }; } catch {}
+try { window.spToken = spToken; window.AM = { get S() { return S; }, emoText: (t, c) => emoText(String(t || ''), c || 'em'), friendAct, frOf: id => frOf(id), spToken, mediaUrl, openConv, selectProfile, setMood, setAway, convOf, sendTo, sendFileTo, callStart, callAccept, callDecline, callHang, callMute }; } catch {}
 })();
 </script>
 </body>
