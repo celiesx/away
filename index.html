@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="1794368611">
-<link rel="icon" type="image/png" href="icon-64.png?v=1794368611">
-<link rel="shortcut icon" href="favicon.ico?v=1794368611">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1794368611">
-<link rel="manifest" href="manifest.webmanifest?v=1794368611">
+<meta name="build" content="1794370085">
+<link rel="icon" type="image/png" href="icon-64.png?v=1794370085">
+<link rel="shortcut icon" href="favicon.ico?v=1794370085">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=1794370085">
+<link rel="manifest" href="manifest.webmanifest?v=1794370085">
 <script>window.__errs=[];addEventListener('error',function(e){__errs.push(String(e.message).slice(0,200)+' @'+e.lineno+':'+e.colno)});addEventListener('unhandledrejection',function(e){__errs.push('rej '+String(e.reason&&e.reason.message||e.reason).slice(0,200))});</script>
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&display=swap">
@@ -100,6 +100,60 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 .logo{margin:0 0 6px;font-size:clamp(34px,9vw,52px);line-height:.95;letter-spacing:-.03em;font-weight:800}
 .logo span{display:inline-block;background:var(--ac);color:var(--on-ac);padding:0 8px;margin-top:4px}
 #soBtn{margin-top:12px;padding:9px}#soGoSlot #soBtn{margin-top:0}
+
+
+/* XP welcome screen */
+#signon.xpso[hidden]{display:none!important}
+#signon.xpso{position:fixed;inset:0;z-index:60;padding:0;display:flex;flex-direction:column;overflow:hidden;background:#5a7edc;font-family:Tahoma,Verdana,'Segoe UI',sans-serif;color:#fff}
+#signon.xpso .xpw-top{flex:none;height:10vh;min-height:56px;background:#00309c;border-bottom:2px solid;border-image:linear-gradient(90deg,#00309c,#9db5ec 30%,#9db5ec 70%,#00309c) 1}
+#signon.xpso .xpw-bot{flex:none;height:12vh;min-height:66px;background:#00309c;border-top:2px solid;border-image:linear-gradient(90deg,#00309c,#f2a24a 30%,#f2a24a 70%,#00309c) 1;display:flex;align-items:center;justify-content:space-between;padding:0 4vw;gap:12px}
+#signon.xpso #soForm{flex:1;min-height:0;width:100%;max-width:none;margin:0;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 12% 12%,#7a9ef0,#5a7edc 55%) !important;overflow:auto}
+#signon.xpso .so-body{width:min(860px,100%);display:grid;grid-template-columns:1fr 2px 1fr;align-items:center;gap:0 34px;padding:24px 20px}
+#signon.xpso .so-body::before{content:'';grid-column:2;grid-row:1;align-self:stretch;min-height:240px;background:linear-gradient(transparent,#c7d6f7 25%,#c7d6f7 75%,transparent)}
+#signon.xpso .xpw-left{grid-column:1;grid-row:1;text-align:right;display:flex;flex-direction:column;align-items:flex-end;gap:10px}
+#signon.xpso .so-logo{font:italic bold clamp(34px,5vw,50px) Tahoma,sans-serif!important;color:#fff;text-shadow:2px 3px 4px #0003;letter-spacing:-1px;text-align:right}
+#signon.xpso .so-logo span{background:none!important;color:#ffb347!important;padding:0!important;font-size:.5em;vertical-align:super;font-style:italic}
+#signon.xpso .xpw-begin{margin:0;font-size:15px;color:#fff}
+#signon.xpso #soMsg{text-align:right!important;max-width:320px;color:#dbe6ff!important;font-size:12px;line-height:1.45;margin:4px 0 0!important;opacity:.95}
+#signon.xpso .so-ava,#signon.xpso .so-clock{display:none}
+#signon.xpso .so-stage{grid-column:3;grid-row:1;min-height:0;display:flex;flex-direction:column;gap:6px}
+#signon.xpso .xpw-tiles{display:flex;flex-direction:column;gap:4px}
+#signon.xpso .xpt{display:flex;gap:12px;align-items:flex-start;padding:7px 10px;border-radius:8px;cursor:pointer;transition:background .15s;outline:0}
+#signon.xpso .xpt:hover,#signon.xpso .xpt:focus-visible{background:#ffffff1f}
+#signon.xpso .xpt.on{background:linear-gradient(90deg,#00309c,#00309c00);cursor:default}
+#signon.xpso .xpt-pic{flex:none;width:52px;height:52px;border:2px solid #fff;border-radius:5px;overflow:hidden;box-shadow:0 0 0 1px #7ba0e8;display:grid;place-items:center;background:#7ba0e8}
+#signon.xpso .xpt-pic .av,#signon.xpso .xpt-pic svg{width:48px!important;height:48px!important;border-radius:0!important;border:0!important;font-size:22px}
+#signon.xpso .xpt:hover .xpt-pic,#signon.xpso .xpt.on .xpt-pic{border-color:#ffc83c}
+#signon.xpso .xpt-who{flex:1;min-width:0;padding-top:4px}#signon.xpso .xpt-who b{font-size:17px;font-weight:normal}
+#signon.xpso .xpt-slot:empty{display:none}#signon.xpso .xpt-slot{margin-top:6px}
+#signon.xpso .so-fields.xphide{display:none}
+#signon.xpso .so-fields{gap:4px}
+#signon.xpso #soForm{border-radius:0!important}#signon.xpso .so-fields{width:min(250px,100%)}
+#signon.xpso #fPass label.sr{text-transform:none!important;letter-spacing:0!important;position:static!important;width:auto!important;height:auto!important;clip:auto!important;margin:0 0 3px;font-size:12px;color:#fff;display:block}
+#signon.xpso #soForm .f{margin:0 0 4px}
+#signon.xpso #soForm .f input{padding:5px 7px;font:13px Tahoma,sans-serif;border:1px solid #00309c!important;border-radius:3px;color:#000}
+#signon.xpso .so-pw{gap:6px;align-items:center}
+#signon.xpso .so-go{width:26px!important;height:26px;border-radius:4px!important;background:linear-gradient(#7cd668,#2f9a2f 60%,#1f7d1f)!important;border:1px solid #fff!important;box-shadow:0 1px 2px #0005;color:#fff!important;font:bold 16px/1 Tahoma!important}
+#signon.xpso .so-go:hover{filter:brightness(1.1)}
+#signon.xpso #soErr{color:#ffe08a!important}
+#signon.xpso .so-optbtn,#signon.xpso #soOpts{color:#fff!important;font:13px Tahoma!important;padding:4px 0!important;margin:0!important;text-decoration:none}
+#signon.xpso #soOpts::before{content:'';display:inline-block;width:22px;height:22px;margin-right:8px;vertical-align:-6px;border-radius:4px;border:1px solid #fff;background:linear-gradient(#ff9a5a,#d4531c);box-shadow:inset 0 1px #fff8}
+#signon.xpso .xpw-botr{display:flex;align-items:center;gap:14px}
+#signon.xpso .xpw-botr .so-clock{display:flex!important;flex-direction:column;align-items:flex-end;gap:0;margin:0;color:#dbe6ff;font-size:12px}
+#signon.xpso .xpw-help{width:24px;height:24px;border-radius:50%;border:1px solid #fff;background:linear-gradient(#5aa0ff,#1a55d6);color:#fff;font:bold 14px Tahoma;cursor:pointer;padding:0}
+#signon.xpso .so-optin{color:#000}
+#signon.xpso #soInfo{}
+#signon.xpso:not(.xptiles) .so-fields{max-width:280px}
+@media (max-width:640px){#signon.xpso .so-body{grid-template-columns:1fr;gap:16px}#signon.xpso .so-body::before{display:none}#signon.xpso .xpw-left,#signon.xpso .so-stage{grid-column:1;grid-row:auto;align-items:center;text-align:center}#signon.xpso .so-logo,#signon.xpso #soMsg{text-align:center!important}#signon.xpso .xpw-top{height:6vh;min-height:30px}#signon.xpso .xpw-bot{height:auto;padding:10px 16px}}
+/* XP boot */
+#xpBoot{position:fixed;inset:0;z-index:99;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:40px;transition:opacity .8s ease;font-family:Tahoma,Verdana,sans-serif;color:#fff}
+#xpBoot.out{opacity:0;pointer-events:none}
+#xpBoot .xb-logo{display:flex;align-items:center;gap:12px}#xpBoot .xb-logo img{width:56px;height:56px}
+#xpBoot .xb-logo b{font:italic bold 32px Tahoma,sans-serif}#xpBoot .xb-logo i{color:#ff9a2e;font-size:15px;vertical-align:super}
+#xpBoot .xb-bar{width:118px;height:14px;border:2px solid #b5b5b5;border-radius:4px;position:relative;overflow:hidden}
+#xpBoot .xb-bar span{position:absolute;top:50%;transform:translateY(-50%);left:-30px;display:flex;gap:2px;animation:xbs 1.6s linear infinite}#xpBoot .xb-bar span i{width:8px;height:8px;border-radius:1px;background:linear-gradient(#9cc0ff,#2e62d9 55%,#1c3f9c)}
+@keyframes xbs{to{left:122px}}
+#xpBoot small{position:absolute;left:20px;bottom:16px;color:#888;font-size:11px}
 
 /* desk */
 #desk{flex:1;min-height:0;display:grid;grid-template-columns:clamp(280px,21vw,300px) minmax(0,1fr) 340px;grid-template-rows:minmax(0,1fr);gap:14px}
@@ -727,6 +781,8 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </style>
 </head>
 <body>
+<div id="xpBoot" hidden><div class="xb-logo"><img src="icon-64.png" alt=""><b>Away Message<i>xp</i></b></div><div class="xb-bar"><span><i></i><i></i><i></i></span></div><small>Copyright &copy; Away Message</small></div>
+<script>(function(){try{if(/[?&]desk=1/.test(location.search)||sessionStorage.getItem("am.booted"))return;sessionStorage.setItem("am.booted","1");var b=document.getElementById("xpBoot");b.hidden=false;setTimeout(function(){b.classList.add("out");setTimeout(function(){b.remove()},900)},2200)}catch(e){}})();</script>
 <div id="app">
   <div id="updBar" class="warnbar updbar" hidden><span class="grow">Away updated. Tap ⟳ to refresh.</span><button id="updBtn" class="btn sm" type="button">Refresh</button></div>
   <div id="bootMsg" class="bootmsg" hidden>signing on...</div>
@@ -899,7 +955,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=1794368611"></script>
+<script src="config.js?v=1794370085"></script>
 <script>
 (() => {
 'use strict';
@@ -1220,6 +1276,33 @@ function renderTabs() {
   const n = totalUnread(), u = $('unread'); u.hidden = !n || S.tab === 'chat'; u.textContent = n > 9 ? '9+' : String(n);
 }
 
+
+/* XP-style welcome: remembered people as tiles, click your name, type your password, green arrow */
+S.xpSel = null;
+function xpAccts() { let L = []; try { L = JSON.parse(LS.get('am.accts') || '[]'); } catch {} if (!Array.isArray(L)) L = []; if (!L.length) { try { const last = JSON.parse(LS.get('am.last') || 'null'); if (last && last.sn && LS.get('am.lastEm')) L = [{ em: LS.get('am.lastEm'), sn: last.sn, a: last.a || '' }]; } catch {} } return L.filter(x => x && x.em && x.sn); }
+function xpTiles() {
+  const so = $('signon'); if (!so) return; so.classList.add('xpso');
+  if (!so.querySelector('.xpw-top')) { so.prepend(h('div', { class: 'xpw-top' })); so.append(h('div', { class: 'xpw-bot' }, h('div', { class: 'xpw-botl', id: 'xpBotL' }), h('div', { class: 'xpw-botr', id: 'xpBotR' }))); $('xpBotL').append($('soOpts')); $('xpBotR').append($('soInfo').cloneNode(true)); $('xpBotR').lastChild.id = 'xpHelp'; $('xpBotR').lastChild.className = 'xpw-help'; $('xpBotR').lastChild.textContent = '?'; $('xpBotR').lastChild.title = 'How does this work?'; $('xpBotR').lastChild.onclick = () => $('soInfo').click(); $('xpBotR').prepend($('soTime').parentElement); }
+  if (!$('xpLeft')) { const L = h('div', { class: 'xpw-left', id: 'xpLeft' }); const lg = document.querySelector('.so-logo'); lg.before(L); L.append(lg, h('p', { class: 'xpw-begin', id: 'xpBegin' }), $('soMsg')); }
+  const stage = $('soStage'); let T = $('xpTiles'); if (!T) { T = h('div', { class: 'xpw-tiles', id: 'xpTiles' }); stage.prepend(T); }
+  const m = S.mode, list = m === 'login' ? xpAccts() : [];
+  $('xpBegin').textContent = m === 'login' ? (list.length ? 'To begin, click your user name' : 'To begin, sign on with your email') : '';
+  so.classList.toggle('xptiles', list.length > 0);
+  if (!list.length) { if (T.childNodes.length) T.replaceChildren(); if ($('soFields').parentElement !== stage) stage.append($('soFields')); $('soFields').classList.remove('xphide'); return; }
+  if (S.xpSel != null && S.xpSel !== 'other' && !list[S.xpSel]) S.xpSel = null;
+  const key = JSON.stringify(list.map(x => x.em + x.sn + (x.a || '').length)) + '|' + S.xpSel;
+  if (T.dataset.k !== key) {
+    T.dataset.k = key; if (T.contains($('soFields'))) stage.append($('soFields')); T.replaceChildren();
+    const mk = (i, sn, av) => { const t = h('div', { class: 'xpt' + (S.xpSel === i ? ' on' : ''), role: 'button', tabindex: '0' }); const pic = h('span', { class: 'xpt-pic' }); pic.append(av); t.append(pic, h('div', { class: 'xpt-who' }, h('b', {}, sn), h('div', { class: 'xpt-slot' }))); t.addEventListener('click', e => { if (e.target.closest('.xpt-slot')) return; if (S.xpSel === i) return; S.xpSel = i; showSoErr(''); $('pwIn').value = ''; if (i === 'other') $('emIn').value = ''; renderSignon(); setTimeout(() => (i === 'other' ? $('emIn') : $('pwIn')).focus(), 30); }); t.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target === t) t.click(); }); return t; };
+    list.forEach((x, i) => T.append(mk(i, x.sn, avatar({ sn: x.sn, avatar: okAvatar(x.a || ''), theme: null }, 48))));
+    const d = new DOMParser().parseFromString('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48"><rect width="48" height="48" fill="#7ba0e8"/><circle cx="24" cy="18" r="9" fill="#fff"/><path fill="#fff" d="M8 46c0-10 7-16 16-16s16 6 16 16z"/></svg>', 'image/svg+xml');
+    T.append(mk('other', 'Someone else', document.importNode(d.documentElement, true)));
+  }
+  const sel = S.xpSel, slot = sel == null ? null : T.querySelector('.xpt.on .xpt-slot');
+  const F = $('soFields'), tgt = slot || stage; if (F.parentElement !== tgt) tgt.append(F); if (slot && sel !== 'other') { $('emIn').value = list[sel].em; $('fEmail').hidden = true; }
+  $('soFields').classList.toggle('xphide', sel == null);
+}
+
 let soAvaKey = null;
 function renderSoAva(returning) {
   let last = null; try { last = JSON.parse(LS.get('am.last') || 'null'); } catch {}
@@ -1250,7 +1333,7 @@ function renderSignon() {
     : m === 'reset' ? 'Pick a new password (at least 6 characters).'
     : m === 'setup' ? 'Almost there. Pick a screen name and enter the room code.'
     : (S.awayNote || splash());
-  loadHeads(); syncLnk();
+  loadHeads(); syncLnk(); xpTiles();
 }
 
 const SPLASHES = ['Sloths can hold their breath longer than dolphins.', 'Honeybees can recognize human faces.', 'A shrimp\'s heart is in its head.', 'Scotland\'s national animal is the unicorn.', 'Koalas have fingerprints almost like ours.', 'Hot water can freeze faster than cold water sometimes.', 'Sharks are older than trees.', 'A cloud can weigh over a million pounds.', 'Cows have best friends and get stressed when apart.', 'Goats have rectangular pupils.', 'The shortest war lasted about 40 minutes.', 'Pigeons can tell paintings by Monet from Picasso.', 'Owls cannot move their eyeballs.', 'Penguins propose with pebbles.', 'Starfish have no brain.', 'Your stomach gets a new lining every few days.', 'There are more stars than grains of sand on Earth, probably.', 'Flamingos are pink because of what they eat.', 'A snail can sleep for three years.', 'Dolphins call each other by name.', 'Rats laugh when tickled.', 'Mosquitoes prefer some blood types over others.', 'Tigers have striped skin, not just fur.', 'Humans share about 60 percent of their DNA with bananas.', 'The moon is slowly drifting away from Earth.', 'Elephants can\'t jump.', 'Cashews grow on the outside of a fruit.', 'Frogs can\'t live without water touching their skin.', 'Pandas spend most of the day eating bamboo.', 'Cats can\'t taste sweet things.', 'Octopuses have three hearts.', 'Honey found in ancient tombs was still edible.', 'Bananas are berries. Strawberries are not.', 'Wombat poop is cube shaped.', 'A group of crows is called a murder.', 'Sea otters hold hands while they sleep.', 'Cats have 32 muscles in each ear.', 'The first email was sent in 1971.', 'A day on Venus is longer than its year.', 'Butterflies taste with their feet.', 'The Eiffel Tower grows taller in summer.', 'Scotland\'s national animal is the unicorn.', 'A group of flamingos is called a flamboyance.', 'Bubble wrap started out as wallpaper.', 'Nintendo started in 1889 making playing cards.', 'Gentoo penguins propose with pebbles.', 'The moon drifts about 4 cm farther away every year.', 'Sloths can hold their breath longer than dolphins.', 'Cows have best friends.', 'Sign on. Be weird.', 'Lurking is allowed.', 'Nobody here is watching you type.', 'Tell a friend the room code. Quietly.', 'Welcome back to the lounge.', 'This page has no ads and no algorithm.', 'The @ sign is called a snail in Italy.', 'Raccoons rinse their food before eating it.', 'AIM launched in 1997.', 'Press the message. Press it again.'];
@@ -1301,6 +1384,7 @@ async function loadHeads() {
 function renderMe() { setTimeout(checkRole, 0);
   const p = mine(); if (!p) return;
   try { const v = JSON.stringify({ sn: p.sn, a: p.avatar && p.avatar.length < 30000 ? p.avatar : '' }); if (LS.get('am.last') !== v) LS.set('am.last', v); } catch {}
+  try { const em = S.session && S.session.user && S.session.user.email; if (em) { let L = []; try { L = JSON.parse(LS.get('am.accts') || '[]'); } catch {} if (!Array.isArray(L)) L = []; const a = { em, sn: p.sn, a: p.avatar && p.avatar.length < 30000 ? p.avatar : '' }; const i = L.findIndex(x => x && x.em === em); const prev = i >= 0 ? JSON.stringify(L[i]) : ''; if (prev !== JSON.stringify(a)) { if (i >= 0) L.splice(i, 1); L.unshift(a); LS.set('am.accts', JSON.stringify(L.slice(0, 6))); } } } catch {}
   $('meAv').replaceChildren(avatar(p, 40));
   $('meSn').textContent = p.sn;
   $('stSel').value = p.awayOn ? 'away' : (S.invis ? 'invis' : S.dnd ? 'dnd' : 'on');
@@ -3878,6 +3962,7 @@ async function openNotepad() {
 }
 /* ---------- wiring ---------- */
 $('soForm').addEventListener('submit', onSignon);
+$('soForm').addEventListener('submit', () => { try { const em = $('emIn').value.trim(); if (em) LS.set('am.lastEm', em); } catch {} });
 $('soSwap').addEventListener('click', swapMode);
 $('soBack').addEventListener('click', () => { showSoErr(''); S.mode = 'login'; renderSignon(); });
 wireSp();
@@ -4158,12 +4243,12 @@ window.addEventListener('focus', () => { if (S.pings) { S.pings = 0; setBadge();
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '1794368611' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '1794370085' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '1794368611') { newBuild = m[1]; updFlag(); }
+    if (m && m[1] !== BUILD && m[1] !== '1794370085') { newBuild = m[1]; updFlag(); }
   } catch {}
 }
 function updFlag() {
