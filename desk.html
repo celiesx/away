@@ -1740,6 +1740,10 @@ body.real #vcPrivBtn{display:none!important}
 .viewer.va{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;height:100%;background:#ece9d8;font:12px Tahoma}
 #bInfo{color:#111}#bInfo:disabled{opacity:.6}
 #mixPop.mxone .mxc:not(:first-child){display:none!important}#mixPop.mxone{width:auto!important;min-width:110px}#mixPop.mxone .mxt{font-size:11px}
+#w_games .gmsh2{margin-top:6px}
+#w_games .gitch{width:100%;display:flex;flex-direction:column;gap:10px}
+#w_games .gibox{background:#c0c0c0;padding:12px;box-shadow:inset 1px 1px #fff,inset -1px -1px #808080;display:flex;flex-direction:column;gap:10px;align-items:flex-start;font:12px Tahoma}
+#w_games .gibox p{margin:0;line-height:1.4}#w_games .gibox small{color:#444}
 /* XP-style boot */
 #boot{position:fixed;inset:0;z-index:2147483646;background:#000;transition:opacity 1.6s ease!important;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Tahoma,Verdana,sans-serif;color:#fff;cursor:pointer;transition:opacity .6s}
 #boot.out{opacity:0;pointer-events:none}
@@ -1762,7 +1766,7 @@ body.real #vcPrivBtn{display:none!important}
 #boot.run .bt-pw{display:none}
 #boot .bt-foot{position:absolute;left:24px;bottom:18px;font-size:11px;color:#8a8a8a}
 #boot .bt-foot2{position:absolute;right:24px;bottom:16px;font:italic bold 13px Tahoma,Verdana,sans-serif!important;color:#ddd}
-</style><link rel="icon" type="image/png" href="icon-64.png?v=desk2"><link rel="shortcut icon" href="favicon.ico?v=desk2"><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body><script>window.DESKBUILD=277</script><meta name="robots" content="noindex,nofollow">
+</style><link rel="icon" type="image/png" href="icon-64.png?v=desk2"><link rel="shortcut icon" href="favicon.ico?v=desk2"><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body><script>window.DESKBUILD=278</script><meta name="robots" content="noindex,nofollow">
 <style>
 #gate{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;background:#5a7edc;font:14px Tahoma,Verdana,sans-serif;color:#fff}
 #gate .gt,#gate .gb{height:12%;background:#00309c}#gate .gt{border-bottom:2px solid #9db5ec}#gate .gb{border-top:2px solid #f2a24a}
@@ -2116,9 +2120,11 @@ async function viewItem(m){let u='';try{u=await m.W.AM.mediaUrl(m.path)}catch(e)
  if(m.kind==='voice'){w.querySelector('b').textContent='from '+m.from;w.querySelector('audio').src=u}else w.querySelector('img').src=u}
 function openGames(){if(wins.games){show('games');return}
  const G=[['word','Word of the day'],['mine','Minesweeper'],['sol','Solitaire'],['ttt','Tic-tac-toe'],['bj','Blackjack'],['lib','More games']];
- const w=mkWin('games','Games',EXT.games,'<div class="gm gmv"><div class="gmside"><div class="gmsh">Games</div>'+G.map(g=>'<button data-g="'+g[0]+'"><i class="gmi gmi-'+g[0]+'"></i><span>'+g[1]+'</span></button>').join('')+'</div><div class="gmbody"></div></div>',{x:300,y:40,w:660,h:540});
- const B=w.querySelector('.gmbody'),go=g=>{w.querySelectorAll('.gmside button').forEach(x=>x.classList.toggle('on',x.dataset.g===g));B.innerHTML='';B.dataset.g=g;({word:gWord,ttt:gTTT,bj:gBJ,lib:gLib,mine:gMine,sol:gSol})[g](B);try{localStorage.setItem('deskGame',g)}catch(e){}};
- w.querySelectorAll('.gmside button').forEach(x=>x.onclick=()=>go(x.dataset.g));let g0='word';try{g0=localStorage.getItem('deskGame')||'word'}catch(e){}go(G.some(x=>x[0]===g0)?g0:'word')}
+ const IT=SITES2.filter(x=>!/youtube/.test(x[2]));G.pop();
+ const w=mkWin('games','Games',EXT.games,'<div class="gm gmv"><div class="gmside"><div class="gmsh">Games</div>'+G.map(g=>'<button data-g="'+g[0]+'"><i class="gmi gmi-'+g[0]+'"></i><span>'+g[1]+'</span></button>').join('')+'<div class="gmsh gmsh2">itch.io</div>'+IT.map(x=>'<button data-g="it_'+x[0]+'"><i class="gmi gmi-lib"></i><span>'+x[1]+'</span></button>').join('')+'</div><div class="gmbody"></div></div>',{x:300,y:40,w:660,h:540});
+ const B=w.querySelector('.gmbody'),go=g=>{w.querySelectorAll('.gmside button').forEach(x=>x.classList.toggle('on',x.dataset.g===g));B.innerHTML='';B.dataset.g=g;if(g.startsWith('it_')){const x=IT.find(y=>'it_'+y[0]===g);if(x)gItch(B,x);else return}else ({word:gWord,ttt:gTTT,bj:gBJ,mine:gMine,sol:gSol})[g](B);try{localStorage.setItem('deskGame',g)}catch(e){}};
+ w.querySelectorAll('.gmside button').forEach(x=>x.onclick=()=>go(x.dataset.g));let g0='word';try{g0=localStorage.getItem('deskGame')||'word'}catch(e){}go(G.some(x=>x[0]===g0)||IT.some(x=>'it_'+x[0]===g0)?g0:'word')}
+function gItch(B,x){B.innerHTML='<div class="gitch"><div class="gmhud"><span class="gmlogo"></span></div><div class="gibox"><p>itch.io doesn\'t let its games run inside other sites, so this one opens in its own window. Hit <b>Run game</b> once it loads.</p><button class="gmbtn">Play</button><small></small></div></div>';B.querySelector('.gmlogo').textContent=x[1];B.querySelector('small').textContent=x[2].replace('https://','');B.querySelector('.gmbtn').onclick=()=>window.open(x[2],'g_'+x[0],'popup,width=1100,height=760')}
 /* Minesweeper: classic 9x9, 10 mines */
 function gMine(B){const W=9,H=9,M=10;let cells,over,first,flags,t0,tick;
  B.innerHTML='<div class="ms"><div class="msbar"><span class="mslcd msm">010</span><button class="msface" title="New game"></button><span class="mslcd mst">000</span></div><div class="msgrid"></div></div>';
