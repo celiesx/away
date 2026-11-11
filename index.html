@@ -2233,7 +2233,11 @@ html body #cozyBox{background:#000}html body #cozyBox .amb{object-fit:contain!im
 #tasks>.tbtn.qlhid{display:none!important}
 
 .upd ul{max-height:290px;overflow:auto}
-</style><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body><script>window.DESKBUILD=338</script><meta name="robots" content="noindex,nofollow">
+
+.lasso{position:fixed;z-index:99999;border:1px dotted #000;background:rgba(49,106,197,.18);pointer-events:none}
+
+html body .w .sp-p .spkv span{color:#000!important}
+</style><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body><script>window.DESKBUILD=339</script><meta name="robots" content="noindex,nofollow">
 <script>(function(){var q=location.search,h=location.hash;if(/[?&](code|state|error)=/.test(q)||/access_token|type=recovery|error_description/.test(h)){location.replace('app.html'+q+h)}})();</script>
 <style>
 #gate{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;background:#000;font:14px Tahoma,Verdana,sans-serif;color:#fff}
@@ -2851,6 +2855,15 @@ function driveIco(){return "data:image/svg+xml,"+encodeURIComponent("<svg xmlns=
 function openComputer(){exNav('mc')}
 function openControl(){exNav('cp')}
 const EXL={dk:{t:'Desktop',ic:()=>IMG.computer,up:null},mc:{t:'My Computer',ic:()=>IMG.computer,up:'dk'},cp:{t:'Control Panel',ic:()=>EXT.moonmon,up:'mc'}};
+
+/* XP-style selecting: drag a box over icons, ctrl/cmd-click to pick more */
+{const IT='.cpi,.fi';const selC=el=>el.classList.contains('fi')?'sel':'on';
+ const after=(w,box)=>{const n=box.querySelectorAll('.cpi.on,.fi.sel').length;const st=w.querySelector('.mcst');if(st)st.textContent=n?n+' object(s) selected':box.querySelectorAll('.cpi').length+' object(s)';const d=w.querySelector('.fdel');if(d)d.disabled=!box.querySelectorAll('.fi.sel.own').length};
+ document.addEventListener('click',e=>{if(!(e.metaKey||e.ctrlKey))return;const it=e.target.closest&&e.target.closest('.cpi');if(!it||!it.closest('.exbody'))return;e.stopPropagation();e.preventDefault();it.classList.toggle('on');const w=it.closest('.w');after(w,it.closest('.exbody'))},true);
+ document.addEventListener('pointerdown',e=>{if(e.button!==0)return;const box=e.target.closest&&e.target.closest('.exbody,.fbody');if(!box||e.target.closest(IT)||e.target.closest('button,input,a'))return;const w=box.closest('.w');const r0=box.getBoundingClientRect(),x0=e.clientX,y0=e.clientY,add=e.metaKey||e.ctrlKey||e.shiftKey;let lb=null,moved=false;const pre=new Set(add?[...box.querySelectorAll('.cpi.on,.fi.sel')]:[]);
+  const mv=ev=>{const x1=Math.max(r0.left,Math.min(r0.right,ev.clientX)),y1=Math.max(r0.top,Math.min(r0.bottom,ev.clientY));if(!moved&&Math.abs(x1-x0)+Math.abs(y1-y0)<4)return;moved=true;document.body.classList.add('wdrag');if(!lb){lb=document.createElement('div');lb.className='lasso';document.body.append(lb)}const L=Math.min(x0,x1),T=Math.min(y0,y1),R=Math.max(x0,x1),B=Math.max(y0,y1);Object.assign(lb.style,{left:L+'px',top:T+'px',width:(R-L)+'px',height:(B-T)+'px'});box.querySelectorAll(IT).forEach(it=>{const q=it.getBoundingClientRect(),hit=q.left<R&&q.right>L&&q.top<B&&q.bottom>T;it.classList.toggle(selC(it),hit||pre.has(it))});after(w,box)};
+  const up=()=>{removeEventListener('pointermove',mv,true);removeEventListener('pointerup',up,true);document.body.classList.remove('wdrag');if(lb)lb.remove();if(moved){const kill=ev=>{ev.stopPropagation();removeEventListener('click',kill,true)};addEventListener('click',kill,true);setTimeout(()=>removeEventListener('click',kill,true),50)}};
+  addEventListener('pointermove',mv,true);addEventListener('pointerup',up,true)});}
 function exNav(loc,how){let w=wins.pc;if(!w){w=mkWin('pc','My Computer',IMG.computer,'<div class="cpw mcw"><div class="cptool"><button class="cptb" data-nav="back"><b>&#9664;</b><span>Back</span></button><button class="cptb" data-nav="fwd"><b>&#9654;</b><span>Forward</span></button><button class="cptb" data-nav="up"><b>&#8679;</b><span>Up</span></button><i class="cpsep"></i><button class="cptb" data-tb="cut" disabled><b>&#9986;</b><span>Cut</span></button><button class="cptb" data-tb="copy" disabled><b>&#10697;</b><span>Copy</span></button><button class="cptb" data-tb="paste" disabled><b>&#128203;</b><span>Paste</span></button><i class="cpsep"></i><button class="cptb" data-tb="undo" disabled><b>&#8630;</b><span>Undo</span></button><i class="cpsep"></i><button class="cptb" data-tb="del" disabled><b>&#10005;</b><span>Delete</span></button><button class="cptb" data-tb="props"><b>&#9638;</b><span>Properties</span></button><i class="cpsep"></i><button class="cptb" data-tb="views"><b>&#9638;</b><span>Views</span></button></div><div class="cpaddr"><span>Address</span><div class="cpaddrbox"><img><span></span></div></div><div class="exbody"></div></div>',{x:200,y:60,w:Math.min(680,innerWidth-40),h:440,pre:'<div class="menu"><span>File</span><span>Edit</span><span>View</span><span>Go</span><span>Favorites</span><span>Help</span></div>',post:'<div class="fstat"><span class="mcst"></span><span class="mcfr" style="margin-left:auto"></span></div>'});w.classList.add('w98ctrl');w._hist=[];w._fwd=[];
   w.querySelector('[data-nav=back]').onclick=()=>{if(!w._hist.length)return;w._fwd.push(w._loc);exNav(w._hist.pop(),'nohist')};
   w.querySelector('[data-nav=fwd]').onclick=()=>{if(!w._fwd.length)return;w._hist.push(w._loc);exNav(w._fwd.pop(),'nohist')};
