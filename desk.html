@@ -1590,6 +1590,10 @@ body.real #vcPrivBtn{display:none!important}
 #wxPop .lcd::after{content:'';position:absolute;inset:-20% -10%;pointer-events:none;z-index:6;background:linear-gradient(118deg,rgba(255,255,255,0) 38%,rgba(255,255,255,.38) 46%,rgba(255,255,255,.08) 52%,rgba(255,255,255,0) 60%),radial-gradient(120% 70% at 20% 0%,rgba(255,255,255,.28),rgba(255,255,255,0) 60%);mix-blend-mode:screen}
 .cam{height:100%;display:flex;flex-direction:column;background:#ece9d8}.camscr{flex:1;position:relative;background:#111;margin:6px 6px 0;border:2px solid;border-color:#808080 #fff #fff #808080;display:flex;align-items:center;justify-content:center;overflow:hidden}.camscr canvas{width:100%;height:100%;object-fit:contain;image-rendering:pixelated}.camoff{position:absolute;color:#ccc;font:12px Tahoma}
 .cambar{display:flex;align-items:center;gap:4px;padding:6px;background:linear-gradient(#fdfdfd,#e8e6dc);border-top:1px solid #fff}.cambar button{font:11px Tahoma;background:linear-gradient(#fff,#e4e2d8);border:1px solid #8f8f88;border-radius:3px;padding:2px 10px;cursor:pointer}.cambar button:hover{border-color:#e68cac}.camst{margin-left:auto;font:11px Tahoma;color:#555}
+.spsys{display:flex;gap:12px;align-items:center;margin:0 0 10px 4px;line-height:1.35}.splogo{width:48px;height:48px;image-rendering:pixelated;filter:drop-shadow(1px 1px 0 #fff)}
+.spuser{display:flex;gap:8px;align-items:center;margin:0 0 10px 6px;line-height:1.3}.spuser img{width:32px;height:32px;object-fit:cover;border:1px solid;border-color:#808080 #fff #fff #808080}
+.spokt{font:bold 11px Tahoma;background:#d4d0c8;color:#000;border:1px solid;border-color:#fff #404040 #404040 #fff;box-shadow:inset -1px -1px #808080;padding:0 6px;height:18px;margin-right:3px;cursor:pointer;align-self:center}
+#cflReal{position:fixed;z-index:2147483060;width:340px;height:580px;border-radius:6px;overflow:hidden;box-shadow:0 8px 28px #0006,0 0 0 1px #0003;background:#d29573}#cflReal iframe{width:340px;height:580px;border:0;display:block}
 </style><link rel="icon" type="image/png" href="icon-64.png?v=desk2"><link rel="shortcut icon" href="favicon.ico?v=desk2"><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body><meta name="robots" content="noindex,nofollow">
 <style>
 #gate{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;background:#5a7edc;font:14px Tahoma,Verdana,sans-serif;color:#fff}
@@ -2237,9 +2241,9 @@ function callOut(n){callWin(n,'pick')}
 function callIn(n,why){if(wins.call&&wins.call._ringing)return;if(DND){trayPhone(n,true);const t=$('trPhone');t.classList.add('dnd');t.title=n+' is calling (you\'re on do not disturb)';t.onclick=e=>{e.stopPropagation();t.classList.remove('dnd');ringStop();const w=callWin(n,'in',why||'');w._ringing=1;w.querySelector('.nktop img').classList.add('ring')};return}trayPhone(n,true);ringStart();const w=callWin(n,'in',why||REASONS[Math.floor(Math.random()*REASONS.length)]);w._ringing=1;tip(n+' is calling')}
 /* ---------- real data: the desk reads everything from the real site running in a frame ---------- */
 let ENGF=null,REAL=false,REALIDS={},SEENMSG=null;
-function siteWin(){for(const f of [document.getElementById('fr'),ENGF]){try{const w=f&&f.contentWindow;if(w&&w.eval&&w.eval('typeof S!=="undefined"&&S.signedOn&&S.profiles.size>0'))return w}catch(e){}}return null}
+function siteWin(){for(const f of [document.getElementById('fr'),ENGF]){try{const w=f&&f.contentWindow;if(w&&w.AM&&w.AM.S&&w.AM.S.signedOn&&w.AM.S.profiles.size>0)return w}catch(e){}}return null}
 function engBoot(){if(ENGF||!/^https?:/.test(location.protocol))return;ENGF=document.createElement('iframe');ENGF.id='eng';ENGF.setAttribute('aria-hidden','true');ENGF.src='index.html?desk=1&eng=1';ENGF.style.cssText='position:fixed;left:-9999px;top:0;width:900px;height:700px;opacity:0;pointer-events:none;border:0';document.body.append(ENGF)}
-function realSync(){const w=siteWin();if(!w)return;let S;try{S=w.eval('S')}catch(e){return}if(!S||!S.uid)return;
+function realSync(){const w=siteWin();if(!w)return;let S;try{S=w.AM.S}catch(e){return}if(!S||!S.uid)return;
  if(!REAL){REAL=true;document.body.classList.add('real');[PEOPLE,MODE,BADGE,SCOUNT,DCOUNT,BOARDS_BY,DMLOG].forEach(o=>Object.keys(o).forEach(k=>delete o[k]));try{const f=JSON.parse(localStorage.getItem('deskFavs')||'[]');FAVS.splice(0,FAVS.length,...f)}catch(e){FAVS.splice(0)}}
  const frOf=id=>(S.fr&&S.fr.get(id))||null;const seen={};
  S.profiles.forEach((p,id)=>{const n=p.sn;if(!n)return;seen[n]=1;REALIDS[n]=id;const meta=(S.pmeta&&S.pmeta[id])||{};const on=S.online.has(id)&&meta.st!=='invis';
@@ -2254,36 +2258,37 @@ function realSync(){const w=siteWin();if(!w)return;let S;try{S=w.eval('S')}catch
  realNotes(S);frogRefresh();}
 function realNotes(S){const me=S.profiles.get(S.uid);if(!me)return;const ids=S.msgIds||new Set();if(SEENMSG===null){SEENMSG=new Set(S.msgs.map(m=>m.id));return}
  const at=new RegExp('@'+me.sn.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\b','i');
- S.msgs.forEach(m=>{if(SEENMSG.has(m.id))return;SEENMSG.add(m.id);if(m.uid===S.uid)return;const from=S.profiles.get(m.uid);if(!from)return;let key='';try{key=w0().eval('convOf')(m)}catch(e){}
+ S.msgs.forEach(m=>{if(SEENMSG.has(m.id))return;SEENMSG.add(m.id);if(m.uid===S.uid)return;const from=S.profiles.get(m.uid);if(!from)return;let key='';try{key=w0().AM.convOf(m)}catch(e){}
   const isDm=key===m.uid,txt=m.text||(m.image?'sent a photo':'sent something');
   if(isDm)ntAdd({title:from.sn+' messaged you',text:txt.slice(0,80),pic:PEOPLE[from.sn]?PEOPLE[from.sn].pic:'#ccc',open:()=>goReal('dm',from.sn)});
   else if(m.text&&at.test(m.text))ntAdd({title:from.sn+' mentioned you',text:txt.slice(0,80),pic:PEOPLE[from.sn]?PEOPLE[from.sn].pic:'#ccc',open:()=>goReal('conv',key)})})}
 function w0(){return siteWin()}
-function goReal(kind,arg){const id=kind==='conv'?arg:REALIDS[arg];if(!id){tip('can\'t find '+arg);return}openAway();setTab('chat');let t=0;const go=()=>{const f=document.getElementById('fr');let w=null;try{w=f&&f.contentWindow;if(!(w&&w.eval('typeof S!=="undefined"&&S.signedOn')))w=null}catch(e){w=null}if(!w){if(++t<60)setTimeout(go,250);return}try{if(kind==='prof')w.eval('selectProfile')(id);else w.eval('openConv')(id)}catch(e){}};go()}
+function goReal(kind,arg){const id=kind==='conv'?arg:REALIDS[arg];if(!id){tip('can\'t find '+arg);return}openAway();setTab('chat');let t=0;const go=()=>{const f=document.getElementById('fr');let w=null;try{w=f&&f.contentWindow;if(!(w&&w.AM&&w.AM.S&&w.AM.S.signedOn))w=null}catch(e){w=null}if(!w){if(++t<60)setTimeout(go,250);return}try{if(kind==='prof')w.AM.selectProfile(id);else w.AM.openConv(id)}catch(e){}};go()}
 function frogList(){const me=(window.MEPROF&&MEPROF.sn)||'monica';const all=Object.keys(PEOPLE).sort((a,b)=>a.toLowerCase()<b.toLowerCase()?-1:1);const on=all.filter(n=>modeOf(n)!=='off'),off=all.filter(n=>modeOf(n)==='off');
  const bud=(n,isOn)=>'<div class="frow'+(isOn?'':' off')+'" data-n="'+n+'" ondblclick="openPeer(\''+n.replace(/'/g,"\\'")+'\')" title="Double-click for their profile"><span class="fpic" style="background:'+(PEOPLE[n]?PEOPLE[n].pic:'#ccc')+'"></span>'+(FAVS.includes(n)?HRT:'')+(modeOf(n)==='away'?stIco(n):'')+n+'</div>';
  return '<div class="fgrp" onclick="this.classList.toggle(\'shut\')"><b>˅</b> online ('+(on.length+1)+'/'+(all.length+1)+')</div><div class="fgb">'+on.map(n=>bud(n,1)).join('')+'<div class="frow"><span class="fpic" style="background:url(\''+IMG.me+'\') center/cover"></span>'+me+'</div></div><div class="fgrp" onclick="this.classList.toggle(\'shut\')"><b>˅</b> offline ('+off.length+')</div><div class="fgb">'+off.map(n=>bud(n,0)).join('')+'</div>'}
 function frogRefresh(){const w=wins.prof;if(!w||!REAL)return;const l=w.querySelector('.flist');if(!l)return;const shut=[...l.querySelectorAll('.fgrp')].map(g=>g.classList.contains('shut'));const h=frogList();if(l._h===h)return;l._h=h;l.innerHTML=h;l.querySelectorAll('.fgrp').forEach((g,i)=>{if(shut[i])g.classList.add('shut')});const nm=w.querySelector('.fwho b');if(nm&&window.MEPROF)nm.lastChild&&nm.lastChild.nodeType===3?nm.lastChild.textContent=MEPROF.sn:0;const st=w.querySelector('#pStat');if(st&&typeof myStat==='string'&&!st.matches(':focus-within'))st.textContent=myStat||' '}
 setInterval(realSync,2500);
 
-function realMood(t){const w=siteWin();if(!w)return;try{const d=w.document;d.getElementById('moodIn').value=t;w.eval('S').moodE='';w.eval('setMood')()}catch(e){}}
-function realStatus(k,msg){const w=siteWin();if(!w)return;try{const d=w.document,sel=d.getElementById('stSel');sel.value=k==='inv'?'invis':k;if(msg!=null)d.getElementById('awayIn').value=msg;w.eval('setAway')()}catch(e){}}
+function realMood(t){const w=siteWin();if(!w)return;try{const d=w.document;d.getElementById('moodIn').value=t;w.AM.S.moodE='';w.AM.setMood()}catch(e){}}
+function realStatus(k,msg){const w=siteWin();if(!w)return;try{const d=w.document,sel=d.getElementById('stSel');sel.value=k==='inv'?'invis':k;if(msg!=null)d.getElementById('awayIn').value=msg;w.AM.setAway()}catch(e){}}
 
 let BCACHE=[];setInterval(async()=>{const sb=DSB();if(!sb)return;try{const {data}=await sb.from('channels').select('id,name').order('created_at');if(data)BCACHE=data.map(c=>[String(c.id),c.name])}catch(e){}},30000);setTimeout(async()=>{const sb=DSB();if(!sb)return;try{const {data}=await sb.from('channels').select('id,name').order('created_at');if(data)BCACHE=data.map(c=>[String(c.id),c.name])}catch(e){}},4000);
-function realBoards(){const w=siteWin();if(!w)return BCACHE;try{const S=w.eval('S');const r=S.channels?[...S.channels.values()].map(c=>[String(c.id),c.name]):[];return r.length?r:BCACHE}catch(e){return BCACHE}}
+function realBoards(){const w=siteWin();if(!w)return BCACHE;try{const S=w.AM.S;const r=S.channels?[...S.channels.values()].map(c=>[String(c.id),c.name]):[];return r.length?r:BCACHE}catch(e){return BCACHE}}
 function openBoard(key){if(key==='lounge')return goReal('conv','lounge');goReal('conv','c:'+key)}
 function openBoardByName(n){const b=realBoards().find(x=>x[1]===n);if(b)openBoard(b[0]);else tip('can\'t find #'+n)}
 
 /* Settings: a real little System Properties dialog that drives the site's own controls */
 function openSettings(){if(wins.set){show('set');return}
  const w=mkWin('set','Settings',SETICO,'<div class="sp"><div class="sptabs"><button data-t="gen" class="on">General</button><button data-t="snd">Sound</button><button data-t="prv">Privacy</button></div><div class="sppane"></div><div class="spbot"><button class="spok">OK</button></div></div>',{x:Math.max(40,innerWidth/2-170),y:90,w:330,h:380,fixed:true});
- {const mx=w.querySelector('[data-max]');if(mx)mx.remove()}
+ {const mx=w.querySelector('[data-max]');if(mx)mx.remove();const x=w.querySelector('[data-x]');const ok=document.createElement('button');ok.className='spokt';ok.textContent='ok';ok.title='OK';ok.onclick=e=>{e.stopPropagation();x.click()};x.parentElement.insertBefore(ok,x)}
  const P=w.querySelector('.sppane');let tab='gen';
  const D=()=>{const sw=siteWin();return sw?sw.document:null};
  const esc=t=>String(t==null?'':t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'})[c]);
  const sel=(id,label)=>{const d=D(),src=d&&d.getElementById(id);const opts=src?[...src.options].map(o=>'<option value="'+esc(o.value)+'"'+(o.value===src.value?' selected':'')+'>'+esc(o.textContent)+'</option>').join(''):'<option>…</option>';return '<div class="sprow"><label>'+label+'</label><select data-s="'+id+'">'+opts+'</select></div>'};
- const draw=()=>{const d=D(),S=(()=>{try{return siteWin().eval('S')}catch(e){return null}})(),me=S&&S.profiles.get(S.uid);
-  if(tab==='gen'){P.innerHTML='<div class="sph">Profile</div><div class="spkv"><span>Screen name:</span><b>'+esc(me?me.sn:'monica')+'</b><span>Status:</span><b>'+esc(me&&me.mood||'(none)')+'</b><span>Away:</span><b>'+esc(me&&me.awayOn?(me.away||'on'):'off')+'</b><span>Member since:</span><b>'+(me&&me.created?new Date(me.created).toLocaleDateString():'')+'</b></div><div class="spr"><button class="sped">Edit profile…</button></div><div class="sph">Away Message</div><div class="spkv"><span>Desk version:</span><b>'+esc(document.lastModified.split(' ')[0]||'')+'</b><span>Signed in:</span><b>'+(S&&S.signedOn?'yes':'…')+'</b></div>';
+ const draw=()=>{const d=D(),S=(()=>{try{return siteWin().AM.S}catch(e){return null}})(),me=S&&S.profiles.get(S.uid);
+  if(tab==='gen'){const fr=S?[...S.profiles.keys()].filter(k=>k!==S.uid).length:0,on=S?[...S.online].filter(k=>k!==S.uid).length:0,bd=S&&S.channels?S.channels.size+1:1;
+   P.innerHTML='<div class="spsys"><img class="splogo" src="'+APPICON+'"><div><b>Away Message</b><br>Desk Edition<br><small>Version '+esc((document.lastModified||'').split(' ')[0])+'</small></div></div><div class="sph">Registered to</div><div class="spuser"><img src="'+esc((me&&me.avatar)||IMG.me)+'"><div><b>'+esc(me?me.sn:'monica')+'</b><br><small>'+esc(me&&me.mood||'no status yet')+'</small></div></div><div class="sph">Your network</div><div class="spkv"><span>Friends:</span><b>'+fr+'</b><span>Online now:</span><b>'+on+'</b><span>Boards:</span><b>'+bd+'</b><span>Away message:</span><b>'+esc(me&&me.awayOn?(me.away||'on'):'off')+'</b></div><div class="spr"><button class="sped">Edit profile…</button></div>';
    P.querySelector('.sped').onclick=()=>openEditWin()}
   else if(tab==='snd'){const sb=d&&d.getElementById('sndBtn'),nb=d&&d.getElementById('ntBtn');P.innerHTML='<div class="sph">Sound</div><label class="spck"><input type="checkbox" data-b="sndBtn"'+(sb&&/on/i.test(sb.textContent)?' checked':'')+'> Play sounds</label>'+sel('toneSel','Message sound:')+'<div class="sph">Alerts</div><label class="spck"><input type="checkbox" data-b="ntBtn"'+(nb&&/on/i.test(nb.textContent)?' checked':'')+'> Pop up when someone DMs or @s me</label>'}
   else{P.innerHTML='<div class="sph">Privacy</div>'+sel('lockSel','App lock:')+sel('autoSel','Auto sign-off:')+'<div class="spnote">These save to your account right away.</div>'}
@@ -2306,23 +2311,23 @@ function openCam(){if(wins.cam){show('cam');return}
  w.querySelector('[data-x]').addEventListener('click',stop,true)}
 
 /* real calls: the engine frame does the WebRTC, the desk shows the Nokia */
-function engWin(){try{const w=ENGF&&ENGF.contentWindow;if(w&&w.eval('typeof S!=="undefined"&&S.signedOn&&typeof callStart==="function"'))return w}catch(e){}return null}
+function engWin(){try{const w=ENGF&&ENGF.contentWindow;if(w&&w.AM&&w.AM.S&&w.AM.S.signedOn&&w.AM.callStart)return w}catch(e){}return null}
 let RC={st:'idle',peer:null,why:'',t0:0,muted:false},rcHooked=null;
 function rcHook(){const w=engWin();if(!w||rcHooked===w)return;rcHooked=w;w.addEventListener('am-call',e=>{const d=e.detail||{};if(d.st==='missed'){const n=snOf(d.peer);ntAdd({title:'Missed call from '+n,text:d.why||'',pic:PEOPLE[n]?PEOPLE[n].pic:'#ccc',open:()=>goReal('dm',n)});return}RC=Object.assign({},RC,d);rcDraw(d.end)})}
 setInterval(rcHook,1500);
 function snOf(id){for(const n in REALIDS)if(REALIDS[n]===id)return n;return 'someone'}
 function rcDraw(end){const n=snOf(RC.peer);let w=wins.rcall;
  if(RC.st==='idle'){ringStop();if(w){const B=w.querySelector('.nkbody');B.innerHTML='<div class="nks">'+({busy:'On another call',declined:'Declined',dnd:'Do not disturb',noanswer:'No answer',nomic:'No microphone',failed:'Call dropped'}[end]||'Call ended')+'</div><div class="nkt"></div>';B.querySelector('.nkt').textContent=n;w.querySelector('.nkl').textContent='';w.querySelector('.nkr').textContent='';trayPhone(n,false);setTimeout(()=>{if(RC.st==='idle'&&wins.rcall===w)w.querySelector('[data-x]').click()},2200)}return}
- if(!w){w=mkWin('rcall','Call',EXT.handset,'<div class="nk"><div class="nkscr"><div class="nktop"><img class="nkflip" src="'+EXT.redphone+'"><span class="nkbars"><i></i><i></i><i></i><i></i></span></div><div class="nkbody"></div><div class="nksoft"><span class="nkl"></span><span class="nkr"></span></div></div><div class="nkkeys"></div></div>',{x:innerWidth/2-100,y:140,w:200,h:150,fixed:true,onclose:()=>{ringStop();const e=engWin();if(e&&RC.st!=='idle')try{e.eval('callHang')()}catch(_){}}});w.classList.add('wbare');
+ if(!w){w=mkWin('rcall','Call',EXT.handset,'<div class="nk"><div class="nkscr"><div class="nktop"><img class="nkflip" src="'+EXT.redphone+'"><span class="nkbars"><i></i><i></i><i></i><i></i></span></div><div class="nkbody"></div><div class="nksoft"><span class="nkl"></span><span class="nkr"></span></div></div><div class="nkkeys"></div></div>',{x:innerWidth/2-100,y:140,w:200,h:150,fixed:true,onclose:()=>{ringStop();const e=engWin();if(e&&RC.st!=='idle')try{e.AM.callHang()}catch(_){}}});w.classList.add('wbare');
   const nk=w.querySelector('.nk');let dd=null;nk.addEventListener('pointerdown',e=>{if(e.target.closest('button,input,.nksoft span.on'))return;dd={x:e.clientX-w.offsetLeft,y:e.clientY-w.offsetTop};nk.setPointerCapture(e.pointerId);show('rcall')});nk.addEventListener('pointermove',e=>{if(dd){w.style.left=(e.clientX-dd.x)+'px';w.style.top=Math.max(0,e.clientY-dd.y)+'px'}});nk.addEventListener('pointerup',()=>dd=null)}
  show('rcall');const B=w.querySelector('.nkbody'),L=w.querySelector('.nkl'),R=w.querySelector('.nkr'),E=engWin();
- const soft=(el,t,f)=>{el.textContent=t;el.onclick=f;el.classList.toggle('on',!!f)};const ev=f=>()=>{const e=engWin();if(e)try{e.eval(f)()}catch(_){}};
+ const soft=(el,t,f)=>{el.textContent=t;el.onclick=f;el.classList.toggle('on',!!f)};const ev=f=>()=>{const e=engWin();if(e)try{e.AM[f]()}catch(_){}};
  const lbl={calling:'Calling',ringing:'Incoming call',connecting:'Connecting',live:''}[RC.st]||'';
  B.innerHTML='<div class="nks">'+lbl+'</div><div class="nkt"></div>'+(RC.why?'<div class="nkwhy"></div>':'')+(RC.st==='live'?'<div class="nks nktime">0:00</div>':'');B.querySelector('.nkt').textContent=n;if(RC.why)B.querySelector('.nkwhy').textContent='"'+RC.why+'"';
  w.querySelector('.nktop img').classList.toggle('ring',RC.st==='ringing'||RC.st==='calling');
  if(RC.st==='ringing'){ringStart();trayPhone(n,true);soft(L,'Answer',ev('callAccept'));soft(R,'Decline',ev('callDecline'))}
  else{ringStop();if(RC.st==='live'){soft(L,RC.muted?'Unmute':'Mute',ev('callMute'));clearInterval(w._iv);w._iv=setInterval(()=>{const t=w.querySelector('.nktime');if(!t||RC.st!=='live')return clearInterval(w._iv);const q=Math.floor((Date.now()-RC.t0)/1000);t.textContent=Math.floor(q/60)+':'+String(q%60).padStart(2,'0')},1000)}else soft(L,'',null);soft(R,'End call',ev('callHang'))}}
-function rcStart(n,why){const e=engWin(),id=REALIDS[n];if(!e||!id){tip('calls need a second to connect, try again');return}try{e.eval('callStart')(id,why)}catch(_){}}
+function rcStart(n,why){const e=engWin(),id=REALIDS[n];if(!e||!id){tip('calls need a second to connect, try again');return}try{e.AM.callStart(id,why)}catch(_){}}
 
 /* route people actions to the real site */
 {const _dm=openDM;openDM=function(n){if(REAL){goReal('dm',n);return}return _dm(n)};
@@ -2570,8 +2575,12 @@ const CFM=[['rad','#f4a9c8','#ffd9e8'],['good','#e8b06a','#f8dcae'],['meh','#c49
 function cupSVG(fill,foam,z){const G=['...w.w......','....w.w.....','.kkkkkkkk...','.kFFFFFFk...','.kffffffkkk.','.kffffffk.k.','.kffffffkkk.','.kffffffk...','..kffffk....','kkkkkkkkkk..'];let r='';G.forEach((row,y)=>[...row].forEach((c,x)=>{const col=c==='k'?'#47041C':c==='f'?(fill||'#fff8fb'):c==='F'?(foam||'#fff8fb'):c==='w'?'#c9a3b6':null;if(col)r+='<rect x="'+x+'" y="'+y+'" width="1" height="1" fill="'+col+'"/>'}));return '<svg viewBox="0 0 12 10" width="'+z+'" height="'+(z*10/12)+'" shape-rendering="crispEdges">'+r+'</svg>'}
 let CFL={};try{CFL=JSON.parse(localStorage.getItem('cfl')||'{}')}catch(e){}
 const cflSave=()=>{try{localStorage.setItem('cfl',JSON.stringify(CFL))}catch(e){}};
-document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#bCfl');if(!b)return;e.stopPropagation();cflPop(b)},true);
+document.addEventListener('click',e=>{const b=e.target.closest&&e.target.closest('#bCfl');if(!b)return;e.stopPropagation();cflReal(b)},true);
 new MutationObserver(()=>{const b=$('bCfl');if(b&&!b.dataset.c){b.dataset.c=1;b.innerHTML=cupSVG(CFM[0][1],CFM[0][2],20)}}).observe(document.body,{childList:true,subtree:true});
+function cflReal(btn){let p=$('cflReal');if(p){p.remove();return}p=document.createElement('div');p.id='cflReal';p.onclick=e=>e.stopPropagation();p.innerHTML='<iframe src="cfl/index.html" title="coffeelings"></iframe>';document.body.append(p);const r=btn.getBoundingClientRect();p.style.top=Math.min(innerHeight-600,r.bottom+6)+'px';p.style.left=Math.max(8,Math.min(innerWidth-352,r.right-340))+'px'}
+document.addEventListener('pointerdown',e=>{const p=$('cflReal');if(p&&!p.contains(e.target)&&!(e.target.closest&&e.target.closest('#bCfl')))p.remove()},true);
+addEventListener('blur',()=>setTimeout(()=>{const p=$('cflReal');if(p&&document.activeElement&&document.activeElement.tagName==='IFRAME'&&!p.contains(document.activeElement))p.remove()},0));
+
 let cflOff=0;
 function cflPop(btn){let p=$('cflPop');if(p){p.remove();return}p=document.createElement('div');p.id='cflPop';p.onclick=e=>e.stopPropagation();document.body.append(p);const r=btn.getBoundingClientRect();p.style.top=(r.bottom+6)+'px';p.style.left=Math.max(6,r.right-300)+'px';cflOff=0;cflDraw(p)}
 function cflDraw(p,pick){const now=new Date(),d=new Date(now.getFullYear(),now.getMonth()+cflOff,1),y=d.getFullYear(),m=d.getMonth(),first=d.getDay(),days=new Date(y,m+1,0).getDate(),key=k=>y+'-'+(m+1)+'-'+k;
