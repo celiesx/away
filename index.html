@@ -1820,6 +1820,22 @@ body.real #vcPrivBtn{display:none!important}
 #mixPop .mxc label input{-webkit-appearance:none;appearance:none;width:13px!important;height:13px!important;background:#fff;box-shadow:inset 1px 1px #808080,inset -1px -1px #fff,inset 2px 2px #000,inset -2px -2px #dfdfdf;margin:0 3px 0 0;position:relative}
 #mixPop .mxc label input:checked::after{content:'';position:absolute;left:3px;top:3px;width:7px;height:7px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 7' shape-rendering='crispEdges'%3E%3Cpath d='M6 0v1H5v1H4v1H3v1H2V3H1V2H0v3h1v1h1v1h1V6h1V5h1V4h1V3h1V0z'/%3E%3C/svg%3E") center/7px no-repeat}
 #welcome,#welcome *:not(svg):not(path){font-family:Tahoma,Verdana,'Segoe UI',sans-serif!important}
+
+/* Control Panel */
+.cp{display:flex;height:100%;background:#fff;font:12px Tahoma,sans-serif}
+.cpside{width:150px;flex:none;padding:12px;background:linear-gradient(#6b8fd6,#4a6fc4);color:#fff}.cpside b{display:block;font-size:15px;margin-bottom:10px}.cpside p{margin:0 0 10px;line-height:1.4}.cpdesc{color:#e6eeff}
+.cpgrid{flex:1;display:flex;flex-wrap:wrap;align-content:flex-start;gap:6px;padding:10px;overflow:auto}
+.cpi{all:unset;width:86px;display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 2px;text-align:center;cursor:default}
+.cpi img{width:32px;height:32px;image-rendering:pixelated;object-fit:contain}
+.cpi span{padding:0 2px}.cpi.on span,.cpi:focus span{background:#000080;color:#fff;outline:1px dotted #ff0}
+.ua .uap{align-items:stretch;gap:10px}.ua label{display:flex;gap:6px;align-items:center;margin:3px 0}
+.ualist{max-height:170px;overflow:auto;background:#fff;border:2px solid;border-color:#808080 #fff #fff #808080}
+.uar{display:flex;align-items:center;gap:8px;padding:3px 6px}.uar b{flex:1;font-weight:normal}.uapic{width:20px;height:20px;background:#ccc;border:1px solid #808080}
+.uarole{color:#666}.uanote{min-height:16px;color:#000080}
+.dtp{flex-direction:row!important;align-items:flex-start!important}.dtp .dpg{display:flex;flex-direction:column;align-items:center;gap:6px}
+.dtcal{display:grid;grid-template-columns:repeat(7,22px);gap:1px;background:#fff;border:2px solid;border-color:#808080 #fff #fff #808080;padding:2px;text-align:center}
+.dtcal i{font-style:normal;background:#808080;color:#fff}.dtcal span.on{background:#000080;color:#fff}
+.dtz{padding:4px 2px 0;font:11px Tahoma}
 /* XP-style boot */
 #boot{position:fixed;inset:0;z-index:2147483646;background:#000;transition:opacity 1.6s ease!important;cursor:default!important;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:Tahoma,Verdana,sans-serif;color:#fff;cursor:pointer;transition:opacity .6s}
 #boot.out{opacity:0;pointer-events:none}
@@ -1842,7 +1858,7 @@ body.real #vcPrivBtn{display:none!important}
 #boot.run .bt-pw{display:none}
 #boot .bt-foot{position:absolute;left:24px;bottom:18px;font-size:11px;color:#8a8a8a}
 #boot .bt-foot2{position:absolute;right:24px;bottom:16px;font:italic bold 13px Tahoma,Verdana,sans-serif!important;color:#ddd}
-</style><link rel="icon" type="image/png" href="icon-64.png?v=desk2"><link rel="shortcut icon" href="favicon.ico?v=desk2"><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body><script>window.DESKBUILD=299</script><meta name="robots" content="noindex,nofollow">
+</style><link rel="icon" type="image/png" href="icon-64.png?v=desk2"><link rel="shortcut icon" href="favicon.ico?v=desk2"><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body><script>window.DESKBUILD=300</script><meta name="robots" content="noindex,nofollow">
 <script>(function(){var q=location.search,h=location.hash;if(/[?&](code|state|error)=/.test(q)||/access_token|type=recovery|error_description/.test(h)){location.replace('app.html'+q+h)}})();</script>
 <style>
 #gate{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;background:#000;font:14px Tahoma,Verdana,sans-serif;color:#fff}
@@ -2408,7 +2424,7 @@ const sep=()=>Object.assign(document.createElement('div'),{className:'sep'});
 $('smL').append(smItem(APPICON,'Away Message',()=>openAway(),'Chat with your buddies'),smItem(BUDS,'Buddy List',()=>openProfile(),'Who\'s around'),sep(),smItem(IMG.calendar,'Planner',()=>appWin('plan','Planner',IMG.calendar,'#plBtn')),smItem(IMG.memo,'Notepad',()=>appWin('memo','Notepad',IMG.memo,'#npBtn')),sep());
 {const ap=document.createElement('div');ap.className='smi allp';ap.innerHTML='<b>All Programs</b> ▶';const fl=document.createElement('div');fl.id='fly';
  [[IMG.paint,'Paint',openPaint],[IMG.cozy,'Cozy Room',openCozy],[IMG.trash,'Trash',openTrash],[EXT.logsico,'Logs',openLogs],[EXT.camico,'Webcam',openCam],[EXT.gojoico,'?',openGojo]].forEach(x=>fl.append(smItem(...x)));ap.append(fl);$('smL').append(ap)}
-$('smR').append(smItem(EXT.profico,'My Profile',openProfile),smItem(IMG.computer,'My Computer',openComputer),smItem(IMG.folder,'Shared stuff',openFolder),smItem(IMG.cd,'Away Tunes',openMusic),sep(),smItem(SETICO,'Settings',openSettings),smItem(HELPICO,'Help and Support',()=>tip('Q: where did my window go?  A: down on the bar. click it, silly.')));
+$('smR').append(smItem(EXT.profico,'My Profile',openProfile),smItem(IMG.computer,'My Computer',openComputer),smItem(IMG.folder,'Shared stuff',openFolder),smItem(IMG.cd,'Away Tunes',openMusic),sep(),smItem(cpUsers(),'Control Panel',openControl),smItem(SETICO,'Settings',openSettings),smItem(HELPICO,'Help and Support',()=>tip('Q: where did my window go?  A: down on the bar. click it, silly.')));
 $('smAway').onclick=()=>{closeMenu();openProfile();const it=[...document.querySelectorAll('#w_prof')][0];setTimeout(()=>{const w=wins.prof;if(w&&w._menus)w._menus.Edit[1][1]()},50)};$('smOff').onclick=()=>{closeMenu();askSignOff()};
 $('smPfp').onclick=()=>{closeMenu();openProfile()};
 function closeMenu(){$('sm').classList.remove('on');$('start').classList.remove('on')}
@@ -2573,6 +2589,35 @@ document.addEventListener('mouseover',e=>{const b=e.target.closest&&e.target.clo
 
 /* tap the speaker in the player to mute music (turns red) */
 document.addEventListener('click',e=>{const sk=e.target.closest&&e.target.closest('.m98spk');if(!sk)return;e.preventDefault();e.stopPropagation();MUTE.music=!MUTE.music;applyMix();sk.classList.toggle('muted',!!MUTE.music);const v=MIX.music;sk.src=MUTE.music?IMG.spk0:IMG['spk'+(v<=0?0:v<.34?1:v<.67?2:3)];document.querySelectorAll('[data-m=music]').forEach(c=>c.checked=!!MUTE.music)},true);
+
+/* Control Panel (Windows 98 style) */
+function CPICO(body){return 'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges">'+body+'</svg>')}
+function cpClock(){return CPICO('<circle cx="8" cy="8" r="7" fill="#fff" stroke="#000"/><path d="M8 3v5h4" stroke="#000" fill="none"/><circle cx="8" cy="8" r="1" fill="#c00"/>')}
+function cpUsers(){return CPICO('<circle cx="5" cy="5" r="3" fill="#f2c18d" stroke="#000"/><path d="M1 15c0-4 2-6 4-6s4 2 4 6z" fill="#3a6fd8" stroke="#000"/><circle cx="11" cy="6" r="2.5" fill="#f2c18d" stroke="#000"/><path d="M8 15c0-3 1.5-5 3-5s4 2 4 5z" fill="#2f9a2f" stroke="#000"/>')}
+function openControl(){if(wins.ctrl){show('ctrl');return}
+ const items=[[IMG.computer,'Display','Wallpaper, colors and icon size',()=>pickDeskWall()],[IMG.spk3,'Sounds','Volume, startup and message sounds',()=>openMixer()],[cpUsers(),'User Accounts','Who can get into Away and who is a mod',()=>openUsers()],[EXT.profico,'My Profile','Your name, pic, bio, links and look',()=>openEditWin()],[SETICO,'Settings','Alerts, message sound, auto sign-off',()=>openSettings()],[cpClock(),'Date and Time','The clock and this month',()=>openDateTime()],[EXT.logsico,'Logs','Your saved chat logs',()=>openLogs()]];
+ const w=mkWin('ctrl','Control Panel',cpUsers(),'<div class="cp"><div class="cpside"><b>Control Panel</b><p>Use the settings in Control Panel to make Away yours.</p><p class="cpdesc">Hover an icon to see what it does.</p></div><div class="cpgrid"></div></div>',{x:200,y:70,w:520,h:360,pre:'<div class="menu"><span>File</span><span>View</span><span>Help</span></div>',post:'<div class="fstat"><span>'+items.length+' object(s)</span></div>'});
+ w._menus={File:[['Close','close']],View:[['Refresh',()=>{}]],Help:[['About Away',()=>tip('Away Message · made by Monica')]]};
+ const g=w.querySelector('.cpgrid'),d=w.querySelector('.cpdesc');items.forEach(([ic,n,t,f])=>{const b=document.createElement('button');b.className='cpi';b.innerHTML='<img><span></span>';b.querySelector('img').src=ic;b.querySelector('span').textContent=n;b.onmouseenter=()=>{d.textContent=t};b.ondblclick=f;b.onclick=e=>{g.querySelectorAll('.cpi').forEach(x=>x.classList.toggle('on',x===b));d.textContent=t};b.onkeydown=e=>{if(e.key==='Enter')f()};g.append(b)})}
+async function openUsers(){if(wins.users){show('users');return}
+ const w=mkWin('users','User Accounts',cpUsers(),'<div class="dp ua"><div class="dppane uap"><fieldset class="dpg"><legend>Who can use Away</legend><label><input type="radio" name="ualock" value="1"> Only me (everyone else sees "closed for a bit")</label><label><input type="radio" name="ualock" value="0"> Everyone with an account</label></fieldset><fieldset class="dpg"><legend>People</legend><div class="ualist">loading…</div></fieldset><div class="uanote"></div></div><div class="dpbtns"><button class="dpb" data-a="ok">OK</button></div></div>',{x:260,y:90,w:400,h:420,fixed:true});
+ {const mx=w.querySelector('[data-max]');if(mx)mx.remove()}
+ const note=w.querySelector('.uanote'),sb=DSB();w.querySelector('[data-a=ok]').onclick=()=>w.querySelector('[data-x]').click();
+ if(!sb){note.textContent='still connecting, try again in a sec';return}
+ try{const {data}=await sb.from('site_flags').select('val').eq('key','locked').maybeSingle();const v=data?(data.val===true?'1':'0'):'1';w.querySelector('input[value="'+v+'"]').checked=true}catch(e){}
+ w.querySelectorAll('input[name=ualock]').forEach(r=>r.onchange=async()=>{const on=r.value==='1';const {error}=await sb.from('site_flags').upsert({key:'locked',val:on,updated_at:new Date().toISOString()});note.textContent=error?'couldn\'t save that':(on?'Away is closed to everyone but you.':'Away is open to everyone again.')});
+ let S=null;try{S=siteWin().AM.S}catch(e){}
+ let rows=[];try{const {data}=await sb.from('profiles').select('id,sn,role,avatar').order('sn');rows=data||[]}catch(e){}
+ const L=w.querySelector('.ualist');L.innerHTML='';rows.forEach(p=>{const r=document.createElement('div');r.className='uar';const me=p.role==='admin';r.innerHTML='<span class="uapic"></span><b></b>'+(me?'<span class="uarole">Owner</span>':'<select><option value="member">Member</option><option value="mod">Mod</option></select>');r.querySelector('b').textContent=p.sn;const pic=r.querySelector('.uapic');if(p.avatar)pic.style.background="url('"+String(p.avatar).replace(/['"\\]/g,encodeURIComponent)+"') center/cover";
+  const sel=r.querySelector('select');if(sel){sel.value=p.role==='mod'?'mod':'member';sel.onchange=async()=>{const {error}=await sb.rpc('set_role',{p_target:p.id,p_role:sel.value});note.textContent=error?'couldn\'t change that':p.sn+' is now a '+(sel.value==='mod'?'mod':'member')+'.'}}L.append(r)});
+ if(!rows.length)L.textContent='no one yet'}
+function openDateTime(){if(wins.dtime){show('dtime');return}
+ const w=mkWin('dtime','Date/Time Properties',cpClock(),'<div class="dp"><div class="dptabs"><button class="on">Date &amp; Time</button></div><div class="dppane dtp"><fieldset class="dpg"><legend>Date</legend><div class="dtmon"></div><div class="dtcal"></div></fieldset><fieldset class="dpg"><legend>Time</legend><canvas width="120" height="120"></canvas><div class="dttxt"></div></fieldset></div><div class="dtz"></div><div class="dpbtns"><button class="dpb" data-a="ok">OK</button></div></div>',{x:300,y:100,w:420,h:330,fixed:true});
+ {const mx=w.querySelector('[data-max]');if(mx)mx.remove()}w.querySelector('[data-a=ok]').onclick=()=>w.querySelector('[data-x]').click();
+ const C=w.querySelector('canvas'),X=C.getContext('2d');w.querySelector('.dtz').textContent='Time zone: '+(Intl.DateTimeFormat().resolvedOptions().timeZone||'');
+ const cal=()=>{const d=new Date(),y=d.getFullYear(),m=d.getMonth(),first=new Date(y,m,1).getDay(),days=new Date(y,m+1,0).getDate();w.querySelector('.dtmon').textContent=d.toLocaleDateString([],{month:'long',year:'numeric'});let h='<i>S</i><i>M</i><i>T</i><i>W</i><i>T</i><i>F</i><i>S</i>';for(let i=0;i<first;i++)h+='<span></span>';for(let k=1;k<=days;k++)h+='<span'+(k===d.getDate()?' class="on"':'')+'>'+k+'</span>';w.querySelector('.dtcal').innerHTML=h};
+ const tick=()=>{if(!document.contains(C)){clearInterval(iv);return}const d=new Date();X.clearRect(0,0,120,120);X.fillStyle='#c0c0c0';X.fillRect(0,0,120,120);X.save();X.translate(60,60);for(let i=0;i<12;i++){X.save();X.rotate(i*Math.PI/6);X.fillStyle=i%3?'#808080':'#000080';X.fillRect(-2,-50,4,4);X.restore()}const hand=(a,l,wd,c)=>{X.save();X.rotate(a);X.fillStyle=c;X.fillRect(-wd/2,-l,wd,l);X.restore()};hand((d.getHours()%12+d.getMinutes()/60)*Math.PI/6,26,4,'#000');hand((d.getMinutes()+d.getSeconds()/60)*Math.PI/30,38,3,'#000');hand(d.getSeconds()*Math.PI/30,42,1,'#c00');X.restore();w.querySelector('.dttxt').textContent=d.toLocaleTimeString();if(d.getSeconds()===0)cal()};
+ cal();tick();const iv=setInterval(tick,1000)}
 
 /* notifications: tray envelope + right-side panel */
 const NOTIF=[];let ntSeen=false;let ntSub={Blakey:1};
