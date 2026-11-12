@@ -6,11 +6,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="437">
-<link rel="icon" type="image/png" href="icon-64.png?v=437">
-<link rel="shortcut icon" href="favicon.ico?v=437">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=437">
-<link rel="manifest" href="manifest.webmanifest?v=437">
+<meta name="build" content="438">
+<link rel="icon" type="image/png" href="icon-64.png?v=438">
+<link rel="shortcut icon" href="favicon.ico?v=438">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=438">
+<link rel="manifest" href="manifest.webmanifest?v=438">
 <script>window.__errs=[];addEventListener('error',function(e){__errs.push(String(e.message).slice(0,200)+' @'+e.lineno+':'+e.colno)});addEventListener('unhandledrejection',function(e){__errs.push('rej '+String(e.reason&&e.reason.message||e.reason).slice(0,200))});</script>
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&family=DotGothic16&display=swap">
@@ -1054,7 +1054,7 @@ document.getElementById("xbPw").addEventListener("click",start);addEventListener
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=437"></script>
+<script src="config.js?v=438"></script>
 <script>
 (() => {
 'use strict';
@@ -2235,7 +2235,7 @@ function openConv(key) {
 }
 
 /* ---------- messages ---------- */
-const normMsg = r => ({ transcript: clamp(r.transcript || '', 600), id: String(r.id), uid: String(r.sender || ''), to: r.recipient ? String(r.recipient) : null, text: clamp(r.body, 300), kind: r.kind === 'me' ? 'me' : 'msg', ch: r.channel ? String(r.channel) : null, image: r.image ? String(r.image) : '', fname: r.file_name ? String(r.file_name) : '', once: !!r.once, ts: Date.parse(r.created_at) || Date.now() });
+const normMsg = r => ({ transcript: clamp(r.transcript || '', 600), id: String(r.id), uid: String(r.sender || ''), to: r.recipient ? String(r.recipient) : null, text: clamp(r.body, 300), kind: r.kind === 'me' ? 'me' : 'msg', ch: r.channel ? String(r.channel) : null, image: r.image ? String(r.image) : '', fname: r.file_name ? String(r.file_name) : '', once: !!r.once, style: msgSty(r.style), ts: Date.parse(r.created_at) || Date.now() });
 function pingTab(m, c) {
   S.pings = (S.pings || 0) + 1; setBadge();
   try {
@@ -2299,7 +2299,7 @@ function groupPins(rows) {
   for (const r of (rows || []).map(pinRow).sort((a, b) => b.ts - a.ts)) { const k = r.ch || 'lounge'; if (!m.has(k)) m.set(k, []); m.get(k).push(r); }
   return m;
 }
-const MSG_COLS = 'id,sender,recipient,channel,kind,body,image,file_name,once,created_at,transcript';
+const MSG_COLS = 'id,sender,recipient,channel,kind,body,image,file_name,once,created_at,transcript,style';
 async function sync(live) {
   const [pr, ms, chs, pns, bms] = await Promise.all([
     sb.from('profiles').select('*').limit(500),
@@ -4467,12 +4467,12 @@ window.addEventListener('focus', () => { if (S.pings) { S.pings = 0; setBadge();
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '437' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '438' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '437') { newBuild = m[1]; updFlag(); }
+    if (m && m[1] !== BUILD && m[1] !== '438') { newBuild = m[1]; updFlag(); }
   } catch {}
 }
 function updFlag() {
@@ -4554,10 +4554,12 @@ async function boot() {
   S.booting = false; renderAll();
 }
 boot();
-async function sendTo(to, text) {
+const MSG_FONTS = ['Tahoma', 'Arial', 'Verdana', 'Trebuchet MS', 'Comic Sans MS', 'Courier New', 'Georgia'];
+function msgSty(o) { if (!o || typeof o !== 'object') return null; const r = {}; if (MSG_FONTS.includes(o.f)) r.f = o.f; if ([12, 14, 16, 20].includes(+o.s)) r.s = +o.s; ['b', 'i', 'u'].forEach(k => { if (o[k]) r[k] = 1; }); if (/^#[0-9a-f]{6}$/i.test(o.c || '')) r.c = o.c.toLowerCase(); if (r.f === 'Tahoma') delete r.f; if (r.s === 12) delete r.s; if (r.c === '#222222') delete r.c; return Object.keys(r).length ? r : null; }
+async function sendTo(to, text, style) {
   text = clamp(String(text || '').trim(), 300); if (!text || !S.signedOn || !mine()) return { error: 'You are signed off.' };
   let kind = 'msg'; if (/^\/me\s+/i.test(text)) { kind = 'me'; text = text.replace(/^\/me\s+/i, ''); } if (!text) return {};
-  const { data, error } = await sb.from('messages').insert({ recipient: to, kind, body: text }).select(MSG_COLS).single();
+  const row = { recipient: to, kind, body: text }; const st = msgSty(style); if (st) row.style = st; const { data, error } = await sb.from('messages').insert(row).select(MSG_COLS).single();
   if (error) return { error: /row-level|policy|42501/i.test((error.message || '') + (error.code || '')) ? 'They only take messages from friends.' : 'That did not go through. Try again in a moment.' };
   if (addMsg(data, false)) { renderLog(); renderConvs(); } return { ok: true };
 }
