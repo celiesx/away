@@ -2316,7 +2316,11 @@ html body .bimgw .bimg,html body .bhd .bpic{cursor:var(--zoom),zoom-in!important
 .bfi{display:flex;gap:10px;padding:10px 4px;border-bottom:1px dashed #ccd}.bfpic{flex:none;width:52px;height:52px;background:#ddd center/cover;border:1px solid #999;cursor:pointer}.bfmain{flex:1;min-width:0;font:13px Tahoma,sans-serif}
 .bfwho{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}.bfname{font-weight:bold;color:#3b5998;cursor:pointer}.bfwho small{font:11px 'Courier New',monospace;color:#555}.bfwho time{margin-left:auto;font-size:11px;color:#888}.bfwho .bon{font-size:11px}
 .bftitle{display:block;margin:3px 0 2px;font-weight:bold;font-size:15px;color:#3b5998;cursor:pointer}.bftitle:hover,.bfname:hover{text-decoration:underline}.bfmain p{margin:2px 0;color:#333}.bfc2{color:#888}.bfthumb{flex:none;width:84px;height:84px;object-fit:cover;border:1px solid #bbb;cursor:pointer;align-self:center}
-</style><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body><script>window.DESKBUILD=355</script><meta name="robots" content="noindex,nofollow">
+
+html body .tray{gap:0!important}html body .tray>*:not(#clock):not(#callIcons){margin:0 4px!important;flex:none;width:22px!important;min-width:22px!important;max-width:22px!important;padding:0!important;box-sizing:border-box;display:grid!important;place-items:center;object-fit:contain}html body .tray>[hidden]:not(#clock):not(#zz){display:none!important}html body .tray>*>img{max-width:20px;max-height:20px;margin:0!important}html body .tray>#clock{margin-left:7px!important}
+html body #trWx{width:19px!important;height:19px!important}html body #trWx .wxpx{width:17px!important;height:17px!important}
+html body #trAway{width:20px!important;height:20px!important}
+</style><link rel="apple-touch-icon" href="apple-touch-icon.png"></head><body><script>window.DESKBUILD=356</script><meta name="robots" content="noindex,nofollow">
 <script>(function(){var q=location.search,h=location.hash;if(/[?&](code|state|error)=/.test(q)||/access_token|type=recovery|error_description/.test(h)){location.replace('app.html'+q+h)}})();</script>
 <style>
 #gate{position:fixed;inset:0;z-index:2147483647;display:flex;flex-direction:column;background:#000;font:14px Tahoma,Verdana,sans-serif;color:#fff}
@@ -3356,7 +3360,7 @@ function awPop(){let p=$('awPop');if(p){p.remove();return}p=document.createEleme
  setTimeout(async()=>{const d=w.document,sel=d.getElementById('stSel'),inp=d.getElementById('awayIn');try{if(sel&&inp){inp.value=msg||inp.value;sel.value=a==='away'?'away':'on';try{w.AM.S.prevSv=undefined}catch(err){}w.AM.setAway()}}catch(err){}try{const S=w.AM.S,sb=DSB();if(sb&&S&&S.uid){const me=S.profiles.get(S.uid);if(me){me.awayOn=a==='away';if(a==='away')me.away=msg}await sb.from('profiles').update(a==='away'?{away_on:true,away:msg}:{away_on:false}).eq('id',S.uid)}}catch(err){}},0)};
  setTimeout(()=>p.querySelector('textarea').focus(),30)}
 document.addEventListener('pointerdown',e=>{const p=$('awPop');if(p&&!e.target.closest('#awPop,#trAway'))p.remove()},true);
-function trayOrder(){const T=document.querySelector('.tray');if(!T)return;const mb=$('musBtn');if(mb&&!mb.querySelector('img'))mb.innerHTML='<img src="'+IMG.cd+'">';if(mb&&mb.parentElement!==T)T.insertBefore(mb,$('clock'));awTray();const want=['callIcons','trPhone','trVm','trPhPin','trWx','trAway','volIco','musBtn','trMsg','trMail','ntWrap','clock'];let prev=null;want.forEach(id=>{const el=$(id);if(!el||el.parentElement!==T)return;if(prev){if(prev.nextSibling!==el)prev.after(el)}else if(T.firstChild!==el)T.prepend(el);prev=el})}
+function trayOrder(){const T=document.querySelector('.tray');if(!T)return;const mb=$('musBtn');if(mb&&!mb.querySelector('img'))mb.innerHTML='<img src="'+IMG.cd+'">';if(mb&&mb.parentElement!==T)T.insertBefore(mb,$('clock'));awTray();const want=['callIcons','trPhone','trVm','trPhPin','trWx','volIco','musBtn','trMsg','trAway','trGift','trMail','ntWrap','clock'];let prev=null;want.forEach(id=>{const el=$(id);if(!el||el.parentElement!==T)return;if(prev){if(prev.nextSibling!==el)prev.after(el)}else if(T.firstChild!==el)T.prepend(el);prev=el})}
 setInterval(trayOrder,1500);setTimeout(trayOrder,300);
 
 /* folder buttons open up when you hover them */
