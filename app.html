@@ -5,11 +5,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="354">
-<link rel="icon" type="image/png" href="icon-64.png?v=354">
-<link rel="shortcut icon" href="favicon.ico?v=354">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=354">
-<link rel="manifest" href="manifest.webmanifest?v=354">
+<meta name="build" content="355">
+<link rel="icon" type="image/png" href="icon-64.png?v=355">
+<link rel="shortcut icon" href="favicon.ico?v=355">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=355">
+<link rel="manifest" href="manifest.webmanifest?v=355">
 <script>window.__errs=[];addEventListener('error',function(e){__errs.push(String(e.message).slice(0,200)+' @'+e.lineno+':'+e.colno)});addEventListener('unhandledrejection',function(e){__errs.push('rej '+String(e.reason&&e.reason.message||e.reason).slice(0,200))});</script>
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&family=DotGothic16&display=swap">
@@ -986,7 +986,7 @@ document.getElementById("xbPw").addEventListener("click",start);addEventListener
       <form id="editForm" class="scroll eform" autocomplete="off">
         <details class="esec" open><summary>About me</summary>
           <label for="eSn">Screen name</label><input id="eSn" maxlength="20" spellcheck="false">
-          <label for="eBio">About me</label><textarea id="eBio" rows="4" maxlength="400"></textarea><label for="eBdM">Birthday <small>(optional, just month and day)</small></label><div class="bdrow"><select id="eBdM"><option value="">Month</option><option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select><select id="eBdD"><option value="">Day</option><option value="01">1</option><option value="02">2</option><option value="03">3</option><option value="04">4</option><option value="05">5</option><option value="06">6</option><option value="07">7</option><option value="08">8</option><option value="09">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option></select></div><label for="eHealth">Health stuff <small>(optional: allergies, meds, anything people should know. everyone can see it)</small></label><input id="eHealth" maxlength="200" autocomplete="off">
+          <label for="eBio">About me</label><textarea id="eBio" rows="4" maxlength="400"></textarea><label for="eBdM">Birthday <small>(optional, just month and day)</small></label><div class="bdrow"><select id="eBdM"><option value="">Month</option><option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select><select id="eBdD"><option value="">Day</option><option value="01">1</option><option value="02">2</option><option value="03">3</option><option value="04">4</option><option value="05">5</option><option value="06">6</option><option value="07">7</option><option value="08">8</option><option value="09">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option><option value="13">13</option><option value="14">14</option><option value="15">15</option><option value="16">16</option><option value="17">17</option><option value="18">18</option><option value="19">19</option><option value="20">20</option><option value="21">21</option><option value="22">22</option><option value="23">23</option><option value="24">24</option><option value="25">25</option><option value="26">26</option><option value="27">27</option><option value="28">28</option><option value="29">29</option><option value="30">30</option><option value="31">31</option></select></div><label for="eLocS">Location <small>(just your state and country, if you want)</small></label><div class="row" style="display:flex;gap:6px"><input id="eLocS" maxlength="28" placeholder="State (e.g. California)" autocomplete="off" style="flex:1;min-width:0"><input id="eLocC" maxlength="28" placeholder="Country (e.g. USA)" autocomplete="off" style="flex:1;min-width:0"></div><label for="eHealth">Health stuff <small>(optional: allergies, meds, anything people should know. everyone can see it)</small></label><input id="eHealth" maxlength="200" autocomplete="off">
         </details>
         <details class="esec"><summary>Social</summary>
           <b>Now playing</b><p class="fine">Show what you are listening to on Spotify, Apple Music, YouTube Music and more. 1. Make a free account at last.fm. 2. Link your music app to it (Spotify: Settings, then Apps, then Last.fm). 3. Type your Last.fm username here and save.</p><label for="eLf">Last.fm username</label><input id="eLf" maxlength="30" autocomplete="off" spellcheck="false" placeholder="your last.fm name">
@@ -1061,7 +1061,7 @@ document.getElementById("xbPw").addEventListener("click",start);addEventListener
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=354"></script>
+<script src="config.js?v=355"></script>
 <script>
 (() => {
 'use strict';
@@ -1156,7 +1156,7 @@ function fromRow(r) {
   r = r && typeof r === 'object' ? r : {};
   const links = Array.isArray(r.links) ? r.links : [];
   return {
-    id: String(r.id || ''), sn: clamp(r.sn, 20) || 'unknown', bio: clamp(r.bio, 400), birthday: /^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(r.birthday || '') ? r.birthday : '', health: clamp(r.health || '', 200), away: clamp(r.away, 80), awayOn: !!r.away_on,
+    id: String(r.id || ''), sn: clamp(r.sn, 20) || 'unknown', bio: clamp(r.bio, 400), birthday: /^(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/.test(r.birthday || '') ? r.birthday : '', health: clamp(r.health || '', 200), location: clamp(r.location || '', 60), away: clamp(r.away, 80), awayOn: !!r.away_on,
     mood: clamp(r.mood, 60),
     song: { title: clamp(r.song_title, 60), url: clamp(r.song_url, 300) },
     links: links.slice(0, 3).map(l => ({ label: clamp(l && l.label, 24), url: clamp(l && l.url, 300) })),
@@ -1164,7 +1164,7 @@ function fromRow(r) {
     theme: cleanTheme(r.theme), avatar: okAvatar(r.avatar), banner: okBanner(r.banner), wallpaper: okWall(r.wallpaper), wallDim: Number.isFinite(+r.wall_dim) ? Math.max(0, Math.min(90, +r.wall_dim)) : 60, created: r.created_at ? (Date.parse(r.created_at) || 0) : 0, lastSeen: r.last_seen ? (Date.parse(r.last_seen) || 0) : 0, role: r.role === 'admin' || r.role === 'mod' ? r.role : 'member', roleSeen: r.role_seen === 'admin' || r.role_seen === 'mod' ? r.role_seen : 'member', stars: Math.max(0, Number(r.stars) || 0), downs: Math.max(0, Number(r.downs) || 0), mutedUntil: r.muted_until ? (Date.parse(r.muted_until) || 0) : 0, dmFriends: !!r.dm_friends_only, lastfm: /^[A-Za-z0-9_-]{1,30}$/.test(r.lastfm || '') ? r.lastfm : ''
   };
 }
-const toRow = p => ({ sn: p.sn, bio: p.bio, away: p.away, away_on: p.awayOn, mood: p.mood, song_title: p.song.title, song_url: p.song.url, links: p.links, top: p.top, theme: p.theme, avatar: p.avatar, banner: p.banner || '', wallpaper: p.wallpaper || '', wall_dim: p.wallDim == null ? 60 : p.wallDim, dm_friends_only: !!p.dmFriends, lastfm: p.lastfm || null, birthday: p.birthday || null, health: p.health ? clamp(p.health, 200) : null });
+const toRow = p => ({ sn: p.sn, bio: p.bio, away: p.away, away_on: p.awayOn, mood: p.mood, song_title: p.song.title, song_url: p.song.url, links: p.links, top: p.top, theme: p.theme, avatar: p.avatar, banner: p.banner || '', wallpaper: p.wallpaper || '', wall_dim: p.wallDim == null ? 60 : p.wallDim, dm_friends_only: !!p.dmFriends, lastfm: p.lastfm || null, birthday: p.birthday || null, health: p.health ? clamp(p.health, 200) : null, location: p.location ? clamp(p.location, 60) : null });
 
 /* ---------- state ---------- */
 const S = {
@@ -3078,7 +3078,7 @@ function fillTop() {
 }
 function fillEditor() {
   const d = S.draft; fire(renderSp());
-  $('eLf').value = d.lastfm || ''; $('eDm').value = d.dmFriends ? 'friends' : 'all'; $('eFontBox').hidden = !isAdmin(); if (isAdmin()) fire(showUploads()); $('eSn').value = d.sn; $('eBio').value = d.bio; { const bd = (d.birthday || '').split('-'); $('eBdM').value = bd[0] || ''; $('eBdD').value = bd[1] || ''; } $('eHealth').value = d.health || ''; $('eSongT').value = d.song.title; $('eSongU').value = d.song.url;
+  $('eLf').value = d.lastfm || ''; $('eDm').value = d.dmFriends ? 'friends' : 'all'; $('eFontBox').hidden = !isAdmin(); if (isAdmin()) fire(showUploads()); $('eSn').value = d.sn; $('eBio').value = d.bio; { const bd = (d.birthday || '').split('-'); $('eBdM').value = bd[0] || ''; $('eBdD').value = bd[1] || ''; } $('eHealth').value = d.health || ''; { const lc = (d.location || '').split(/\s*,\s*/); $('eLocS').value = lc.length > 1 ? lc.slice(0, -1).join(', ') : (lc[0] || ''); $('eLocC').value = lc.length > 1 ? lc[lc.length - 1] : ''; } $('eSongT').value = d.song.title; $('eSongU').value = d.song.url;
   for (let i = 0; i < 3; i++) { const l = d.links[i] || { label: '', url: '' }; $('eL' + i + 'n').value = l.label; $('eL' + i + 'u').value = l.url; }
   syncLook(); fillTop(); showBnPrev(); showWpPrev(); $('eAvPrev').replaceChildren(avatar(d, 44)); $('eErr').hidden = true;
 }
@@ -3093,7 +3093,7 @@ function syncLook() {
 }
 function readEditor() {
   const d = S.draft;
-  d.dmFriends = $('eDm').value === 'friends'; d.lastfm = ($('eLf').value.trim().match(/^[A-Za-z0-9_-]{1,30}$/) || [''])[0]; d.sn = $('eSn').value; d.bio = $('eBio').value; d.birthday = ($('eBdM').value && $('eBdD').value) ? $('eBdM').value + '-' + $('eBdD').value : ''; d.health = clamp($('eHealth').value.trim(), 200); d.song = { title: $('eSongT').value, url: $('eSongU').value };
+  d.dmFriends = $('eDm').value === 'friends'; d.lastfm = ($('eLf').value.trim().match(/^[A-Za-z0-9_-]{1,30}$/) || [''])[0]; d.sn = $('eSn').value; d.bio = $('eBio').value; d.birthday = ($('eBdM').value && $('eBdD').value) ? $('eBdM').value + '-' + $('eBdD').value : ''; d.health = clamp($('eHealth').value.trim(), 200); d.location = clamp([$('eLocS').value.trim(), $('eLocC').value.trim()].filter(Boolean).join(', '), 60); d.song = { title: $('eSongT').value, url: $('eSongU').value };
   d.links = [0, 1, 2].map(i => ({ label: $('eL' + i + 'n').value, url: $('eL' + i + 'u').value }));
   Object.assign(d.theme, { ac: $('eAc').value, bg: $('eBg').value, fg: $('eFg').value, font: $('eFont').value, pat: $('ePat').value });
 }
@@ -4472,12 +4472,12 @@ window.addEventListener('focus', () => { if (S.pings) { S.pings = 0; setBadge();
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '354' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '355' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '354') { newBuild = m[1]; updFlag(); }
+    if (m && m[1] !== BUILD && m[1] !== '355') { newBuild = m[1]; updFlag(); }
   } catch {}
 }
 function updFlag() {
@@ -4567,7 +4567,7 @@ async function sendTo(to, text) {
   if (addMsg(data, false)) { renderLog(); renderConvs(); } return { ok: true };
 }
 async function sendFileTo(to, file) { const prev = S.extra; const ok = await sendPhoto(file, { to }); return ok ? { ok: true } : { error: S.extra && S.extra !== prev ? S.extra : 'That did not go through.' }; }
-try { window.spToken = spToken; window.AM = { get S() { return S; }, emoText: (t, c) => emoText(String(t || ''), c || 'em'), friendAct, frOf: id => frOf(id), spToken, mediaUrl, openConv, selectProfile, setMood, setAway, convOf, sendTo, sendFileTo, callStart, callAccept, callDecline, callHang, callMute }; } catch {}
+try { window.spToken = spToken; window.AM = { get S() { return S; }, tagLine: (id, m) => tagLine(id, m), myTag: id => (S.myTags && S.myTags.get(id)) || '', saveTag: (id, t) => saveTag(id, t), canTag: id => isFriend(id), emoText: (t, c) => emoText(String(t || ''), c || 'em'), friendAct, frOf: id => frOf(id), spToken, mediaUrl, openConv, selectProfile, setMood, setAway, convOf, sendTo, sendFileTo, callStart, callAccept, callDecline, callHang, callMute }; } catch {}
 })();
 </script>
 </body>
