@@ -6,11 +6,11 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>Away Message</title>
 <meta name="theme-color" content="#0b0b0c">
-<meta name="build" content="615">
-<link rel="icon" type="image/png" href="icon-64.png?v=615">
-<link rel="shortcut icon" href="favicon.ico?v=615">
-<link rel="apple-touch-icon" href="apple-touch-icon.png?v=615">
-<link rel="manifest" href="manifest.webmanifest?v=615">
+<meta name="build" content="616">
+<link rel="icon" type="image/png" href="icon-64.png?v=616">
+<link rel="shortcut icon" href="favicon.ico?v=616">
+<link rel="apple-touch-icon" href="apple-touch-icon.png?v=616">
+<link rel="manifest" href="manifest.webmanifest?v=616">
 <script>window.__errs=[];addEventListener('error',function(e){__errs.push(String(e.message).slice(0,200)+' @'+e.lineno+':'+e.colno)});addEventListener('unhandledrejection',function(e){__errs.push('rej '+String(e.reason&&e.reason.message||e.reason).slice(0,200))});</script>
 <script>try{var _t=JSON.parse(localStorage.getItem('am.theme')||'null'),_h=/^#[0-9a-f]{6}$/i,_s=document.documentElement.style;if(_t&&_h.test(_t.bg)&&_h.test(_t.fg)&&_h.test(_t.ac)){_s.setProperty('--bg',_t.bg);_s.setProperty('--fg',_t.fg);_s.setProperty('--ac',_t.ac);var _n=function(x){return parseInt(x.slice(1,3),16)*.299+parseInt(x.slice(3,5),16)*.587+parseInt(x.slice(5,7),16)*.114};_s.colorScheme=_n(_t.bg)<128?'dark':'light';var _m=document.querySelector('meta[name=theme-color]');if(_m)_m.content=_t.bg}}catch(e){}</script>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&family=Nunito:wght@400;700;800&family=Patrick+Hand&family=Share+Tech+Mono&family=VT323&family=DotGothic16&display=swap">
@@ -146,7 +146,11 @@ label.tick{display:flex;align-items:center;gap:8px;margin:2px 0;font-size:inheri
 #signon.xpso .xpw-botr .so-clock{display:flex!important;flex-direction:column;align-items:flex-end;gap:0;margin:0;color:#dbe6ff;font-size:12px}
 #soWx{font-size:12px;color:#dbe6ff;opacity:.95}
 #soWx:empty{display:none}
-#xpBotL{display:flex;align-items:center;gap:18px}
+#xpBotL{display:flex;align-items:center;gap:14px}
+#signon.xpso .xpw-top{display:flex;align-items:center;padding:10px 0 0 26px}
+#signon.xpso .xpw-top .so-clock{align-items:flex-start!important;text-align:left;color:#dbe6ff}
+#signon.xpso #soOpts{display:block;margin:16px 0 0 4px;text-align:left}
+
 #xpBotR{display:flex;align-items:center;gap:34px}
 #signon.xpso .xpw-note{margin:0;text-align:right;font:11px Tahoma,Verdana,sans-serif;color:#c3d4f5;line-height:1.45;max-width:320px}
 
@@ -903,7 +907,7 @@ html{padding-bottom:env(safe-area-inset-bottom,0px)}
 </style>
 </head>
 <body>
-<div id="xpBoot" hidden><div class="xb-logo"><img src="icon-192.png?v=578" alt="" onerror="this.style.display='none'"><div class="xb-name"><b>Away Message<i>xp</i></b><small class="xb-ver">Version 2.5 &middot; Build 615</small><script>try{(function(){var e=document.querySelector('#xpBoot .xb-ver'),d=new Date(document.lastModified);e.textContent='Version 2.5 \u00b7 Build 615.'+String(d.getFullYear()).slice(2)+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')})()}catch(e){}</script></div></div><div class="xb-bar"><span><i></i><i></i><i></i></span></div><div class="xb-pw"><button type="button" id="xbPw" title="Turn on"><svg viewBox="0 0 10 10" shape-rendering="crispEdges"><path fill="#ff9a2e" d="M4 0h2v5H4zM2 2h1v1H2zM7 2h1v1H7zM1 3h1v3H1zM8 3h1v3H8zM2 6h1v1H2zM7 6h1v1H7zM3 7h4v1H3z"/></svg></button><span>press to start</span></div><div class="xb-foot">Copyright &copy; monica</div><div class="xb-foot2">away</div></div>
+<div id="xpBoot" hidden><div class="xb-logo"><img src="icon-192.png?v=578" alt="" onerror="this.style.display='none'"><div class="xb-name"><b>Away Message<i>xp</i></b><small class="xb-ver">Version 2.5 &middot; Build 616</small><script>try{(function(){var e=document.querySelector('#xpBoot .xb-ver'),d=new Date(document.lastModified);e.textContent='Version 2.5 \u00b7 Build 616.'+String(d.getFullYear()).slice(2)+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')})()}catch(e){}</script></div></div><div class="xb-bar"><span><i></i><i></i><i></i></span></div><div class="xb-pw"><button type="button" id="xbPw" title="Turn on"><svg viewBox="0 0 10 10" shape-rendering="crispEdges"><path fill="#ff9a2e" d="M4 0h2v5H4zM2 2h1v1H2zM7 2h1v1H7zM1 3h1v3H1zM8 3h1v3H8zM2 6h1v1H2zM7 6h1v1H7zM3 7h4v1H3z"/></svg></button><span>press to start</span></div><div class="xb-foot">Copyright &copy; monica</div><div class="xb-foot2">away</div></div>
 <script>(function(){try{if(/[?&]desk=1/.test(location.search)||navigator.webdriver)return;var b=document.getElementById("xpBoot");b.hidden=false;var go=false;var a=new Audio("snd/startup.mp3");a.preload="auto";a.volume=.6;a.load();
 function hum(){try{var C=ctx();if(!C)return;var t=C.currentTime+.02,o=C.createOscillator(),f=C.createBiquadFilter(),g=C.createGain();o.type="sawtooth";o.frequency.value=72;f.type="lowpass";f.frequency.value=240;g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.025,t+.6);g.gain.linearRampToValueAtTime(0,t+4.2);o.connect(f);f.connect(g);g.connect(C.destination);o.start(t);o.stop(t+4.4)}catch(e){}}
 var AC=null;function ctx(){try{if(!AC)AC=new (window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume();return AC}catch(e){return null}}
@@ -1088,7 +1092,7 @@ document.getElementById("xbPw").addEventListener("click",start);addEventListener
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.3/dist/umd/supabase.js"></script>
-<script src="config.js?v=615"></script>
+<script src="config.js?v=616"></script>
 <script>
 (() => {
 'use strict';
@@ -1419,12 +1423,13 @@ S.xpSel = null;
 function xpAccts() { let L = []; try { L = JSON.parse(LS.get('am.accts') || '[]'); } catch {} if (!Array.isArray(L)) L = []; if (!L.length) { try { const last = JSON.parse(LS.get('am.last') || 'null'); if (last && last.sn && LS.get('am.lastEm')) L = [{ em: LS.get('am.lastEm'), sn: last.sn, a: last.a || '' }]; } catch {} } return L.filter(x => x && x.em && x.sn); }
 function xpTiles() {
   const so = $('signon'); if (!so) return; so.classList.add('xpso');
-  if (!so.querySelector('.xpw-top')) { so.prepend(h('div', { class: 'xpw-top' })); so.append(h('div', { class: 'xpw-bot' }, h('div', { class: 'xpw-botl', id: 'xpBotL' }), h('div', { class: 'xpw-botr', id: 'xpBotR' }))); $('xpBotL').append(h('button', { class: 'xpw-off', type: 'button', onclick: e => { const b = e.currentTarget; if (b.classList.contains('down')) return; b.classList.add('down'); try { sessionStorage.removeItem('am.powered'); localStorage.removeItem('deskOn'); } catch {} setTimeout(() => shutDownXP(), 450); } }, h('i'), h('span', {}, 'Turn off computer'))); $('xpBotL').append($('soOpts')); $('xpBotL').append($('soInfo').cloneNode(true)); $('xpBotL').lastChild.id = 'xpHelp'; $('xpBotL').lastChild.className = 'xpw-help'; $('xpBotL').lastChild.textContent = '?'; $('xpBotL').lastChild.title = 'How does this work?'; $('xpBotL').lastChild.onclick = () => $('soInfo').click(); $('xpBotR').append(h('p', { class: 'xpw-note' }, 'After you sign on you can change your picture, status and theme.', h('br'), 'They follow your account, not this computer.')); $('xpBotR').append($('soTime').parentElement); }
+  if (!so.querySelector('.xpw-top')) { so.prepend(h('div', { class: 'xpw-top' })); so.append(h('div', { class: 'xpw-bot' }, h('div', { class: 'xpw-botl', id: 'xpBotL' }), h('div', { class: 'xpw-botr', id: 'xpBotR' }))); $('xpBotL').append(h('button', { class: 'xpw-off', type: 'button', onclick: e => { const b = e.currentTarget; if (b.classList.contains('down')) return; b.classList.add('down'); try { sessionStorage.removeItem('am.powered'); localStorage.removeItem('deskOn'); } catch {} setTimeout(() => shutDownXP(), 450); } }, h('i'), h('span', {}, 'Turn off computer'))); const hlp = $('soInfo').cloneNode(true); hlp.id = 'xpHelp'; hlp.className = 'xpw-help'; hlp.textContent = '?'; hlp.title = 'How does this work?'; hlp.onclick = () => $('soInfo').click(); $('xpBotL').prepend(hlp); so.querySelector('.xpw-top').append($('soTime').parentElement); $('xpBotR').append(h('p', { class: 'xpw-note' }, 'After you sign on you can change your picture, status and theme.', h('br'), 'They follow your account, not this computer.')); }
   if (!$('xpOther')) { const b = h('button', { id: 'xpOther', class: 'so-row', type: 'button' }, 'Sign in with a different account'); b.addEventListener('click', () => { S.xpSel = 'other'; $('emIn').value = ''; $('pwIn').value = ''; showSoErr(''); try { soOptsSet(false); } catch {} renderSignon(); setTimeout(() => $('emIn').focus(), 30); }); document.body.append(b); }
   $('xpOther').hidden = true;
   if (!$('xpLeft')) { const L = h('div', { class: 'xpw-left', id: 'xpLeft' }); const lg = document.querySelector('.so-logo'); lg.before(L); const br = h('div', { class: 'xpw-brand' }, h('img', { class: 'xpw-tang', src: 'icon-192.png', alt: '' })); br.append(lg); L.append(br, h('p', { class: 'xpw-begin', id: 'xpBegin' }), $('soMsg')); }
   const stage = $('soStage'); let T = $('xpTiles'); if (!T) { T = h('div', { class: 'xpw-tiles', id: 'xpTiles' }); stage.prepend(T); }
   if ($('xpOther') && T.nextElementSibling !== $('xpOther')) T.after($('xpOther'));
+  if ($('soOpts') && $('soOpts').parentElement !== stage) stage.append($('soOpts'));
   const m = S.mode, list = m === 'login' ? xpAccts() : [];
   $('xpBegin').textContent = m === 'login' ? (list.length ? 'To begin, click your user name' : 'To begin, sign on with your email') : '';
   so.classList.toggle('xptiles', list.length > 0);
@@ -4520,12 +4525,12 @@ window.addEventListener('focus', () => { if (S.pings) { S.pings = 0; setBadge();
 const BUILD = (document.querySelector('meta[name=build]') || {}).content || '';
 let newBuild = '';
 async function checkUpdate() {
-  if (!BUILD || BUILD === '615' || location.protocol === 'file:') return;
+  if (!BUILD || BUILD === '616' || location.protocol === 'file:') return;
   try {
     const r = await fetch(location.pathname + '?c=' + Date.now(), { cache: 'no-store' });
     if (!r.ok) return;
     const m = (await r.text()).match(/<meta name="build" content="([^"]+)"/);
-    if (m && m[1] !== BUILD && m[1] !== '615') { newBuild = m[1]; updFlag(); }
+    if (m && m[1] !== BUILD && m[1] !== '616') { newBuild = m[1]; updFlag(); }
   } catch {}
 }
 function updFlag() {
